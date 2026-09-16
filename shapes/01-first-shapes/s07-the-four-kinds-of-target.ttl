@@ -1,0 +1,73 @@
+# ==========================================================================
+#  S07  The four kinds of target
+# ==========================================================================
+#
+#  CHECKS
+#    One shape for each way of choosing focus nodes: by class, by name, as
+#    the subject of a property, as its object.
+#
+#  HOW IT WORKS
+#    sh:targetClass bs:Event picks the typed events; the faulty event with
+#    nobody featuring (F20) fails sh:minCount on bs:featuring.
+#    sh:targetSubjectsOf bs:heldAt picks everything that has a bs:heldAt,
+#    typed or not, and sh:class bs:Event at node level then catches the
+#    event nobody typed (F21) -- a node sh:targetClass could never have
+#    seen. sh:targetObjectsOf bs:heldAt picks the things events are held
+#    at, and sh:class bs:Bookshop catches the event held at a publisher.
+#    sh:targetNode bt:shop-inkwell is one node by name. Note that sh:class
+#    on a node shape constrains the focus node itself, so the value in the
+#    report is the focus node.
+#
+#  DIAGRAM
+#       sh:targetClass      bs:Event      ->  every ?x with  ?x rdf:type bs:Event (or a subclass)
+#       sh:targetSubjectsOf bs:heldAt     ->  every ?x with  ?x bs:heldAt ?o
+#       sh:targetObjectsOf  bs:heldAt     ->  every ?o with  ?s bs:heldAt ?o
+#       sh:targetNode       bt:shop-inkwell -> that node
+#
+#       the untyped event         bs:heldAt bt:shop-inkwell     seen by SubjectsOf, invisible to targetClass
+#       the event at a publisher  bs:heldAt bt:pub-pica         its object fails sh:class bs:Bookshop
+#
+#  WHAT TO TAKE AWAY
+#    - targetClass depends on rdf:type. Data that is described but never
+#      typed is invisible to it.
+#    - targetSubjectsOf and targetObjectsOf select by use of a property.
+#      They are how you check the untyped, and how you check what a
+#      property points at.
+#    - sh:class on a node shape tests the focus node; on a property shape
+#      it tests each value.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F01-first-shapes%2Fs07-the-four-kinds-of-target.ttl
+#  SPEC      SHACL §2.1.3 Targets
+#            https://www.w3.org/TR/shacl/#targets
+#            SHACL §2.1.3.4 sh:targetSubjectsOf
+#            https://www.w3.org/TR/shacl/#targetSubjectsOf
+#  REPORTS   does not conform -- 4 violations, 0 warnings, 0 info; 6 shapes
+# ==========================================================================
+
+@prefix bt: <https://example.org/bookshop-trail/> .
+@prefix bs: <https://example.org/bookshop-trail/schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+bt:TypedEventShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Event ;
+    sh:property [ sh:path bs:featuring ; sh:minCount 1 ;
+                  sh:message "An event features at least one author." ] .
+
+bt:HeldAtSubjectShape
+    a                    sh:NodeShape ;
+    sh:targetSubjectsOf  bs:heldAt ;
+    sh:class             bs:Event ;
+    sh:message           "{$this} has a bs:heldAt but is not typed as a bs:Event." .
+
+bt:HeldAtObjectShape
+    a                   sh:NodeShape ;
+    sh:targetObjectsOf  bs:heldAt ;
+    sh:class            bs:Bookshop ;
+    sh:message          "Events are held at bookshops; {$this} is not one." .
+
+bt:InkwellShape
+    a              sh:NodeShape ;
+    sh:targetNode  bt:shop-inkwell ;
+    sh:property [ sh:path bs:locatedIn ; sh:maxCount 1 ] .

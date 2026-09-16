@@ -1,0 +1,102 @@
+# ==========================================================================
+#  S44  A value copied along a path
+# ==========================================================================
+#
+#  CHECKS
+#    Each shop gets a bs:townName: the label of the town it is in -- every
+#    label, in every language.
+#
+#  HOW IT WORKS
+#    sh:object can be a path expression, [ sh:path P ], whose values are
+#    the values of P at the focus node. ( bs:locatedIn rdfs:label ) is a
+#    sequence path, so the rule copies the town's labels onto the shop. A
+#    triple rule produces the cross product of its three expressions, and
+#    here that matters: Wigtown has an English and a Gaelic label, so both
+#    shops there get two town names, and so does every shop in a town with
+#    a Welsh or Gaelic name. The probe lists 45 inferred triples for 33
+#    shops. bt:OneTownName is a Core constraint on the derived property
+#    with sh:maxCount 1, and under rules it reports the twelve shops with
+#    two: a constraint on an inferred property behaves like any other, and
+#    here it is telling you the rule copied more than you meant. Filtering
+#    the expression is s45's subject.
+#
+#  DIAGRAM
+#       sh:rule [ a sh:TripleRule ;
+#           sh:subject   sh:this ;
+#           sh:predicate bs:townName ;
+#           sh:object    [ sh:path ( bs:locatedIn rdfs:label ) ] ]
+#
+#       bt:shop-inkwell --locatedIn--> bt:place-wigtown --label--> "Wigtown"@en, "Baile na h-Uige"@gd
+#            inferred:  bt:shop-inkwell bs:townName "Wigtown"@en
+#                       bt:shop-inkwell bs:townName "Baile na h-Uige"@gd      cross product: two triples
+#
+#       bt:OneTownName   sh:path bs:townName ; sh:maxCount 1   ->  reports the bilingual towns' shops
+#
+#  WHAT TO TAKE AWAY
+#    - [ sh:path P ] as a node expression is 'the values of P at the
+#      focus node', and P can be any SHACL path.
+#    - A triple rule multiplies out its expressions. Several values on
+#      one side mean several triples.
+#    - Constraints apply to inferred triples exactly as to asserted ones.
+#      Use them to check what your rules did.
+#
+#  DATA      bookshop-trail-1.1.ttl
+#  INFERENCE rules   (the Inference dropdown in the editor)
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F07-rules%2Fs44-a-value-copied-along-a-path.ttl&inference=rules
+#  SPEC      SHACL-AF §6.5 Path Expressions
+#            https://www.w3.org/TR/shacl-af/#node-expressions-path
+#            SHACL-AF §8.5 Triple Rules
+#            https://www.w3.org/TR/shacl-af/#TripleRule
+#  REPORTS   does not conform -- 12 violations, 0 warnings, 45 info; 6 shapes
+# ==========================================================================
+
+@prefix bt:   <https://example.org/bookshop-trail/> .
+@prefix bs:   <https://example.org/bookshop-trail/schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:BookshopShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:rule [
+        a             sh:TripleRule ;
+        sh:subject    sh:this ;
+        sh:predicate  bs:townName ;
+        sh:object     [ sh:path ( bs:locatedIn rdfs:label ) ] ;
+    ] .
+
+bt:TownNameProbe
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:severity  sh:Info ;
+        sh:message   "inferred: {$this} bs:townName {$value}" ;
+        sh:select    "SELECT $this ?value WHERE { $this bs:townName ?value }" ;
+    ] .
+
+bt:OneTownName
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:property [
+        sh:path      bs:townName ;
+        sh:maxCount  1 ;
+        sh:message   "{$this} has more than one town name: the rule copied every label." ;
+    ] .

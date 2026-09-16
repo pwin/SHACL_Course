@@ -1,0 +1,83 @@
+# ==========================================================================
+#  S17  A fixed list of values
+# ==========================================================================
+#
+#  CHECKS
+#    Kinds of event, kinds of source and writing languages come from short
+#    lists, and every country is inside Great Britain.
+#
+#  HOW IT WORKS
+#    sh:in lists the allowed values, and every value of the path must be
+#    one of them. "Recital" (F20), "hearsay" (F31) and "fr" (F17) are not.
+#    sh:hasValue is the other direction: at least one value of the path
+#    must be the one named, and the other values do not matter.
+#    bt:CountryShape uses it to say that each country's bs:within includes
+#    bt:place-gb, which is true of all three. Both compare terms exactly:
+#    "Reading" and "reading" are different, and so are 1 and "1".
+#
+#  DIAGRAM
+#       sh:in ( "Reading" "Signing" "Panel" "Workshop" "Launch" "Lecture" "Book Club" )
+#            every value of the path must be in the list       "Recital"  ->  violation
+#
+#       sh:hasValue bt:place-gb
+#            some value of the path must be this term          bt:place-scotland bs:within bt:place-gb   ok
+#
+#       comparison is by term:  "Reading" != "reading",  1 != "1",  "1979"^^xsd:gYear != 1979
+#
+#  WHAT TO TAKE AWAY
+#    - sh:in is 'all values from this list'; sh:hasValue is 'this value
+#      is among them'.
+#    - Both are exact term comparisons. Datatype and language tag are
+#      part of the term.
+#    - A short closed list belongs in sh:in. A long or changing one
+#      belongs in the data, where a sh:class or a SPARQL constraint can
+#      look it up (module 05).
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F02-value-constraints%2Fs17-a-fixed-list-of-values.ttl
+#  SPEC      SHACL §4.8.3 sh:in
+#            https://www.w3.org/TR/shacl/#InConstraintComponent
+#            SHACL §4.8.2 sh:hasValue
+#            https://www.w3.org/TR/shacl/#HasValueConstraintComponent
+#  REPORTS   does not conform -- 3 violations, 0 warnings, 0 info; 8 shapes
+# ==========================================================================
+
+@prefix bt: <https://example.org/bookshop-trail/> .
+@prefix bs: <https://example.org/bookshop-trail/schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+bt:EventKinds
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Event ;
+    sh:property [
+        sh:path     bs:eventKind ;
+        sh:in       ( "Reading" "Signing" "Panel" "Workshop" "Launch" "Lecture" "Book Club" ) ;
+        sh:message  "{$value} is not a kind of event this trail runs." ;
+    ] .
+
+bt:SourceKinds
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Source ;
+    sh:property [
+        sh:path     bs:sourceKind ;
+        sh:in       ( "guidebook" "survey" "self-reported" "register" "newspaper" ) ;
+        sh:message  "{$value} is not a recognised kind of source." ;
+    ] .
+
+bt:AuthorLanguages
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Author ;
+    sh:property [
+        sh:path     bs:writesIn ;
+        sh:in       ( "en" "cy" "gd" "ar" ) ;
+        sh:message  "The dataset has four writing languages; {$value} is not one." ;
+    ] .
+
+bt:CountryShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Country ;
+    sh:property [
+        sh:path      bs:within ;
+        sh:hasValue  bt:place-gb ;
+        sh:message   "Every country in this dataset is part of Great Britain." ;
+    ] .

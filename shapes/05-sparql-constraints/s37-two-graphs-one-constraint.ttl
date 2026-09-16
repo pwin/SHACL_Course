@@ -1,0 +1,81 @@
+# ==========================================================================
+#  S37  Two graphs, one constraint
+# ==========================================================================
+#
+#  CHECKS
+#    An event's kind is one the shapes graph lists -- with the list kept as
+#    data in the shapes graph, not in a sh:in.
+#
+#  HOW IT WORKS
+#    A SPARQL constraint can see the shapes graph as well as the data,
+#    through the pre-bound $shapesGraph. bt:eventKinds is an ordinary node
+#    in the shapes file with one bs:allows per kind, and the query asks,
+#    for each value of bs:eventKind, whether GRAPH $shapesGraph holds it.
+#    The list can now be edited, queried and reused without touching the
+#    constraint, which sh:in does not allow. The event whose kind is
+#    "Recital" (F20) is the one result. s34 said VALUES is forbidden under
+#    pre-binding; this is where a list goes instead.
+#
+#  DIAGRAM
+#       shapes graph                                  data graph
+#       bt:eventKinds bs:allows "Reading", "Signing", ...    bt:event-... bs:eventKind "Recital"
+#
+#       SELECT $this ?value WHERE {
+#         $this bs:eventKind ?value .
+#         FILTER NOT EXISTS { GRAPH $shapesGraph { bt:eventKinds bs:allows ?value } }
+#       }
+#
+#  WHAT TO TAKE AWAY
+#    - $shapesGraph gives a constraint read access to the shapes graph.
+#      Reference data that belongs with the shapes can live there.
+#    - The specification makes $shapesGraph optional; this engine
+#      supports it. Say so in a comment if the shapes may move.
+#    - sh:in for a short fixed list; a lookup in $shapesGraph or in the
+#      data graph for a longer or shared one.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F05-sparql-constraints%2Fs37-two-graphs-one-constraint.ttl
+#  SPEC      SHACL §5.3.1 Pre-bound Variables in SPARQL Constraints
+#            https://www.w3.org/TR/shacl/#sparql-constraints-prebound
+#            SHACL §4.8.3 sh:in
+#            https://www.w3.org/TR/shacl/#InConstraintComponent
+#  REPORTS   does not conform -- 1 violation, 0 warnings, 0 info; 1 shape
+# ==========================================================================
+
+@prefix bt:  <https://example.org/bookshop-trail/> .
+@prefix bs:  <https://example.org/bookshop-trail/schema#> .
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:eventKinds
+    bs:allows  "Reading", "Signing", "Panel", "Workshop", "Launch", "Lecture", "Book Club" .
+
+bt:EventKindShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Event ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:message   "{$value} is not a kind of event listed in the shapes graph." ;
+        sh:select    """
+            SELECT $this ?value WHERE {
+              $this bs:eventKind ?value .
+              FILTER NOT EXISTS { GRAPH $shapesGraph { bt:eventKinds bs:allows ?value } }
+            }
+        """ ;
+    ] .

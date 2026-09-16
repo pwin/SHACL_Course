@@ -1,0 +1,85 @@
+# ==========================================================================
+#  S24  A shape for the value
+# ==========================================================================
+#
+#  CHECKS
+#    A work's publisher is a well-formed publisher; a stock record's shop
+#    is a well-formed shop -- typed or not.
+#
+#  HOW IT WORKS
+#    sh:node hands each value to another node shape and asks whether it
+#    conforms. bt:PublisherShape has no target of its own: it is only ever
+#    reached through sh:node, and it says a publisher has a name and is
+#    located in at most one settlement. bt:pub-orbit (F19) is located in a
+#    country, so the work it published fails. The result is on the work,
+#    names the publisher as the value, and says no more: what went wrong
+#    inside the nested check is not reported. Compare sh:class in s12. The
+#    record at the untyped Ghost Shop fails sh:class bs:Bookshop because
+#    the shop has no type, and passes sh:node bt:ShopShape because it has
+#    everything the shape asks for. The record at The Foxed Page is the
+#    other way round: typed, so it passes sh:class, and not well formed, so
+#    it fails sh:node.
+#
+#  DIAGRAM
+#       bt:WorkShape                            bt:PublisherShape   (no target)
+#         sh:property [                           sh:property [ rdfs:label   minCount 1 ]
+#            sh:path bs:publishedBy ;             sh:property [ bs:locatedIn maxCount 1 ; class bs:Settlement ]
+#            sh:node bt:PublisherShape ]  ---->   conformance check of the value, yes or no
+#                                                 |
+#       bt:book-unnumbered bs:publishedBy bt:pub-orbit     pub-orbit locatedIn bt:place-wales: no
+#            result on bt:book-unnumbered, value bt:pub-orbit, NodeConstraintComponent
+#
+#       sh:class  asks  what is it typed as?            ghost shop: fails    foxed page: passes
+#       sh:node   asks  does it look right?             ghost shop: passes   foxed page: fails
+#
+#  WHAT TO TAKE AWAY
+#    - sh:node is a conformance check of the value against a node shape:
+#      a boolean. The inner results are not in the report.
+#    - A shape with no target is a definition. Give it a name and reuse
+#      it from as many sh:node constraints as you like.
+#    - sh:class tests rdf:type; sh:node tests structure. Data that is
+#      described but not typed needs the second.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F04-shapes-and-logic%2Fs24-a-shape-for-the-value.ttl
+#  SPEC      SHACL §4.7.1 sh:node
+#            https://www.w3.org/TR/shacl/#NodeConstraintComponent
+#            SHACL §4.1.1 sh:class
+#            https://www.w3.org/TR/shacl/#ClassConstraintComponent
+#  REPORTS   does not conform -- 2 violations, 0 warnings, 0 info; 11 shapes
+# ==========================================================================
+
+@prefix bt:   <https://example.org/bookshop-trail/> .
+@prefix bs:   <https://example.org/bookshop-trail/schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+bt:PublisherShape
+    a  sh:NodeShape ;
+    sh:property [ sh:path rdfs:label ;   sh:minCount 1 ] ;
+    sh:property [ sh:path bs:locatedIn ; sh:maxCount 1 ; sh:class bs:Settlement ] .
+
+bt:ShopShape
+    a  sh:NodeShape ;
+    sh:property [ sh:path rdfs:label ;   sh:minCount 1 ] ;
+    sh:property [ sh:path bs:locatedIn ; sh:minCount 1 ; sh:nodeKind sh:IRI ] ;
+    sh:property [ sh:path bs:founded ;   sh:minCount 1 ; sh:datatype xsd:gYear ] .
+
+bt:WorkShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Work ;
+    sh:property [
+        sh:path     bs:publishedBy ;
+        sh:node     bt:PublisherShape ;
+        sh:message  "{$value} is not a well-formed publisher." ;
+    ] .
+
+bt:StockShopShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:StockRecord ;
+    sh:property [
+        sh:path     bs:atShop ;
+        sh:node     bt:ShopShape ;
+        sh:message  "{$value} does not look like a shop." ;
+    ] .

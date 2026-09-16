@@ -1,0 +1,94 @@
+# ==========================================================================
+#  S57  New in 1.2 Core, and what this build does with it
+# ==========================================================================
+#
+#  CHECKS
+#    Notices stay on one line; the vocabulary's union classes are lists of
+#    classes; and the 1.2 features this engine reads but does not enforce.
+#
+#  HOW IT WORKS
+#    Two of the SHACL 1.2 Core additions run here. sh:singleLine true
+#    rejects a string with a line break, and the notice on Verso that runs
+#    to two lines (F36) is reported. The list constraints check RDF
+#    collections: the vocabulary, which is part of the data, declares two
+#    classes as owl:unionOf lists, and sh:memberShape [ sh:class owl:Class
+#    ] with sh:minListLength 2 checks each list's members and length. Three
+#    more 1.2 features are accepted by this build without effect, and are
+#    recorded here so that nobody relies on them: sh:severity written as an
+#    annotation on a single constraint, sh:reificationRequired (s53), and
+#    sh:uniqueValuesFor. Module 12 has the full table. Where a feature is
+#    read and ignored, the report looks the same as if the feature had
+#    passed, which is the case for a canary shape (s09). One note on
+#    syntax: the editor's Turtle parser accepts an annotation inside [ ...
+#    ] only as the last item, so the annotated constraint is written on a
+#    named property shape.
+#
+#  DIAGRAM
+#       sh:singleLine true                  "Translated fiction ...\nAsk at the counter."   ->  violation
+#
+#       owl:unionOf ( bs:Bookshop bs:Publisher )
+#       sh:property [ sh:path owl:unionOf ; sh:memberShape [ sh:class owl:Class ] ; sh:minListLength 2 ]
+#            each member checked, length checked                                     ->  passes
+#
+#       read but not enforced by this build:
+#       sh:minCount 1 {| sh:severity sh:Warning |}      the result is still a Violation
+#       sh:reificationRequired true                     unannotated values pass
+#       sh:uniqueValuesFor bs:Work                      duplicates pass
+#
+#  WHAT TO TAKE AWAY
+#    - sh:singleLine and the list constraints are the 1.2 Core additions
+#      this engine runs today.
+#    - A feature an engine parses and ignores fails silently. Test each
+#      1.2 feature with data that should fail before trusting it.
+#    - Module 12 is the reference for what runs, what errors, and what is
+#      silent.
+#
+#  DATA      bookshop-trail-faulty-1.2.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty-1.2.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F08-shacl-1-2%2Fs57-new-in-1.2-core-and-what-this-build-does-with-it.ttl
+#  SPEC      SHACL 1.2 Core §7.4.4 sh:singleLine
+#            https://www.w3.org/TR/shacl12-core/#SingleLineConstraintComponent
+#            SHACL 1.2 Core §7.5 List Constraint Components
+#            https://www.w3.org/TR/shacl12-core/#core-components-list
+#  REPORTS   does not conform -- 2 violations, 0 warnings, 0 info; 8 shapes
+# ==========================================================================
+
+@prefix bt:   <https://example.org/bookshop-trail/> .
+@prefix bs:   <https://example.org/bookshop-trail/schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+bt:NoticeShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:property [
+        sh:path        skos:note ;
+        sh:singleLine  true ;
+        sh:message     "A shop notice is one line: {$value}" ;
+    ] .
+
+bt:UnionClassShape
+    a                    sh:NodeShape ;
+    sh:targetSubjectsOf  owl:unionOf ;
+    sh:property [
+        sh:path           owl:unionOf ;
+        sh:memberShape    [ sh:class owl:Class ] ;
+        sh:minListLength  2 ;
+        sh:message        "A union class lists at least two classes." ;
+    ] .
+
+# Read by this build, not enforced: the result is a Violation, not a Warning.
+# The property shape is named rather than written as [ ... ] because the
+# editor's Turtle parser wants an annotation to be the last thing inside a
+# blank node's brackets; a named subject has no such restriction.
+bt:AnnotatedSeverity
+    a               sh:NodeShape ;
+    sh:targetNode   bt:shop-halfmoon ;
+    sh:property     bt:AnnotatedSeverity-label .
+
+bt:AnnotatedSeverity-label
+    a            sh:PropertyShape ;
+    sh:path      rdfs:label ;
+    sh:message   "Written as a Warning on the constraint; reported by this build as a Violation." ;
+    sh:minCount  1 {| sh:severity sh:Warning |} .

@@ -1,0 +1,115 @@
+# ==========================================================================
+#  S70  Targets the engine ignores
+# ==========================================================================
+#
+#  CHECKS
+#    A SPARQL target type with a parameter, and sh:uniqueValuesFor: two
+#    features this build reads and does nothing with.
+#
+#  HOW IT WORKS
+#    SHACL-AF's sh:SPARQLTargetType declares a reusable, parameterised
+#    target: bt:FoundedBefore takes a year and selects the shops opened
+#    before it. This engine compiles the shape, counts it, and gives it no
+#    focus nodes, so bt:OldShopShape checks nothing and the report says
+#    nothing about it. sh:uniqueValuesFor, from SHACL 1.2 Core, is the same
+#    story: read, counted, not enforced, so two works with the same ISBN
+#    would pass. Neither produces an error, and that is the hazard the
+#    whole of module 10 is about. bt:UniqueISBN is the portable form of the
+#    second: a SPARQL constraint that finds a second work with the same
+#    ISBN. The canary is the one result. The table in this module's README
+#    lists every feature by what this build does with it.
+#
+#  DIAGRAM
+#       feature                      this build        symptom
+#       sh:SPARQLTargetType          silent            no focus nodes, no error, shape counted
+#       sh:uniqueValuesFor           silent            duplicates pass
+#       sh:SPARQLFunction            error             "custom function ... is not supported" (s69)
+#       sh:resultAnnotation          silent            results appear without the annotation
+#       ?message in a constraint     silent            sh:message is used instead (s32)
+#       sh:severity as annotation    silent            Violation (s57)
+#
+#       canary  ->  1 row, so the run happened
+#
+#  WHAT TO TAKE AWAY
+#    - A feature that is read and ignored looks like conformance. Test
+#      each one with data that must fail.
+#    - For a parameterised target, a sh:SPARQLTarget with the value
+#      written in, or sh:targetWhere, does the same job here.
+#    - For uniqueness, a SPARQL constraint that looks for a second node
+#      with the same value runs on every engine.
+#
+#  TRY IT
+#    Give two works the same ISBN in the data tab and validate.
+#    bt:UniqueISBN reports both; bt:UniqueByComponent reports neither.
+#
+#  DATA      bookshop-trail-1.1.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F12-beyond-this-engine%2Fs70-targets-the-engine-ignores.ttl
+#  SPEC      SHACL-AF §3.2 SPARQL-based Target Types
+#            https://www.w3.org/TR/shacl-af/#SPARQLTargetType
+#            SHACL 1.2 Core §7.9.5 sh:uniqueValuesFor
+#            https://www.w3.org/TR/shacl12-core/#UniqueValuesForConstraintComponent
+#  REPORTS   does not conform -- 1 violation, 0 warnings, 0 info; 8 shapes
+# ==========================================================================
+
+@prefix bt:   <https://example.org/bookshop-trail/> .
+@prefix bs:   <https://example.org/bookshop-trail/schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:FoundedBefore
+    a               sh:SPARQLTargetType ;
+    rdfs:subClassOf sh:Target ;
+    sh:parameter    [ sh:path bt:year ] ;
+    sh:prefixes     bt:prefixes ;
+    sh:select       "SELECT ?this WHERE { ?this bs:founded ?y . FILTER ( xsd:integer(STR(?y)) < $year ) }" .
+
+# Never gets a focus node on this engine.
+bt:OldShopShape
+    a          sh:NodeShape ;
+    sh:target  [ a bt:FoundedBefore ; bt:year 1950 ] ;
+    sh:property [ sh:path bs:website ; sh:minCount 1 ; sh:severity sh:Info ;
+                  sh:message "Never reported here: the target type is not implemented." ] .
+
+# Read, not enforced.
+bt:UniqueByComponent
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Work ;
+    sh:property [ sh:path bs:isbn ; sh:uniqueValuesFor bs:Work ;
+                  sh:message "Never reported here: sh:uniqueValuesFor is not enforced." ] .
+
+# The portable form.
+bt:UniqueISBN
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Work ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:message   "{$this} shares its ISBN {$value} with another work." ;
+        sh:select    """
+            SELECT $this ?value WHERE {
+              $this bs:isbn ?value . ?other bs:isbn ?value . FILTER ( ?other != $this )
+            }
+        """ ;
+    ] .
+
+bt:Canary
+    a              sh:NodeShape ;
+    sh:targetNode  bt:shop-inkwell ;
+    sh:property [ sh:path rdf:type ; sh:maxCount 0 ; sh:message "The canary: validation ran." ] .

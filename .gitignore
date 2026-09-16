@@ -1,0 +1,19 @@
+# Build output: the checker's results, the batch files, screenshots ---------
+build/
+
+# Node packages for scripts/validate.mjs: fetched by `npm install --prefix scripts`
+scripts/node_modules/
+scripts/package-lock.json
+
+# Python ------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Editors and OS ----------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db

@@ -1,0 +1,107 @@
+# ==========================================================================
+#  S46  Union and intersection
+# ==========================================================================
+#
+#  CHECKS
+#    Everyone who worked on a work, and the stocked works that match a
+#    shop's specialism.
+#
+#  HOW IT WORKS
+#    sh:union and sh:intersection combine node expressions.
+#    bt:ContributorRule unions the author and the translator of a work into
+#    bs:contributor -- the SPARQL course's q18, as a rule -- which gives 74
+#    works their authors and 5 translations their translators as well.
+#    bt:SpecialismRule intersects two sets at a shop: the works it stocks,
+#    and the works filed directly under the genre it specialises in,
+#    reached by ( bs:specialises [ sh:inversePath bs:genre ] ). What
+#    survives is bs:stocksInSpecialism, the stock that matches the sign
+#    over the door. The two probes count them.
+#
+#  DIAGRAM
+#       sh:union ( [ sh:path bs:author ] [ sh:path bs:translatedBy ] )
+#            { elin-morgan } U { noor-haddad }  =  { elin-morgan, noor-haddad }     two bs:contributor triples
+#
+#       sh:intersection ( [ sh:path bs:stocks ]
+#                         [ sh:path ( bs:specialises [ sh:inversePath bs:genre ] ) ] )
+#            works stocked  n  works in the shop's own genre
+#
+#  WHAT TO TAKE AWAY
+#    - sh:union takes a list of expressions and yields their values
+#      together; sh:intersection yields the values in every one.
+#    - Both take lists, so three or more expressions combine at once.
+#    - An inverse path inside an expression is how a rule looks backwards
+#      -- here from a genre to the works filed under it.
+#
+#  DATA      bookshop-trail-1.1.ttl
+#  INFERENCE rules   (the Inference dropdown in the editor)
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F07-rules%2Fs46-union-and-intersection.ttl&inference=rules
+#  SPEC      SHACL-AF §6.7 Union Expressions
+#            https://www.w3.org/TR/shacl-af/#union
+#            SHACL-AF §6.6 Intersection Expressions
+#            https://www.w3.org/TR/shacl-af/#intersection
+#  REPORTS   conforms -- 0 violations, 0 warnings, 54 info; 10 shapes
+# ==========================================================================
+
+@prefix bt:  <https://example.org/bookshop-trail/> .
+@prefix bs:  <https://example.org/bookshop-trail/schema#> .
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:WorkShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Work ;
+    sh:rule [
+        a             sh:TripleRule ;
+        sh:subject    sh:this ;
+        sh:predicate  bs:contributor ;
+        sh:object     [ sh:union ( [ sh:path bs:author ] [ sh:path bs:translatedBy ] ) ] ;
+    ] .
+
+bt:BookshopShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:rule [
+        a             sh:TripleRule ;
+        sh:subject    sh:this ;
+        sh:predicate  bs:stocksInSpecialism ;
+        sh:object     [ sh:intersection (
+                            [ sh:path bs:stocks ]
+                            [ sh:path ( bs:specialises [ sh:inversePath bs:genre ] ) ]
+                        ) ] ;
+    ] .
+
+bt:ContributorProbe
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Translation ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:severity  sh:Info ;
+        sh:message   "inferred: {$this} bs:contributor {$value}" ;
+        sh:select    "SELECT $this ?value WHERE { $this bs:contributor ?value }" ;
+    ] .
+
+bt:SpecialismProbe
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:severity  sh:Info ;
+        sh:message   "inferred: {$this} bs:stocksInSpecialism {$value}" ;
+        sh:select    "SELECT $this ?value WHERE { $this bs:stocksInSpecialism ?value }" ;
+    ] .

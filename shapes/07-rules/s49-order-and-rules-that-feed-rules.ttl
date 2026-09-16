@@ -1,0 +1,115 @@
+# ==========================================================================
+#  S49  Order, and rules that feed rules
+# ==========================================================================
+#
+#  CHECKS
+#    A shop's country, then the country's name from it -- and the same
+#    second rule placed where it sees nothing.
+#
+#  HOW IT WORKS
+#    Rules run in ascending sh:order, and every rule at one order sees the
+#    graph as it stood before that order began. bt:CountryRule at order 0
+#    infers bs:inCountry as in s45. bt:NameRule at order 1 reads
+#    bs:inCountry and copies the country's labels to bs:countryName; the
+#    probe shows it fired for every shop. bt:NameRuleTooEarly is the same
+#    rule at order 0, in the same shape as the rule it depends on, and
+#    infers nothing: bs:inCountry did not exist when order 0 began. The
+#    second probe reports zero rows for it. sh:order is set on the shape,
+#    and it is the only sequencing SHACL-AF offers.
+#
+#  DIAGRAM
+#       order 0    bt:CountryRule        shop bs:inCountry country
+#                  bt:NameRuleTooEarly   reads bs:inCountry ... which is not there yet   -> nothing
+#       order 1    bt:NameRule           reads bs:inCountry                             -> countryName
+#
+#       a rule sees the graph as it was when its order began
+#
+#  WHAT TO TAKE AWAY
+#    - A rule that consumes what another produces must be at a higher
+#      sh:order, on a different shape.
+#    - Same order means same view of the data. Two rules at order 0
+#      cannot see each other's results.
+#    - When a rule infers nothing, check the order before the
+#      expressions.
+#
+#  DATA      bookshop-trail-1.1.ttl
+#  INFERENCE rules   (the Inference dropdown in the editor)
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F07-rules%2Fs49-order-and-rules-that-feed-rules.ttl&inference=rules
+#  SPEC      SHACL-AF §8.2.2 sh:order
+#            https://www.w3.org/TR/shacl-af/#rules-order
+#            SHACL-AF §8.4 General Execution Instructions for SHACL Rules
+#            https://www.w3.org/TR/shacl-af/#rules-execution
+#  REPORTS   conforms -- 0 violations, 0 warnings, 46 info; 10 shapes
+# ==========================================================================
+
+@prefix bt:   <https://example.org/bookshop-trail/> .
+@prefix bs:   <https://example.org/bookshop-trail/schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:CountryShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:order        0 ;
+    sh:rule [
+        a             sh:TripleRule ;
+        sh:subject    sh:this ;
+        sh:predicate  bs:inCountry ;
+        sh:object     [ sh:filterShape [ sh:class bs:Country ] ;
+                        sh:nodes [ sh:path ( bs:locatedIn [ sh:oneOrMorePath bs:within ] ) ] ] ;
+    ] ;
+    # Same order as the rule it depends on: sees no bs:inCountry, infers nothing.
+    sh:rule [
+        a             sh:TripleRule ;
+        sh:subject    sh:this ;
+        sh:predicate  bs:countryNameTooEarly ;
+        sh:object     [ sh:path ( bs:inCountry rdfs:label ) ] ;
+    ] .
+
+bt:NameShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:order        1 ;
+    sh:rule [
+        a             sh:TripleRule ;
+        sh:subject    sh:this ;
+        sh:predicate  bs:countryName ;
+        sh:object     [ sh:path ( bs:inCountry rdfs:label ) ] ;
+    ] .
+
+bt:NameProbe
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:severity  sh:Info ;
+        sh:message   "inferred at order 1: {$this} bs:countryName {$value}" ;
+        sh:select    "SELECT $this ?value WHERE { $this bs:countryName ?value }" ;
+    ] .
+
+bt:TooEarlyProbe
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:severity  sh:Warning ;
+        sh:message   "inferred at order 0: {$this} bs:countryNameTooEarly {$value} -- should never appear" ;
+        sh:select    "SELECT $this ?value WHERE { $this bs:countryNameTooEarly ?value }" ;
+    ] .

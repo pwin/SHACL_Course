@@ -1,0 +1,109 @@
+# ==========================================================================
+#  S66  From report to issues
+# ==========================================================================
+#
+#  CHECKS
+#    A report turned into bs:DataIssue records -- the vocabulary already
+#    has a class for them.
+#
+#  HOW IT WORKS
+#    The vocabulary declares bs:DataIssue, with bs:about and bs:message,
+#    and the clean data never uses them. They are what a validation result
+#    becomes once someone has to act on it. Validate with the shapes here,
+#    open the report as a tab, and run the CONSTRUCT: one issue per result,
+#    pointing at the focus node, carrying the message and the severity, and
+#    naming the constraint component so the issue can be sorted by kind.
+#    The result opens as a new tab, in the dataset's own vocabulary, ready
+#    to be saved next to the data or loaded into a tracker. The second
+#    query is the same list as a table. The SPARQL course's module 12 is
+#    about queries that hand a graph back; this is one of them.
+#
+#  DIAGRAM
+#       report                                        issues
+#       _:r  a sh:ValidationResult ;                  _:i  a bs:DataIssue ;
+#            sh:focusNode  bt:shop-foxed-page ;   ->       bs:about    bt:shop-foxed-page ;
+#            sh:resultMessage "..." ;                      bs:message  "..." ;
+#            sh:resultSeverity sh:Violation ;              sh:resultSeverity sh:Violation ;
+#            sh:sourceConstraintComponent ... .            dct:type    sh:DatatypeConstraintComponent .
+#
+#  WHAT TO TAKE AWAY
+#    - A report is input as well as output. CONSTRUCT turns it into
+#      whatever the next process needs.
+#    - Keep the focus node, the message, the severity and the component:
+#      they are what a person needs to act.
+#    - The dataset's own vocabulary is the right target when the issues
+#      will live beside the data.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F11-putting-it-together%2Fs66-from-report-to-issues.ttl
+#  SPEC      SHACL §3.6 Validation Report
+#            https://www.w3.org/TR/shacl/#validation-report
+#            SPARQL 1.2 Query §16.2 CONSTRUCT
+#            https://www.w3.org/TR/sparql12-query/#x16-2-construct
+#  REPORTS   does not conform -- 10 violations, 1 warning, 0 info; 10 shapes
+# ==========================================================================
+
+@prefix bt:   <https://example.org/bookshop-trail/> .
+@prefix bs:   <https://example.org/bookshop-trail/schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+bt:BookshopShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:property [ sh:path rdfs:label ;    sh:minCount 1 ; sh:datatype rdf:langString ;
+                  sh:message "A shop has a name with a language tag." ] ;
+    sh:property [ sh:path bs:locatedIn ;  sh:minCount 1 ; sh:maxCount 1 ; sh:class bs:Settlement ;
+                  sh:message "A shop is in exactly one settlement." ] ;
+    sh:property [ sh:path bs:founded ;    sh:datatype xsd:gYear ;
+                  sh:message "A founding year is an xsd:gYear." ] ;
+    sh:property [ sh:path bs:staffCount ; sh:datatype xsd:integer ; sh:minInclusive 1 ;
+                  sh:message "Staff count is a positive integer." ] ;
+    sh:property [ sh:path bs:website ;    sh:maxCount 1 ; sh:severity sh:Warning ;
+                  sh:message "At most one website." ] .
+
+bt:EventShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Event ;
+    sh:property [ sh:path bs:heldAt ;    sh:class bs:Bookshop ; sh:message "Held somewhere that is not a bookshop." ] ;
+    sh:property [ sh:path bs:featuring ; sh:minCount 1 ;       sh:message "Nobody is featured." ] ;
+    sh:property [ sh:path bs:eventDate ; sh:datatype xsd:date ; sh:message "Not a well-formed date." ] .
+
+
+# ------------------------------------------------------------------------
+#  AFTERWARDS.  Queries to run in the SPARQL panel: on the report
+#  (Report as tab, then query that tab) or on the data.
+# ------------------------------------------------------------------------
+#
+#  -- Issues, as RDF in the dataset's vocabulary  (on the report)
+#  PREFIX sh:  <http://www.w3.org/ns/shacl#>
+#  PREFIX bs:  <https://example.org/bookshop-trail/schema#>
+#  PREFIX dct: <http://purl.org/dc/terms/>
+#  CONSTRUCT {
+#    [] a bs:DataIssue ;
+#       bs:about ?focus ;
+#       bs:message ?message ;
+#       sh:resultSeverity ?severity ;
+#       dct:type ?component .
+#  }
+#  WHERE {
+#    ?r a sh:ValidationResult ;
+#       sh:focusNode ?focus ;
+#       sh:resultSeverity ?severity ;
+#       sh:sourceConstraintComponent ?component .
+#    OPTIONAL { ?r sh:resultMessage ?message }
+#  }
+#
+#  -- The same list as a table, worst first  (on the report)
+#  PREFIX sh: <http://www.w3.org/ns/shacl#>
+#  SELECT ?severity ?focus ?path ?message
+#  WHERE {
+#    ?r a sh:ValidationResult ;
+#       sh:focusNode ?focus ;
+#       sh:resultSeverity ?severity .
+#    OPTIONAL { ?r sh:resultPath ?path }
+#    OPTIONAL { ?r sh:resultMessage ?message }
+#  }
+#  ORDER BY ?severity ?focus

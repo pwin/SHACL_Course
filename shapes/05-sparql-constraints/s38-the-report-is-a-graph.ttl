@@ -1,0 +1,119 @@
+# ==========================================================================
+#  S38  The report is a graph
+# ==========================================================================
+#
+#  CHECKS
+#    A short shapes graph that finds a dozen faults, and three queries over
+#    its report.
+#
+#  HOW IT WORKS
+#    Press Validate, then Report as tab. What opens is an RDF graph: one
+#    sh:ValidationReport with sh:conforms and one sh:result per row, each a
+#    sh:ValidationResult. The SPARQL panel now queries that tab, so the
+#    report can be summarised the way any graph can. The first query counts
+#    results by severity; the second by the constraint component that
+#    produced them; the third lists the focus nodes with the most results,
+#    which is where to start fixing. The SPARQL course's q88 produces a
+#    report of this shape from a query; here the validator produces it and
+#    the query reads it. Note that the report tab does not contain the
+#    data: to join a result to its focus node's label, paste the report
+#    into the data tab first, or use the CONSTRUCT in module 11.
+#
+#  DIAGRAM
+#       _:report  a sh:ValidationReport ;
+#                 sh:conforms false ;
+#                 sh:result _:r1, _:r2, ... .
+#
+#       _:r1  a sh:ValidationResult ;
+#             sh:focusNode bt:shop-foxed-page ;
+#             sh:resultPath bs:founded ;
+#             sh:value "1985"^^xsd:integer ;
+#             sh:resultSeverity sh:Violation ;
+#             sh:sourceConstraintComponent sh:DatatypeConstraintComponent ;
+#             sh:sourceShape <...> ;
+#             sh:resultMessage "..." .
+#
+#       Validate  ->  Report as tab  ->  the SPARQL panel now sees this graph
+#
+#  WHAT TO TAKE AWAY
+#    - The report is RDF. Everything the SPARQL course teaches about
+#      querying applies to it.
+#    - Group by severity to see how bad; by component to see what kind of
+#      wrong; by focus node to see where to start.
+#    - The report and the data are separate graphs in the editor. Joining
+#      them needs both in one tab.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F05-sparql-constraints%2Fs38-the-report-is-a-graph.ttl
+#  SPEC      SHACL §3.6 Validation Report
+#            https://www.w3.org/TR/shacl/#validation-report
+#            SHACL §3.6.2 Validation Result
+#            https://www.w3.org/TR/shacl/#results-validation-result
+#  REPORTS   does not conform -- 13 violations, 2 warnings, 0 info; 12 shapes
+# ==========================================================================
+
+@prefix bt:   <https://example.org/bookshop-trail/> .
+@prefix bs:   <https://example.org/bookshop-trail/schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+bt:BookshopShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:property [ sh:path rdfs:label ;    sh:minCount 1 ; sh:datatype rdf:langString ] ;
+    sh:property [ sh:path bs:locatedIn ;  sh:minCount 1 ; sh:maxCount 1 ; sh:class bs:Settlement ] ;
+    sh:property [ sh:path bs:founded ;    sh:minCount 1 ; sh:datatype xsd:gYear ] ;
+    sh:property [ sh:path bs:staffCount ; sh:datatype xsd:integer ; sh:minInclusive 1 ] ;
+    sh:property [ sh:path bs:floorArea ;  sh:minExclusive 0 ] ;
+    sh:property [ sh:path bs:hasCafe ;    sh:datatype xsd:boolean ] ;
+    sh:property [ sh:path bs:website ;    sh:maxCount 1 ; sh:datatype xsd:anyURI ; sh:severity sh:Warning ] .
+
+bt:WorkShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Work ;
+    sh:property [ sh:path bs:isbn ;  sh:pattern "^97[89][0-9]{10}$" ] ;
+    sh:property [ sh:path bs:pages ; sh:minInclusive 1 ] ;
+    sh:property [ sh:path bs:rrp ;   sh:minInclusive 0 ] .
+
+
+# ------------------------------------------------------------------------
+#  AFTERWARDS.  Queries to run in the SPARQL panel: on the report
+#  (Report as tab, then query that tab) or on the data.
+# ------------------------------------------------------------------------
+#
+#  -- The headline, as a query  (on the report)
+#  PREFIX sh: <http://www.w3.org/ns/shacl#>
+#  SELECT ?conforms (COUNT(?r) AS ?results)
+#  WHERE {
+#    ?report a sh:ValidationReport ; sh:conforms ?conforms .
+#    OPTIONAL { ?report sh:result ?r }
+#  }
+#  GROUP BY ?conforms
+#
+#  -- How bad: results by severity  (on the report)
+#  PREFIX sh: <http://www.w3.org/ns/shacl#>
+#  SELECT ?severity (COUNT(?r) AS ?results)
+#  WHERE { ?r a sh:ValidationResult ; sh:resultSeverity ?severity }
+#  GROUP BY ?severity
+#  ORDER BY ?severity
+#
+#  -- What kind of wrong: results by constraint component  (on the report)
+#  PREFIX sh: <http://www.w3.org/ns/shacl#>
+#  SELECT ?component (COUNT(?r) AS ?results)
+#  WHERE { ?r a sh:ValidationResult ; sh:sourceConstraintComponent ?component }
+#  GROUP BY ?component
+#  ORDER BY DESC(?results)
+#
+#  -- Where to start: the focus nodes with the most results  (on the report)
+#  PREFIX sh: <http://www.w3.org/ns/shacl#>
+#  SELECT ?focus (COUNT(?r) AS ?results) (GROUP_CONCAT(DISTINCT ?path; separator=", ") AS ?paths)
+#         (GROUP_CONCAT(DISTINCT STR(?value); separator=", ") AS ?values)
+#  WHERE {
+#    ?r a sh:ValidationResult ; sh:focusNode ?focus .
+#    OPTIONAL { ?r sh:resultPath ?path }
+#    OPTIONAL { ?r sh:value ?value }
+#  }
+#  GROUP BY ?focus
+#  ORDER BY DESC(?results)

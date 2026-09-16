@@ -1,0 +1,101 @@
+# ==========================================================================
+#  S40  A SELECT validator with parameters
+# ==========================================================================
+#
+#  CHECKS
+#    A value is at most some multiple of a value reached through two
+#    properties -- a shelf price against a recommended price, said
+#    generally.
+#
+#  HOW IT WORKS
+#    s31 wrote 'shelf price at most twice the RRP' as a SPARQL constraint
+#    with the properties spelled out. bt:MaxMultipleOfConstraintComponent
+#    makes the same check reusable: three parameters, bt:maxMultipleOf for
+#    the factor, bt:viaProperty for the hop to the other node and
+#    bt:comparedWith for the property there. A sh:propertyValidator with a
+#    SELECT returns one row per failing value, and $PATH inside it is the
+#    using shape's path. sh:labelTemplate gives the constraint a readable
+#    name that tools can show. The one record at three times the
+#    recommended price (F23) is reported, exactly as in s31, and the shape
+#    that uses the component is three lines.
+#
+#  DIAGRAM
+#       component            parameters                  validator
+#       bt:MaxMultipleOf...  bt:maxMultipleOf (decimal)   SELECT $this ?value WHERE {
+#                            bt:viaProperty   (IRI)         $this $PATH ?value ; $viaProperty ?other .
+#                            bt:comparedWith  (IRI)         ?other $comparedWith ?reference .
+#                                                           FILTER ( ?value > $maxMultipleOf * ?reference ) }
+#
+#       use    sh:property [ sh:path bs:shelfPrice ;
+#                            bt:maxMultipleOf 2.0 ; bt:viaProperty bs:ofWork ; bt:comparedWith bs:rrp ]
+#
+#  WHAT TO TAKE AWAY
+#    - A SELECT validator returns the failing rows, like sh:sparql; an
+#      ASK validator answers per value. Use SELECT when the query is a
+#      join.
+#    - Parameters that are IRIs can stand for predicates in the pattern,
+#      which is how a component stays general.
+#    - sh:propertyValidator is for property shapes and may use $PATH;
+#      sh:nodeValidator is for node shapes; sh:validator serves both.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F06-constraint-components%2Fs40-a-select-validator-with-parameters.ttl
+#  SPEC      SHACL §6.2.3.1 SELECT-based Validators
+#            https://www.w3.org/TR/shacl/#SPARQLSelectValidator
+#            SHACL §6.2.1 Parameter Declarations (sh:parameter)
+#            https://www.w3.org/TR/shacl/#constraint-components-parameters
+#  REPORTS   does not conform -- 1 violation, 0 warnings, 0 info; 5 shapes
+# ==========================================================================
+
+@prefix bt:   <https://example.org/bookshop-trail/> .
+@prefix bs:   <https://example.org/bookshop-trail/schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:MaxMultipleOfConstraintComponent
+    a  sh:ConstraintComponent ;
+    rdfs:label        "at most a multiple of a value elsewhere" ;
+    sh:labelTemplate  "at most {$maxMultipleOf} times {$viaProperty}/{$comparedWith}" ;
+    sh:parameter [ sh:path bt:maxMultipleOf ; sh:datatype xsd:decimal ] ;
+    sh:parameter [ sh:path bt:viaProperty ;   sh:nodeKind sh:IRI ] ;
+    sh:parameter [ sh:path bt:comparedWith ;  sh:nodeKind sh:IRI ] ;
+    sh:propertyValidator [
+        a  sh:SPARQLSelectValidator ;
+        sh:prefixes  bt:prefixes ;
+        sh:message   "{$value} is more than the allowed multiple of the reference price." ;
+        sh:select  """
+            SELECT $this ?value WHERE {
+              $this $PATH ?value ;
+                    $viaProperty ?other .
+              ?other $comparedWith ?reference .
+              FILTER ( ?value > $maxMultipleOf * ?reference )
+            }
+        """ ;
+    ] .
+
+bt:StockRecordShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:StockRecord ;
+    sh:property [
+        sh:path           bs:shelfPrice ;
+        bt:maxMultipleOf  2.0 ;
+        bt:viaProperty    bs:ofWork ;
+        bt:comparedWith   bs:rrp ;
+    ] .

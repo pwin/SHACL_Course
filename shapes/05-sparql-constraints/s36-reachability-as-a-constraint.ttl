@@ -1,0 +1,80 @@
+# ==========================================================================
+#  S36  Reachability as a constraint
+# ==========================================================================
+#
+#  CHECKS
+#    Every shop can be walked to from The Inkwell -- and two cannot, by
+#    design.
+#
+#  HOW IT WORKS
+#    The SPARQL course's q31 and q32 walk the trail with the path
+#    (bs:connectsTo|^bs:connectsTo)+ and find that two shops in the south
+#    west connect only to each other. The same path inside FILTER NOT
+#    EXISTS is a constraint: a shop that the path from The Inkwell never
+#    reaches is reported. The shape comes from the SPARQL course's shapes-
+#    advanced.ttl, and it is a warning there for the same reason it is
+#    here: two unreachable shops are the intended shape of the trail, and a
+#    third would be a mistake.
+#
+#  DIAGRAM
+#       bt:shop-inkwell --(connectsTo | ^connectsTo)+--> every shop on the main line and its branches
+#
+#       FILTER NOT EXISTS { bt:shop-inkwell (bs:connectsTo|^bs:connectsTo)+ $this }
+#
+#       bt:shop-penwith  <--> bt:shop-west-quay        a pair joined to nothing else
+#            two rows, both warnings
+#
+#  WHAT TO TAKE AWAY
+#    - A reachability check is a property path from a fixed node to
+#      $this, negated.
+#    - Constraints written for the SPARQL course's queries port with
+#      almost no change: the query becomes the sh:select, the interesting
+#      variable becomes $this.
+#    - Known exceptions get a warning, not a lower threshold. The report
+#      should still say they are there.
+#
+#  DATA      bookshop-trail-1.1.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F05-sparql-constraints%2Fs36-reachability-as-a-constraint.ttl
+#  SPEC      SPARQL 1.2 Query §9 Property Paths
+#            https://www.w3.org/TR/sparql12-query/#x9-property-paths
+#            SHACL §5 SPARQL-based Constraints
+#            https://www.w3.org/TR/shacl/#sparql-constraints
+#  REPORTS   conforms -- 0 violations, 2 warnings, 0 info; 2 shapes
+# ==========================================================================
+
+@prefix bt:  <https://example.org/bookshop-trail/> .
+@prefix bs:  <https://example.org/bookshop-trail/schema#> .
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:UnreachableShopShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:severity  sh:Warning ;
+        sh:message   "{$this} cannot be reached on foot from The Inkwell. Two shops cannot, by design; a third would be a mistake." ;
+        sh:select    """
+            SELECT $this WHERE {
+              FILTER NOT EXISTS {
+                bt:shop-inkwell (bs:connectsTo|^bs:connectsTo)+ $this .
+              }
+            }
+        """ ;
+    ] .

@@ -1,0 +1,101 @@
+# ==========================================================================
+#  S35  Aggregation in a constraint
+# ==========================================================================
+#
+#  CHECKS
+#    No shop holds more than a hundred copies in total, and no shop has
+#    held more than three events.
+#
+#  HOW IT WORKS
+#    A SPARQL constraint can aggregate, as long as the grouping keeps
+#    $this. bt:StockTotal sums bs:copies over every record at the shop,
+#    GROUP BY $this, and keeps the groups over a hundred with HAVING. One
+#    shop on the clean data, Ex Libris, holds 101. bt:BusyShop counts
+#    events the same way. Both are facts rather than faults, so both are
+#    warnings or information. One limitation of this build: an aggregate
+#    projected as ?value does not reach the result, so the rows name the
+#    shop and not the total. The SPARQL course's module 04 is the reference
+#    for the aggregation itself.
+#
+#  DIAGRAM
+#       SELECT $this WHERE {
+#         { SELECT $this (SUM(?c) AS ?total)
+#           WHERE { ?r bs:atShop $this ; bs:copies ?c }
+#           GROUP BY $this }
+#         FILTER ( ?total > 100 )
+#       }
+#
+#       $this is pre-bound in the inner query too: one group, one row, one test
+#       bt:shop-ex-libris   101   ->  a row
+#
+#  WHAT TO TAKE AWAY
+#    - Aggregate inside a sub-select that groups by $this and projects
+#      it; test the total outside.
+#    - HAVING and a FILTER on the projected total are equivalent here.
+#      The sub-select form is the one that keeps $this in scope for both.
+#    - On this engine an aggregate does not become sh:value. Say the
+#      threshold in sh:message; the focus node says which shop.
+#
+#  DATA      bookshop-trail-1.1.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F05-sparql-constraints%2Fs35-aggregation-in-a-constraint.ttl
+#  SPEC      SPARQL 1.2 Query §11 Aggregates
+#            https://www.w3.org/TR/sparql12-query/#x11-aggregates
+#            SHACL §5.3.1 Pre-bound Variables in SPARQL Constraints
+#            https://www.w3.org/TR/shacl/#sparql-constraints-prebound
+#  REPORTS   conforms -- 0 violations, 1 warning, 1 info; 4 shapes
+# ==========================================================================
+
+@prefix bt:  <https://example.org/bookshop-trail/> .
+@prefix bs:  <https://example.org/bookshop-trail/schema#> .
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:StockTotal
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:severity  sh:Warning ;
+        sh:message   "{$this} holds more than a hundred copies in total." ;
+        sh:select    """
+            SELECT $this WHERE {
+              { SELECT $this (SUM(?c) AS ?total)
+                WHERE { ?record bs:atShop $this ; bs:copies ?c }
+                GROUP BY $this }
+              FILTER ( ?total > 100 )
+            }
+        """ ;
+    ] .
+
+bt:BusyShop
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:severity  sh:Info ;
+        sh:message   "{$this} has held more than three events." ;
+        sh:select    """
+            SELECT $this WHERE {
+              { SELECT $this (COUNT(?event) AS ?n)
+                WHERE { ?event bs:heldAt $this }
+                GROUP BY $this }
+              FILTER ( ?n > 3 )
+            }
+        """ ;
+    ] .

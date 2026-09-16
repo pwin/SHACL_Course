@@ -1,0 +1,86 @@
+# ==========================================================================
+#  S02  Reading a violation
+# ==========================================================================
+#
+#  CHECKS
+#    The same shape, on the faulty edition of the data: one shop has no
+#    name.
+#
+#  HOW IT WORKS
+#    bookshop-trail-faulty.ttl is the clean dataset with data/faults.ttl
+#    appended; fault F01 is a shop with no rdfs:label. The report has one
+#    row. Read it left to right: the severity (Violation, the default), the
+#    focus node (the shop), the path (rdfs:label), the value (none, because
+#    the complaint is about absence), the message, and the source shape --
+#    shown as 'bt:BookshopShape > property 1', because the property shape
+#    is a blank node and has no name of its own. Report as tab shows the
+#    same row as RDF: a sh:ValidationResult with sh:focusNode,
+#    sh:resultPath, sh:sourceConstraintComponent
+#    sh:MinCountConstraintComponent, sh:resultSeverity and
+#    sh:resultMessage. The severity here is written out; sh:Violation is
+#    what a shape gets when it says nothing.
+#
+#  DIAGRAM
+#       one result, seven things to read
+#
+#       sh:resultSeverity            sh:Violation
+#       sh:focusNode                 bt:shop-halfmoon          <- which node
+#       sh:resultPath                rdfs:label                <- which property
+#       sh:value                     (none: nothing to point at)
+#       sh:sourceConstraintComponent sh:MinCountConstraintComponent   <- which rule
+#       sh:sourceShape               the property shape        <- which shape said so
+#       sh:resultMessage             "Every bookshop needs a name ..."
+#
+#       {$this} in sh:message is replaced by the focus node.
+#
+#  WHAT TO TAKE AWAY
+#    - A validation result is a node in an RDF graph, and the table in
+#      the editor is one rendering of it.
+#    - sh:value is present only when there is a value to point at.
+#      Cardinality results have none.
+#    - sh:message is a template. {$this}, {$path} and {$value} are filled
+#      in from the result.
+#    - The source shape of a property constraint is the property shape,
+#      not the node shape around it. That matters for severities later.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F01-first-shapes%2Fs02-reading-a-violation.ttl
+#  SPEC      SHACL §3.6.2 Validation Result
+#            https://www.w3.org/TR/shacl/#results-validation-result
+#            SHACL §2.1.5 Declaring Messages for a Shape
+#            https://www.w3.org/TR/shacl/#message
+#  REPORTS   does not conform -- 1 violation, 0 warnings, 0 info; 2 shapes
+# ==========================================================================
+
+@prefix bt:   <https://example.org/bookshop-trail/> .
+@prefix bs:   <https://example.org/bookshop-trail/schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+bt:BookshopShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:property [
+        sh:path      rdfs:label ;
+        sh:minCount  1 ;
+        sh:severity  sh:Violation ;
+        sh:message   "Every bookshop needs a name: {$this} has none." ;
+    ] .
+
+
+# ------------------------------------------------------------------------
+#  AFTERWARDS.  Queries to run in the SPARQL panel: on the report
+#  (Report as tab, then query that tab) or on the data.
+# ------------------------------------------------------------------------
+#
+#  -- The result as RDF  (on the report)
+#  PREFIX sh: <http://www.w3.org/ns/shacl#>
+#  SELECT ?focus ?path ?component ?severity ?message
+#  WHERE {
+#    ?r a sh:ValidationResult ;
+#       sh:focusNode ?focus ;
+#       sh:sourceConstraintComponent ?component ;
+#       sh:resultSeverity ?severity .
+#    OPTIONAL { ?r sh:resultPath ?path }
+#    OPTIONAL { ?r sh:resultMessage ?message }
+#  }

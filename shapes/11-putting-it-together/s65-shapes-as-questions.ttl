@@ -1,0 +1,108 @@
+# ==========================================================================
+#  S65  Shapes as questions
+# ==========================================================================
+#
+#  CHECKS
+#    Six facts about the clean data, asked as shapes and answered as
+#    information.
+#
+#  HOW IT WORKS
+#    Nothing in this file is an error. Each shape asks a question the
+#    SPARQL course asks with a query, and the answer is a set of Info rows:
+#    the six shops without a website (q14), the eleven works with no ISBN
+#    (q15), the four towns with no bookshop (q16), the eight works no shop
+#    stocks, the three junctions on the trail, and the shops that stock
+#    nothing in their own specialism. A validation report at Info severity
+#    is a profile of the data, and a shapes file like this one can be kept
+#    and run whenever the data changes. It is the SPARQL course's q05 and
+#    q06 -- what is in here, what can I ask -- with the questions written
+#    down.
+#
+#  DIAGRAM
+#       sh:severity sh:Info      a row per answer, no effect on conformance
+#
+#       question                                 asked with
+#       shops without a website                  sh:minCount on bs:website
+#       works with no ISBN                       sh:minCount on bs:isbn
+#       towns with no bookshop                   sh:minCount on ^bs:locatedIn
+#       works nobody stocks                      sh:minCount on ^bs:ofWork
+#       junctions on the trail                   sh:maxCount 2 on (bs:connectsTo | ^bs:connectsTo)
+#       shops stocking nothing in their specialism   a SPARQL constraint
+#
+#  WHAT TO TAKE AWAY
+#    - A shape with Info severity is a question. The report is the
+#      answer, one row per node.
+#    - Profiles written as shapes are repeatable. Run the same file on
+#      next month's data and diff the reports.
+#    - Every question here has a query in the SPARQL course. Choose the
+#      form by what you want back: a table, or a report.
+#
+#  DATA      bookshop-trail-1.1.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F11-putting-it-together%2Fs65-shapes-as-questions.ttl
+#  SPEC      SHACL §2.1.4 Declaring the Severity of a Shape
+#            https://www.w3.org/TR/shacl/#severity
+#            SHACL §3.6 Validation Report
+#            https://www.w3.org/TR/shacl/#validation-report
+#  REPORTS   conforms -- 0 violations, 0 warnings, 36 info; 12 shapes
+# ==========================================================================
+
+@prefix bt:  <https://example.org/bookshop-trail/> .
+@prefix bs:  <https://example.org/bookshop-trail/schema#> .
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:NoWebsite
+    a sh:NodeShape ; sh:targetClass bs:Bookshop ;
+    sh:property [ sh:path bs:website ; sh:minCount 1 ; sh:severity sh:Info ;
+                  sh:message "{$this} has no website on record." ] .
+
+bt:NoISBN
+    a sh:NodeShape ; sh:targetClass bs:Work ;
+    sh:property [ sh:path bs:isbn ; sh:minCount 1 ; sh:severity sh:Info ;
+                  sh:message "{$this} has no ISBN." ] .
+
+bt:TownWithoutShop
+    a sh:NodeShape ; sh:targetClass bs:Settlement ;
+    sh:property [ sh:path [ sh:inversePath bs:locatedIn ] ; sh:minCount 1 ; sh:severity sh:Info ;
+                  sh:message "{$this} has no bookshop." ] .
+
+bt:Unstocked
+    a sh:NodeShape ; sh:targetClass bs:Work ;
+    sh:property [ sh:path [ sh:inversePath bs:ofWork ] ; sh:minCount 1 ; sh:severity sh:Info ;
+                  sh:message "No shop stocks {$this}." ] .
+
+bt:Junction
+    a sh:NodeShape ; sh:targetClass bs:Bookshop ;
+    sh:property [ sh:path [ sh:alternativePath ( bs:connectsTo [ sh:inversePath bs:connectsTo ] ) ] ;
+                  sh:maxCount 2 ; sh:severity sh:Info ;
+                  sh:message "{$this} is a junction on the trail." ] .
+
+bt:OffSpecialism
+    a sh:NodeShape ; sh:targetClass bs:Bookshop ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:severity  sh:Info ;
+        sh:message   "{$this} stocks nothing filed under its own specialism." ;
+        sh:select    """
+            SELECT $this WHERE {
+              $this bs:specialises ?genre .
+              FILTER NOT EXISTS { $this bs:stocks/bs:genre/skos:broader* ?genre }
+            }
+        """ ;
+    ] .

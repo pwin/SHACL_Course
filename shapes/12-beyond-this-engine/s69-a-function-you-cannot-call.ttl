@@ -1,0 +1,102 @@
+# ==========================================================================
+#  S69  A function you cannot call
+# ==========================================================================
+#
+#  CHECKS
+#    A SHACL function that turns a gYear into an integer -- declared,
+#    refused by this engine, and replaced by the same expression inline.
+#
+#  HOW IT WORKS
+#    SHACL-AF lets a shapes graph declare a sh:SPARQLFunction: a name,
+#    parameters, and a SELECT that computes ?result, callable from any
+#    SPARQL in the file. bt:yearOf would make the STR cast of s14 a one-
+#    word call. This engine does not implement SHACL functions, and says
+#    so: a constraint that calls one stops the run with 'The custom
+#    function ... is not supported'. That is the right kind of failure. The
+#    calling shape here is deactivated so the file runs; take the
+#    sh:deactivated line off to see the message. bt:BornBefore1920Inline is
+#    the same constraint with the cast written out, and it lists the
+#    authors born before 1920 as information. A function is a convenience
+#    that ties the shapes to the validators that have it; the inline form
+#    runs everywhere.
+#
+#  DIAGRAM
+#       bt:yearOf  a sh:SPARQLFunction ;
+#           sh:parameter [ sh:path bt:year ] ;
+#           sh:returnType xsd:integer ;
+#           sh:select "SELECT (xsd:integer(STR($year)) AS ?result) WHERE {}" .
+#
+#       FILTER ( bt:yearOf(?born) < 1920 )          this engine: error, "custom function ... is not supported"
+#       FILTER ( xsd:integer(STR(?born)) < 1920 )   every engine
+#
+#  WHAT TO TAKE AWAY
+#    - SHACL functions are SHACL-AF, optional, and not in this engine.
+#      The refusal is an error rather than silence.
+#    - Anything a function would compute can be written inline. Do that
+#      when the shapes have to travel.
+#    - pySHACL and TopBraid implement SHACL functions; Jena does not.
+#      Check before depending on one.
+#
+#  TRY IT
+#    Remove sh:deactivated true from bt:BornBefore1920 and validate. The
+#    engine refuses the run and names the function.
+#
+#  DATA      bookshop-trail-1.1.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F12-beyond-this-engine%2Fs69-a-function-you-cannot-call.ttl
+#  SPEC      SHACL-AF §5 SHACL Functions
+#            https://www.w3.org/TR/shacl-af/#functions
+#            SHACL-AF §5.4 SPARQL-based Functions
+#            https://www.w3.org/TR/shacl-af/#SPARQLFunction
+#  REPORTS   conforms -- 0 violations, 0 warnings, 4 info; 5 shapes
+# ==========================================================================
+
+@prefix bt:  <https://example.org/bookshop-trail/> .
+@prefix bs:  <https://example.org/bookshop-trail/schema#> .
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:yearOf
+    a  sh:SPARQLFunction ;
+    sh:parameter   [ sh:path bt:year ] ;
+    sh:returnType  xsd:integer ;
+    sh:prefixes    bt:prefixes ;
+    sh:select      "SELECT ( xsd:integer(STR($year)) AS ?result ) WHERE { }" .
+
+# Calls the function. Deactivated so that this file runs on this engine.
+bt:BornBefore1920
+    a               sh:NodeShape ;
+    sh:deactivated  true ;
+    sh:targetClass  bs:Author ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:severity  sh:Info ;
+        sh:message   "{$this} was born before 1920 (via bt:yearOf)." ;
+        sh:select    "SELECT $this WHERE { $this bs:born ?born . FILTER ( bt:yearOf(?born) < 1920 ) }" ;
+    ] .
+
+# The same test, inline.
+bt:BornBefore1920Inline
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Author ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:severity  sh:Info ;
+        sh:message   "{$this} was born in {$value}, before 1920." ;
+        sh:select    "SELECT $this ?value WHERE { $this bs:born ?value . FILTER ( xsd:integer(STR(?value)) < 1920 ) }" ;
+    ] .

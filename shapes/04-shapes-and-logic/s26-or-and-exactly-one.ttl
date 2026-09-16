@@ -1,0 +1,98 @@
+# ==========================================================================
+#  S26  Or, and, exactly one
+# ==========================================================================
+#
+#  CHECKS
+#    A work has an ISBN or predates them; a place is exactly one kind of
+#    place; a shop is named and located.
+#
+#  HOW IT WORKS
+#    sh:or, sh:and and sh:xone each take a list of shapes and combine the
+#    conformance checks. bt:WorkShape says a work conforms to one of two
+#    shapes: it has an ISBN, or its year matches a pattern for 1000 to 1969
+#    -- sh:pattern works on the lexical form, so it can do to a gYear what
+#    sh:maxInclusive cannot. Eleven clean works from before 1970 pass by
+#    the second branch; the 1998 work without an ISBN (F12) fails both.
+#    bt:PlaceKind uses sh:xone: a place is exactly one of country, region,
+#    council area, settlement. Great Britain is none of them, and it is
+#    reported -- on the clean data as well. That is a true finding about
+#    how the data was modelled, and bt:PlaceKindFixed records the decision
+#    by adding a fifth branch for the one node with skos:notation "GB".
+#    bt:ShopShape uses sh:and to compose two named shapes; the shop with no
+#    name (F01) fails the first of them.
+#
+#  DIAGRAM
+#       sh:or   ( S1 S2 )     at least one conforms
+#       sh:and  ( S1 S2 )     all conform
+#       sh:xone ( S1 S2 )     exactly one conforms
+#
+#       bt:book-unnumbered   isbn? no    year 1998 matches ^1[0-8]..|^19[0-6]. ? no    -> or fails
+#       bt:book-hedgerow-alphabet   isbn? no    year 1966 matches                       -> or passes
+#
+#       bt:place-gb   Country? Region? CouncilArea? Settlement?   none  -> xone fails
+#                     ... or skos:notation "GB"?                  yes   -> fixed xone passes
+#
+#  WHAT TO TAKE AWAY
+#    - The list operators combine conformance checks of the focus node.
+#      Each branch is a full shape and can be as complex as you like.
+#    - sh:pattern on a year is a way round the gYear comparison problem
+#      when the range has a lexical description.
+#    - A finding on clean data is a modelling decision surfacing. Change
+#      the shape to record the decision, and say why in a comment.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F04-shapes-and-logic%2Fs26-or-and-exactly-one.ttl
+#  SPEC      SHACL §4.6.3 sh:or
+#            https://www.w3.org/TR/shacl/#OrConstraintComponent
+#            SHACL §4.6.4 sh:xone
+#            https://www.w3.org/TR/shacl/#XoneConstraintComponent
+#  REPORTS   does not conform -- 3 violations, 0 warnings, 0 info; 22 shapes
+# ==========================================================================
+
+@prefix bt:   <https://example.org/bookshop-trail/> .
+@prefix bs:   <https://example.org/bookshop-trail/schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+bt:WorkShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Work ;
+    sh:or (
+        [ sh:property [ sh:path bs:isbn ; sh:minCount 1 ] ]
+        [ sh:property [ sh:path bs:publicationYear ; sh:pattern "^(1[0-8][0-9][0-9]|19[0-6][0-9])$" ] ]
+    ) ;
+    sh:message  "{$this} has no ISBN and was published after 1969." .
+
+# A place is exactly one kind of place. Great Britain is none of them.
+bt:PlaceKind
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Place ;
+    sh:xone (
+        [ sh:class bs:Country ]
+        [ sh:class bs:Region ]
+        [ sh:class bs:CouncilArea ]
+        [ sh:class bs:Settlement ]
+    ) ;
+    sh:message  "{$this} is not exactly one kind of place." .
+
+# The same rule, with the root of the hierarchy allowed for.
+bt:PlaceKindFixed
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Place ;
+    sh:xone (
+        [ sh:class bs:Country ]
+        [ sh:class bs:Region ]
+        [ sh:class bs:CouncilArea ]
+        [ sh:class bs:Settlement ]
+        [ sh:property [ sh:path skos:notation ; sh:hasValue "GB" ] ]
+    ) .
+
+bt:Named    a sh:NodeShape ; sh:property [ sh:path rdfs:label ;   sh:minCount 1 ] .
+bt:Located  a sh:NodeShape ; sh:property [ sh:path bs:locatedIn ; sh:minCount 1 ] .
+
+bt:ShopShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:and          ( bt:Named bt:Located ) ;
+    sh:message      "{$this} is not both named and located." .

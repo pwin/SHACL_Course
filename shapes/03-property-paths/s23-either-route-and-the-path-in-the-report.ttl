@@ -1,0 +1,92 @@
+# ==========================================================================
+#  S23  Either route, and the path in the report
+# ==========================================================================
+#
+#  CHECKS
+#    Every shop has a trail neighbour in one direction or the other; which
+#    shops are junctions; and what a compound path looks like in the report
+#    graph.
+#
+#  HOW IT WORKS
+#    bs:connectsTo is asserted in one direction per segment, so a shop's
+#    neighbours are the union of what it connects to and what connects to
+#    it: [ sh:alternativePath ( bs:connectsTo [ sh:inversePath
+#    bs:connectsTo ] ) ]. Every shop has at least one, so bt:Connected
+#    reports nothing. bt:Junction uses the same path with sh:maxCount 2 and
+#    severity Info, which lists the shops with three or more neighbours:
+#    the points where the SPARQL course's two branches leave the main line.
+#    Open the report as a tab and look at sh:resultPath: it is not an IRI
+#    but a blank node carrying sh:alternativePath, an rdf:List and an
+#    sh:inversePath, a copy of the path from the shapes graph. The editor
+#    renders it as an expression; the query below reads it as RDF.
+#
+#  DIAGRAM
+#       [ sh:alternativePath ( bs:connectsTo [ sh:inversePath bs:connectsTo ] ) ]
+#
+#       bt:shop-inkwell --connectsTo--> bt:shop-marginalia          forward
+#       bt:shop-quire   --connectsTo--> bt:shop-inkwell             backward from the Inkwell's side
+#            neighbours of the Inkwell: { marginalia, quire, ... }
+#
+#       in the report:
+#       _:r  sh:resultPath  [ sh:alternativePath ( bs:connectsTo [ sh:inversePath bs:connectsTo ] ) ]
+#            a structure, not a name; the editor shows it as (bs:connectsTo | ^bs:connectsTo)
+#
+#  WHAT TO TAKE AWAY
+#    - An alternative path is a union of routes. It is how you treat an
+#      asserted-one-way property as symmetric.
+#    - sh:resultPath carries the path as it was written, structure and
+#      all. Code that reads reports must expect a blank node there.
+#    - sh:maxCount with an Info severity lists the nodes above a
+#      threshold without failing anything.
+#
+#  DATA      bookshop-trail-1.1.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F03-property-paths%2Fs23-either-route-and-the-path-in-the-report.ttl
+#  SPEC      SHACL §2.3.1.3 Alternative Paths
+#            https://www.w3.org/TR/shacl/#property-path-alternative
+#            SHACL §3.6.2.2 sh:resultPath
+#            https://www.w3.org/TR/shacl/#results-path
+#  REPORTS   conforms -- 0 violations, 0 warnings, 3 info; 4 shapes
+# ==========================================================================
+
+@prefix bt: <https://example.org/bookshop-trail/> .
+@prefix bs: <https://example.org/bookshop-trail/schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+bt:Connected
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:property [
+        sh:path      [ sh:alternativePath ( bs:connectsTo [ sh:inversePath bs:connectsTo ] ) ] ;
+        sh:minCount  1 ;
+        sh:message   "{$this} is on no trail segment." ;
+    ] .
+
+bt:Junction
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:property [
+        sh:path      [ sh:alternativePath ( bs:connectsTo [ sh:inversePath bs:connectsTo ] ) ] ;
+        sh:maxCount  2 ;
+        sh:severity  sh:Info ;
+        sh:message   "{$this} is a junction: three or more neighbours on the trail." ;
+    ] .
+
+
+# ------------------------------------------------------------------------
+#  AFTERWARDS.  Queries to run in the SPARQL panel: on the report
+#  (Report as tab, then query that tab) or on the data.
+# ------------------------------------------------------------------------
+#
+#  -- The path structure inside a result  (on the report)
+#  PREFIX sh:  <http://www.w3.org/ns/shacl#>
+#  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+#  SELECT ?focus ?first ?inverseOf
+#  WHERE {
+#    ?r sh:focusNode ?focus ;
+#       sh:resultPath ?path .
+#    ?path sh:alternativePath ?list .
+#    ?list rdf:first ?first ;
+#          rdf:rest/rdf:first ?second .
+#    ?second sh:inversePath ?inverseOf .
+#  }
+#  LIMIT 5

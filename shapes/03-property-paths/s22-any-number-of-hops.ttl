@@ -1,0 +1,78 @@
+# ==========================================================================
+#  S22  Any number of hops
+# ==========================================================================
+#
+#  CHECKS
+#    Every genre leads up to the top concept, and every place leads up to
+#    Great Britain.
+#
+#  HOW IT WORKS
+#    [ sh:zeroOrMorePath skos:broader ] at a concept yields the concept
+#    itself and everything above it, however far up. sh:hasValue bt:genre-
+#    literature asks for the top of the scheme among them. Three concepts
+#    in the faulty data never get there: bt:genre-stray, which is under
+#    nothing (F29), and the two that are each broader than the other (F30)
+#    -- the walk goes round for ever in the data, and the path evaluation
+#    still terminates, because a path visits each node once. The same shape
+#    on bs:within finds the two council areas inside each other (F27). [
+#    sh:zeroOrOnePath bs:translationOf ] is the third form: the focus node,
+#    or the one step from it; bt:WorkHasAuthor uses it to say a work or the
+#    work it translates has an author.
+#
+#  DIAGRAM
+#       [ sh:zeroOrMorePath skos:broader ]   from bt:genre-cosy-crime
+#            { cosy-crime, crime-fiction, fiction, literature }        literature present: ok
+#
+#       from bt:genre-loop-a    { loop-a, loop-b }    round and round, visited once each
+#                                                      literature absent: violation
+#
+#       [ sh:zeroOrOnePath bs:translationOf ]   { the work, the work it translates if any }
+#
+#  WHAT TO TAKE AWAY
+#    - zeroOrMore includes the start; oneOrMore does not. When the start
+#      could itself satisfy the constraint, that matters.
+#    - A cycle in the data does not stop a path. It stops a constraint
+#      from ever being satisfied, which is how you find the cycle.
+#    - hasValue over a * or + path is the SHACL spelling of 'reachable
+#      from'.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F03-property-paths%2Fs22-any-number-of-hops.ttl
+#  SPEC      SHACL §2.3.1.5 Zero-Or-More Paths
+#            https://www.w3.org/TR/shacl/#property-path-zero-or-more
+#            SHACL §2.3.1.7 Zero-Or-One Paths
+#            https://www.w3.org/TR/shacl/#property-path-zero-or-one
+#  REPORTS   does not conform -- 5 violations, 0 warnings, 0 info; 6 shapes
+# ==========================================================================
+
+@prefix bt:   <https://example.org/bookshop-trail/> .
+@prefix bs:   <https://example.org/bookshop-trail/schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+bt:GenreReachesTop
+    a               sh:NodeShape ;
+    sh:targetClass  skos:Concept ;
+    sh:property [
+        sh:path      [ sh:zeroOrMorePath skos:broader ] ;
+        sh:hasValue  bt:genre-literature ;
+        sh:message   "{$this} does not lead up to the top of the genre scheme." ;
+    ] .
+
+bt:PlaceReachesGB
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Place ;
+    sh:property [
+        sh:path      [ sh:zeroOrMorePath bs:within ] ;
+        sh:hasValue  bt:place-gb ;
+        sh:message   "{$this} is not inside Great Britain at any depth." ;
+    ] .
+
+bt:WorkHasAuthor
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Work ;
+    sh:property [
+        sh:path      ( [ sh:zeroOrOnePath bs:translationOf ] bs:author ) ;
+        sh:minCount  1 ;
+        sh:message   "Neither {$this} nor the work it translates names an author." ;
+    ] .

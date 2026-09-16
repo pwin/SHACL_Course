@@ -1,0 +1,54 @@
+# ==========================================================================
+#  S56  A node that names its own shape
+# ==========================================================================
+#
+#  CHECKS
+#    A shop that says in the data which shape it should conform to, and a
+#    shape with no other target.
+#
+#  HOW IT WORKS
+#    SHACL 1.2 adds sh:shape as a target that lives in the data graph: a
+#    triple n sh:shape S makes n a focus node of S. bt:NewShopShape has no
+#    target of its own. Fault F32 adds bt:shop-halfmoon sh:shape
+#    bt:NewShopShape to the data, and the shape now checks that one shop
+#    and reports its missing name. This is the opposite direction from
+#    every other target: the shapes graph normally decides what to check,
+#    and here the data volunteers. It suits records that carry their own
+#    profile, and it is the third 1.2 target this course has used, after
+#    sh:targetWhere in s33 and sh:ShapeClass in s08.
+#
+#  DIAGRAM
+#       shapes graph                         data graph
+#       bt:NewShopShape  a sh:NodeShape       bt:shop-halfmoon  sh:shape  bt:NewShopShape .
+#         (no sh:target*)                          ^ this triple is the target
+#
+#       focus nodes of bt:NewShopShape = { bt:shop-halfmoon }
+#
+#  WHAT TO TAKE AWAY
+#    - sh:shape in the data graph is a target. It is the only target the
+#      data can set for itself.
+#    - The 1.2 targets so far: sh:targetWhere (a shape), sh:ShapeClass (a
+#      class), sh:shape (the data). All run in this engine.
+#    - sh:targetNode in the shapes graph and sh:shape in the data graph
+#      name the same relationship from opposite ends.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F08-shacl-1-2%2Fs56-a-node-that-names-its-own-shape.ttl
+#  SPEC      SHACL 1.2 Core §3.1.3.7 Explicit shape targets (sh:shape)
+#            https://www.w3.org/TR/shacl12-core/#explicit-shape-target
+#            SHACL 1.2 Core §3.1.3.6 Where Targets (sh:targetWhere)
+#            https://www.w3.org/TR/shacl12-core/#targetWhere
+#  REPORTS   does not conform -- 2 violations, 0 warnings, 0 info; 4 shapes
+# ==========================================================================
+
+@prefix bt:   <https://example.org/bookshop-trail/> .
+@prefix bs:   <https://example.org/bookshop-trail/schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+bt:NewShopShape
+    a  sh:NodeShape ;
+    sh:property [ sh:path rdfs:label ;   sh:minCount 1 ; sh:message "A new shop needs a name: {$this}." ] ;
+    sh:property [ sh:path bs:locatedIn ; sh:minCount 1 ; sh:class bs:Settlement ] ;
+    sh:property [ sh:path bs:founded ;   sh:minCount 1 ; sh:datatype xsd:gYear ] .

@@ -1,0 +1,97 @@
+# ==========================================================================
+#  S27  Closed shapes
+# ==========================================================================
+#
+#  CHECKS
+#    A bookshop has no properties other than the ones listed, and the typo
+#    bs:foundedIn is caught.
+#
+#  HOW IT WORKS
+#    sh:closed true turns a node shape into an allow-list: any predicate on
+#    the focus node that is not the sh:path of one of its property shapes,
+#    and not in sh:ignoredProperties, is a violation. The Inkwell carries
+#    bs:foundedIn (F05), a misspelling of bs:founded that nothing else in
+#    this course notices, because every other shape looks for the
+#    properties it knows about and ignores the rest. The cost is that the
+#    shape must list every legitimate property, including the geometry and
+#    coordinate ones, and rdf:type has to be ignored explicitly.
+#    bt:SettlementClosed shows the other common addition: some places carry
+#    owl:sameAs links to DBpedia, which the shape ignores rather than
+#    lists. Remove owl:sameAs from its sh:ignoredProperties and validate
+#    again to see them.
+#
+#  DIAGRAM
+#       sh:closed true ; sh:ignoredProperties ( rdf:type )
+#       allowed:  the sh:path of every sh:property on the shape, plus the ignored list
+#
+#       bt:shop-inkwell
+#         rdf:type          ignored
+#         rdfs:label        listed
+#         bs:locatedIn      listed
+#         bs:founded        listed
+#         bs:foundedIn      not listed   ->  violation, value "1979"^^xsd:gYear
+#         ...
+#
+#       the SPARQL course's q96 finds the same kind of mistake with a query
+#
+#  WHAT TO TAKE AWAY
+#    - A closed shape is the only Core check that notices a property you
+#      did not expect. It is how a typo in a predicate gets found.
+#    - Every legitimate property must be listed, with or without
+#      constraints. An empty property shape [ sh:path p ] is enough to
+#      allow p.
+#    - sh:ignoredProperties is for the properties you allow but do not
+#      want to enumerate: rdf:type, and links added by other tools.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F04-shapes-and-logic%2Fs27-closed-shapes.ttl
+#  SPEC      SHACL §4.8.1 sh:closed, sh:ignoredProperties
+#            https://www.w3.org/TR/shacl/#ClosedConstraintComponent
+#  REPORTS   does not conform -- 1 violation, 0 warnings, 0 info; 26 shapes
+# ==========================================================================
+
+@prefix bt:    <https://example.org/bookshop-trail/> .
+@prefix bs:    <https://example.org/bookshop-trail/schema#> .
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix geo:   <http://www.opengis.net/ont/geosparql#> .
+@prefix wgs84: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+
+bt:BookshopClosed
+    a                     sh:NodeShape ;
+    sh:targetClass        bs:Bookshop ;
+    sh:closed             true ;
+    sh:ignoredProperties  ( rdf:type ) ;
+    sh:message            "{$this} has a property this shape does not know: {$path}." ;
+    sh:property [ sh:path rdfs:label ] ;
+    sh:property [ sh:path bs:locatedIn ] ;
+    sh:property [ sh:path bs:founded ] ;
+    sh:property [ sh:path bs:floorArea ] ;
+    sh:property [ sh:path bs:staffCount ] ;
+    sh:property [ sh:path bs:specialises ] ;
+    sh:property [ sh:path bs:sellsSecondHand ] ;
+    sh:property [ sh:path bs:hasCafe ] ;
+    sh:property [ sh:path bs:website ] ;
+    sh:property [ sh:path bs:connectsTo ] ;
+    sh:property [ sh:path bs:stocks ] ;
+    sh:property [ sh:path wgs84:lat ] ;
+    sh:property [ sh:path wgs84:long ] ;
+    sh:property [ sh:path geo:hasGeometry ] ;
+    sh:property [ sh:path geo:hasDefaultGeometry ] ;
+    sh:property [ sh:path sh:shape ] .
+
+bt:SettlementClosed
+    a                     sh:NodeShape ;
+    sh:targetClass        bs:Settlement ;
+    sh:closed             true ;
+    sh:ignoredProperties  ( rdf:type owl:sameAs ) ;
+    sh:property [ sh:path rdfs:label ] ;
+    sh:property [ sh:path bs:within ] ;
+    sh:property [ sh:path bs:population ] ;
+    sh:property [ sh:path bs:isBookTown ] ;
+    sh:property [ sh:path wgs84:lat ] ;
+    sh:property [ sh:path wgs84:long ] ;
+    sh:property [ sh:path geo:hasGeometry ] ;
+    sh:property [ sh:path geo:hasDefaultGeometry ] .

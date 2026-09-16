@@ -1,0 +1,115 @@
+# ==========================================================================
+#  S47  A rule written in SPARQL
+# ==========================================================================
+#
+#  CHECKS
+#    The value of each stock line, and a flag on every work without an
+#    ISBN.
+#
+#  HOW IT WORKS
+#    A sh:SPARQLRule runs a CONSTRUCT with $this pre-bound to the focus
+#    node, and every triple the template produces is inferred. Anything a
+#    triple rule cannot say -- arithmetic, a BIND, a FILTER NOT EXISTS --
+#    goes here. bt:StockValueRule multiplies copies by shelf price, which
+#    is the SPARQL course's q21 done once per record and kept.
+#    bt:UnnumberedRule flags the works with no bs:isbn. The probes list the
+#    stock lines worth more than two hundred pounds and the eleven flagged
+#    works. The same pre-binding rules as sh:sparql apply: no MINUS, VALUES
+#    or SERVICE, and the prefixes come from sh:prefixes.
+#
+#  DIAGRAM
+#       sh:rule [ a sh:SPARQLRule ;
+#           sh:construct """
+#               CONSTRUCT { $this bs:stockValue ?v }
+#               WHERE     { $this bs:copies ?c ; bs:shelfPrice ?p . BIND ( ?c * ?p AS ?v ) }
+#           """ ]
+#
+#       bt:stock-inkwell--the-book-town   12 x 9.99   ->   bs:stockValue 119.88
+#
+#       CONSTRUCT { $this bs:isbnMissing true } WHERE { FILTER NOT EXISTS { $this bs:isbn ?i } }
+#
+#  WHAT TO TAKE AWAY
+#    - A SPARQL rule is a CONSTRUCT per focus node. It is the escape
+#      hatch when a triple rule's three expressions are not enough.
+#    - $this in the template is the focus node. Triples about other nodes
+#      can be built too; the template is free.
+#    - The pre-binding restrictions of s34 apply to sh:construct as they
+#      do to sh:select.
+#
+#  DATA      bookshop-trail-1.1.ttl
+#  INFERENCE rules   (the Inference dropdown in the editor)
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F07-rules%2Fs47-a-rule-written-in-sparql.ttl&inference=rules
+#  SPEC      SHACL-AF §8.6 SPARQL Rules
+#            https://www.w3.org/TR/shacl-af/#SPARQLRule
+#            SPARQL 1.2 Query §16.2 CONSTRUCT
+#            https://www.w3.org/TR/sparql12-query/#x16-2-construct
+#  REPORTS   conforms -- 0 violations, 0 warnings, 27 info; 6 shapes
+# ==========================================================================
+
+@prefix bt:  <https://example.org/bookshop-trail/> .
+@prefix bs:  <https://example.org/bookshop-trail/schema#> .
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:StockRecordShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:StockRecord ;
+    sh:rule [
+        a             sh:SPARQLRule ;
+        sh:prefixes   bt:prefixes ;
+        sh:construct  """
+            CONSTRUCT { $this bs:stockValue ?v }
+            WHERE {
+              $this bs:copies ?c ; bs:shelfPrice ?p .
+              BIND ( ?c * ?p AS ?v )
+            }
+        """ ;
+    ] .
+
+bt:WorkShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Work ;
+    sh:rule [
+        a             sh:SPARQLRule ;
+        sh:prefixes   bt:prefixes ;
+        sh:construct  """
+            CONSTRUCT { $this bs:isbnMissing true }
+            WHERE { FILTER NOT EXISTS { $this bs:isbn ?i } }
+        """ ;
+    ] .
+
+bt:ValueProbe
+    a               sh:NodeShape ;
+    sh:targetClass  bs:StockRecord ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:severity  sh:Info ;
+        sh:message   "inferred: {$this} bs:stockValue {$value} (over 200)" ;
+        sh:select    "SELECT $this ?value WHERE { $this bs:stockValue ?value FILTER ( ?value > 200 ) }" ;
+    ] .
+
+bt:UnnumberedProbe
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Work ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:severity  sh:Info ;
+        sh:message   "inferred: {$this} bs:isbnMissing true" ;
+        sh:select    "SELECT $this WHERE { $this bs:isbnMissing true }" ;
+    ] .

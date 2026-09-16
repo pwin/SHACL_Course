@@ -1,0 +1,73 @@
+# ==========================================================================
+#  S19  A path through two hops
+# ==========================================================================
+#
+#  CHECKS
+#    Every shop's town is inside a council area; every stock record's shop
+#    is in a settlement.
+#
+#  HOW IT WORKS
+#    A sequence path is an RDF list. sh:path ( bs:locatedIn bs:within )
+#    starts at the focus node, follows bs:locatedIn, then follows bs:within
+#    from wherever that arrived, and the value nodes are the ends of the
+#    walk. The constraints then apply to those ends as they would to any
+#    values: sh:class bs:CouncilArea and sh:minCount 1. The Foxed Page
+#    (F06) has "Kendal" for a town, a string with no bs:within, so the walk
+#    ends nowhere and sh:minCount reports it. Its stock record walks
+#    bs:atShop then bs:locatedIn and arrives at the same string, which
+#    fails sh:class bs:Settlement. The record at the untyped Ghost Shop
+#    passes: the walk goes through the shop whatever its type, and Durham
+#    is a settlement.
+#
+#  DIAGRAM
+#       sh:path ( bs:locatedIn bs:within )
+#
+#       bt:shop-inkwell --locatedIn--> bt:place-wigtown --within--> bt:place-dumfries-galloway
+#                                                                     ^ value node: a CouncilArea, ok
+#
+#       bt:shop-foxed-page --locatedIn--> "Kendal" --within--> (nothing)
+#                                                                 no value nodes: minCount 1 fails
+#
+#       sh:path ( bs:atShop bs:locatedIn )
+#       bt:stock-ghost --atShop--> bt:shop-ghost --locatedIn--> bt:place-durham     a Settlement, ok
+#
+#  WHAT TO TAKE AWAY
+#    - A sequence path is a list: ( p1 p2 ). The value nodes are where
+#      the whole walk ends.
+#    - Constraints see only the ends. Anything wrong in the middle shows
+#      up as a missing or wrong end, not as its own result.
+#    - sh:minCount 1 on a path is 'the walk arrives somewhere'. It is the
+#      check for a broken chain.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F03-property-paths%2Fs19-a-path-through-two-hops.ttl
+#  SPEC      SHACL §2.3.1.2 Sequence Paths
+#            https://www.w3.org/TR/shacl/#property-path-sequence
+#            SHACL §2.3.1 SHACL Property Paths
+#            https://www.w3.org/TR/shacl/#property-paths
+#  REPORTS   does not conform -- 2 violations, 0 warnings, 0 info; 4 shapes
+# ==========================================================================
+
+@prefix bt: <https://example.org/bookshop-trail/> .
+@prefix bs: <https://example.org/bookshop-trail/schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+bt:ShopInCouncilArea
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:property [
+        sh:path      ( bs:locatedIn bs:within ) ;
+        sh:minCount  1 ;
+        sh:class     bs:CouncilArea ;
+        sh:message   "Two hops from {$this} should reach a council area." ;
+    ] .
+
+bt:RecordInSettlement
+    a               sh:NodeShape ;
+    sh:targetClass  bs:StockRecord ;
+    sh:property [
+        sh:path      ( bs:atShop bs:locatedIn ) ;
+        sh:minCount  1 ;
+        sh:class     bs:Settlement ;
+        sh:message   "The shop holding {$this} is in {$value}, which is not a settlement." ;
+    ] .

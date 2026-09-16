@@ -1,0 +1,93 @@
+# ==========================================================================
+#  S05  Messages and severities
+# ==========================================================================
+#
+#  CHECKS
+#    Where a severity has to be written for it to take effect, and what a
+#    message template can say.
+#
+#  HOW IT WORKS
+#    Two shapes report the shops without a website. bt:WebsiteAdvice puts
+#    sh:severity sh:Info on the node shape; its results come back as
+#    Violations. bt:WebsiteAdviceFixed puts the same severity on the
+#    property shape, and its results are Infos. The rule is that a result
+#    takes its severity from its source shape, and the source shape of a
+#    property constraint is the property shape. A severity on the node
+#    shape applies only to constraints written on the node shape itself.
+#    The third shape shows a message using {$value}: sh:minInclusive
+#    (module 02) reports the offending value, so the template has something
+#    to fill in. Messages can carry a language tag, and a shape can have
+#    several.
+#
+#  DIAGRAM
+#       bt:WebsiteAdvice                        bt:WebsiteAdviceFixed
+#         sh:severity sh:Info   <- ignored        sh:property [
+#         sh:property [            by this          sh:path bs:website ;
+#            sh:path bs:website ;  property         sh:minCount 1 ;
+#            sh:minCount 1 ]       shape            sh:severity sh:Info ]   <- used
+#              |                                        |
+#              v                                        v
+#         7 x Violation                            7 x Info
+#
+#       the source shape of a property constraint is the property shape
+#
+#  WHAT TO TAKE AWAY
+#    - Write sh:severity on the shape that owns the constraint. For a
+#      property constraint that is the property shape.
+#    - {$value} is filled only when the result has a value. A message
+#      that mentions it on a minCount constraint keeps the braces.
+#    - Several sh:message values are allowed, usually one per language.
+#      This engine joins them into one string; keep to one per shape if
+#      that matters.
+#
+#  TRY IT
+#    Move sh:severity sh:Info from bt:WebsiteAdvice onto its property
+#    shape. The seven violations become infos and the headline changes to
+#    Conforms.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F01-first-shapes%2Fs05-messages-and-severities.ttl
+#  SPEC      SHACL §2.1.4 Declaring the Severity of a Shape
+#            https://www.w3.org/TR/shacl/#severity
+#            SHACL §2.1.5 Declaring Messages for a Shape
+#            https://www.w3.org/TR/shacl/#message
+#  REPORTS   does not conform -- 7 violations, 1 warning, 7 info; 6 shapes
+# ==========================================================================
+
+@prefix bt: <https://example.org/bookshop-trail/> .
+@prefix bs: <https://example.org/bookshop-trail/schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# The severity is on the node shape. The constraint is on the property shape.
+# The results come from the property shape, so they are Violations.
+bt:WebsiteAdvice
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:severity     sh:Info ;
+    sh:property [
+        sh:path      bs:website ;
+        sh:minCount  1 ;
+        sh:message   "No website on record for {$this}. (severity written on the node shape)" ;
+    ] .
+
+# The same constraint with the severity where it takes effect.
+bt:WebsiteAdviceFixed
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:property [
+        sh:path      bs:website ;
+        sh:minCount  1 ;
+        sh:severity  sh:Info ;
+        sh:message   "No website on record for {$this}. (severity written on the property shape)" ;
+    ] .
+
+# A constraint with a value to report, so {$value} has something to say.
+bt:StaffedShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:property [
+        sh:path          bs:staffCount ;
+        sh:minInclusive  1 ;
+        sh:severity      sh:Warning ;
+        sh:message       "{$this} reports {$value} staff. A shop with nobody in it is not trading."@en ;
+    ] .

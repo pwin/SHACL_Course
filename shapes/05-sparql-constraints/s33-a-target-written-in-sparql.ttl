@@ -1,0 +1,110 @@
+# ==========================================================================
+#  S33  A target written in SPARQL
+# ==========================================================================
+#
+#  CHECKS
+#    Every book town has a bookshop; a shop with a cafe has room for one; a
+#    city has more than one shop.
+#
+#  HOW IT WORKS
+#    A target need not be a class. sh:target [ a sh:SPARQLTarget ;
+#    sh:select ... ] makes the focus nodes whatever the query binds to
+#    ?this, and bt:BookTownShape uses it to pick the settlements with
+#    bs:isBookTown true and require at least one shop in each. On the
+#    faulty data Newtown (F25) is a book town with none. SHACL 1.2 shortens
+#    the same idea to sh:target [ sh:select ... ], a select expression,
+#    which bt:CafeShape uses for the shops with a cafe; four of them have
+#    under a hundred square metres, reported as information.
+#    sh:targetWhere, also 1.2, takes a shape instead of a query: the
+#    settlements that conform to 'population at least 100,000' are the
+#    cities, and three of them have fewer than two shops. All three forms
+#    run in this engine.
+#
+#  DIAGRAM
+#       sh:target [ a sh:SPARQLTarget ; sh:select "SELECT ?this WHERE { ?this bs:isBookTown true }" ]
+#            focus nodes = the bindings of ?this          (SHACL-AF)
+#
+#       sh:target [ sh:select "..." ]                     (SHACL 1.2: a select expression)
+#
+#       sh:targetWhere [ sh:class bs:Settlement ; sh:property [ sh:path bs:population ; sh:minInclusive 100000 ] ]
+#            focus nodes = the nodes that conform to this shape     (SHACL 1.2)
+#
+#  WHAT TO TAKE AWAY
+#    - A SPARQL target is any SELECT that binds ?this. Use it when the
+#      population is defined by a condition rather than a class.
+#    - sh:targetWhere is the same idea without SPARQL: the target is
+#      'whatever conforms to this shape'.
+#    - A target query that fails to parse selects nothing and reports
+#      nothing on this engine. Check the shapes count and keep a canary
+#      (s09).
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F05-sparql-constraints%2Fs33-a-target-written-in-sparql.ttl
+#  SPEC      SHACL-AF §3.1 SPARQL-based Targets
+#            https://www.w3.org/TR/shacl-af/#SPARQLTarget
+#            SHACL 1.2 Core §3.1.3.6 Where Targets (sh:targetWhere)
+#            https://www.w3.org/TR/shacl12-core/#targetWhere
+#  REPORTS   does not conform -- 1 violation, 0 warnings, 7 info; 8 shapes
+# ==========================================================================
+
+@prefix bt:  <https://example.org/bookshop-trail/> .
+@prefix bs:  <https://example.org/bookshop-trail/schema#> .
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:BookTownShape
+    a  sh:NodeShape ;
+    sh:target [
+        a            sh:SPARQLTarget ;
+        sh:prefixes  bt:prefixes ;
+        sh:select    "SELECT ?this WHERE { ?this bs:isBookTown true }" ;
+    ] ;
+    sh:property [
+        sh:path      [ sh:inversePath bs:locatedIn ] ;
+        sh:minCount  1 ;
+        sh:message   "{$this} is a book town with no bookshop." ;
+    ] .
+
+# SHACL 1.2: a select expression as the target.
+bt:CafeShape
+    a  sh:NodeShape ;
+    sh:target [
+        sh:prefixes  bt:prefixes ;
+        sh:select    "SELECT ?this WHERE { ?this bs:hasCafe true }" ;
+    ] ;
+    sh:property [
+        sh:path          bs:floorArea ;
+        sh:minInclusive  100 ;
+        sh:severity      sh:Info ;
+        sh:message       "{$this} has a cafe in {$value} square metres." ;
+    ] .
+
+# SHACL 1.2: a shape as the target.
+bt:CityShape
+    a  sh:NodeShape ;
+    sh:targetWhere [
+        sh:class     bs:Settlement ;
+        sh:property  [ sh:path bs:population ; sh:minInclusive 100000 ] ;
+    ] ;
+    sh:property [
+        sh:path      [ sh:inversePath bs:locatedIn ] ;
+        sh:minCount  2 ;
+        sh:severity  sh:Info ;
+        sh:message   "{$this} is a city with fewer than two shops on the trail." ;
+    ] .

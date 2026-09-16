@@ -1,0 +1,108 @@
+# ==========================================================================
+#  S39  An ISBN check digit
+# ==========================================================================
+#
+#  CHECKS
+#    Every ISBN-13's last digit is the check digit its first twelve imply.
+#
+#  HOW IT WORKS
+#    s15 showed that a pattern cannot add up. A constraint component can:
+#    it is a sh:ConstraintComponent with one or more sh:parameter
+#    declarations and a validator, and once declared it is used like a Core
+#    component -- here as bt:isbn13 true on a property shape. The validator
+#    is a sh:SPARQLAskValidator: an ASK that must come back true for a
+#    value to pass, with $value bound to the value and each parameter bound
+#    to its own variable. The query weights the twelve digits 1, 3, 1, 3
+#    and so on, sums them, and compares the check digit. All 63 ISBNs in
+#    the clean data pass; the one with the wrong last digit (F10) fails. A
+#    value that does not match the thirteen-digit pattern is left to s15's
+#    sh:pattern and passes here, so the hyphenated ISBN is not reported
+#    twice. SPARQL has no modulus operator, so the arithmetic is written
+#    with FLOOR, in BINDs that keep the ASK readable.
+#
+#  DIAGRAM
+#       bt:ISBN13ConstraintComponent
+#         sh:parameter [ sh:path bt:isbn13 ]           <- the property that switches it on
+#         sh:validator [ a sh:SPARQLAskValidator ;
+#            sh:ask "ASK { FILTER ( <check digit arithmetic on $value> ) }" ]
+#
+#       a property shape uses it:   sh:property [ sh:path bs:isbn ; bt:isbn13 true ]
+#
+#       9 7 8 0 1 4 1 1 8 7 7 6 | 2
+#       x1x3x1x3x1x3x1x3x1x3x1x3          sum 109  ->  (10 - 9) mod 10 = 1  !=  2   -> fails
+#
+#       SPARQL has no modulus operator; x mod 10 is written x - 10 * FLOOR(x / 10)
+#
+#  WHAT TO TAKE AWAY
+#    - A constraint component is a parameter plus a validator. Declaring
+#      one turns a query into vocabulary.
+#    - An ASK validator answers per value: true passes. $value is the
+#      value, $this the focus node, $PATH the path, and every parameter
+#      is a variable of the same name.
+#    - Leave what a Core component already checks to that component. A
+#      custom validator should test one thing.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F06-constraint-components%2Fs39-an-isbn-check-digit.ttl
+#  SPEC      SHACL §6 SPARQL-based Constraint Components
+#            https://www.w3.org/TR/shacl/#sparql-constraint-components
+#            SHACL §6.2.3.2 ASK-based Validators
+#            https://www.w3.org/TR/shacl/#SPARQLAskValidator
+#  REPORTS   does not conform -- 1 violation, 0 warnings, 0 info; 3 shapes
+# ==========================================================================
+
+@prefix bt:   <https://example.org/bookshop-trail/> .
+@prefix bs:   <https://example.org/bookshop-trail/schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:ISBN13ConstraintComponent
+    a  sh:ConstraintComponent ;
+    rdfs:label  "ISBN-13 check digit" ;
+    sh:parameter [ sh:path bt:isbn13 ; sh:datatype xsd:boolean ] ;
+    sh:validator [
+        a  sh:SPARQLAskValidator ;
+        sh:prefixes  bt:prefixes ;
+        sh:message   "The check digit of {$value} is wrong." ;
+        sh:ask  """
+            ASK {
+              BIND ( STR($value) AS ?s )
+              BIND (   xsd:integer(SUBSTR(?s, 1, 1))  + 3 * xsd:integer(SUBSTR(?s, 2, 1))
+                     + xsd:integer(SUBSTR(?s, 3, 1))  + 3 * xsd:integer(SUBSTR(?s, 4, 1))
+                     + xsd:integer(SUBSTR(?s, 5, 1))  + 3 * xsd:integer(SUBSTR(?s, 6, 1))
+                     + xsd:integer(SUBSTR(?s, 7, 1))  + 3 * xsd:integer(SUBSTR(?s, 8, 1))
+                     + xsd:integer(SUBSTR(?s, 9, 1))  + 3 * xsd:integer(SUBSTR(?s, 10, 1))
+                     + xsd:integer(SUBSTR(?s, 11, 1)) + 3 * xsd:integer(SUBSTR(?s, 12, 1))
+                     AS ?sum )
+              # SPARQL has no modulus operator: x mod 10 is x - 10 * FLOOR(x / 10)
+              BIND ( 10 - (?sum - 10 * FLOOR(?sum / 10)) AS ?c )
+              BIND ( ?c - 10 * FLOOR(?c / 10) AS ?check )
+              FILTER ( !REGEX(?s, "^97[89][0-9]{10}$") || ?check = xsd:integer(SUBSTR(?s, 13, 1)) )
+            }
+        """ ;
+    ] .
+
+bt:WorkShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Work ;
+    sh:property [
+        sh:path    bs:isbn ;
+        bt:isbn13  true ;
+    ] .

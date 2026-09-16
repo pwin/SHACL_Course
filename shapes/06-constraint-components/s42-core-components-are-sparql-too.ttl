@@ -1,0 +1,123 @@
+# ==========================================================================
+#  S42  Core components are SPARQL too
+# ==========================================================================
+#
+#  CHECKS
+#    sh:minCount and sh:minInclusive written as constraint components --
+#    the second in a version that understands years.
+#
+#  HOW IT WORKS
+#    Appendix D of the specification defines every Core component as a
+#    SPARQL validator. bt:AtLeastConstraintComponent is sh:minCount in that
+#    form, with one difference forced by this engine: a SELECT property
+#    validator here runs once per value node, so a validator that counts
+#    values never runs when there are none. The component is therefore
+#    declared for node shapes, with the property to count as a second
+#    parameter, and a sh:nodeValidator counts the values of $countProperty
+#    per focus node. It finds the Hebrew translation without a translator
+#    that s08 found. bt:MinYearConstraintComponent is what sh:minInclusive
+#    would be if it cast a gYear to an integer first, which is the fix s14
+#    wrote by hand: an ASK validator comparing xsd:integer(STR($value))
+#    with the parameter. Two works in the clean data were published before
+#    1950, and are reported as information. Writing a Core component out
+#    this way is the quickest way to see what it does, and the quickest way
+#    to make a version that does something slightly different.
+#
+#  DIAGRAM
+#       Appendix D, sh:minCount, as a query:
+#         SELECT $this WHERE {
+#           { SELECT $this (COUNT(?v) AS ?n) WHERE { OPTIONAL { $this $PATH ?v } } GROUP BY $this }
+#           FILTER ( ?n < $minCount ) }
+#
+#       here, as a node-shape component:   bt:TranslationShape  bt:countProperty bs:translatedBy ; bt:atLeast 1
+#         (a property validator would run per value on this engine, and a node with no values has none)
+#
+#       bt:minYear 1950 on bs:publicationYear:
+#         ASK { FILTER ( xsd:integer(STR($value)) >= $minYear ) }
+#         "1948"^^xsd:gYear -> 1948 >= 1950 is false -> reported, where sh:minInclusive could not compare at all
+#
+#  WHAT TO TAKE AWAY
+#    - Every Core component has a SPARQL definition in Appendix D. When
+#      one behaves unexpectedly, read that first.
+#    - A custom component can be a Core component with one change. That
+#      is often the right fix for a datatype the engine will not compare.
+#    - On this engine, SELECT property validators run per value, ASK
+#      validators run per value, and node validators run per focus node.
+#      Count with a node validator.
+#
+#  DATA      bookshop-trail-1.1.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F06-constraint-components%2Fs42-core-components-are-sparql-too.ttl
+#  SPEC      SHACL Appendix D Summary of SHACL Core Validators
+#            https://www.w3.org/TR/shacl/#core-validators
+#            SHACL §6 SPARQL-based Constraint Components
+#            https://www.w3.org/TR/shacl/#sparql-constraint-components
+#  REPORTS   does not conform -- 1 violation, 0 warnings, 2 info; 8 shapes
+# ==========================================================================
+
+@prefix bt:   <https://example.org/bookshop-trail/> .
+@prefix bs:   <https://example.org/bookshop-trail/schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:AtLeastConstraintComponent
+    a  sh:ConstraintComponent ;
+    rdfs:label  "at least N values of a property (sh:minCount, written out)" ;
+    sh:parameter [ sh:path bt:countProperty ; sh:nodeKind sh:IRI ] ;
+    sh:parameter [ sh:path bt:atLeast ;       sh:datatype xsd:integer ] ;
+    sh:nodeValidator [
+        a  sh:SPARQLSelectValidator ;
+        sh:prefixes  bt:prefixes ;
+        sh:message   "{$this} has fewer values of the counted property than required." ;
+        sh:select  """
+            SELECT $this WHERE {
+              { SELECT $this (COUNT(?v) AS ?n)
+                WHERE { OPTIONAL { $this $countProperty ?v } }
+                GROUP BY $this }
+              FILTER ( ?n < $atLeast )
+            }
+        """ ;
+    ] .
+
+bt:MinYearConstraintComponent
+    a  sh:ConstraintComponent ;
+    rdfs:label  "not before a year (sh:minInclusive for xsd:gYear)" ;
+    sh:parameter [ sh:path bt:minYear ; sh:datatype xsd:integer ] ;
+    sh:validator [
+        a  sh:SPARQLAskValidator ;
+        sh:prefixes  bt:prefixes ;
+        sh:message   "{$value} is earlier than the year allowed." ;
+        sh:ask  "ASK { FILTER ( xsd:integer(STR($value)) >= $minYear ) }" ;
+    ] .
+
+bt:TranslationShape
+    a                 sh:NodeShape ;
+    sh:targetClass    bs:Translation ;
+    bt:countProperty  bs:translatedBy ;
+    bt:atLeast        1 .
+
+bt:YearShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Work ;
+    sh:property [ sh:path bs:publicationYear ; bt:minYear 1950 ; sh:severity sh:Info ] .
+
+bt:FoundedShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:property [ sh:path bs:founded ; bt:minYear 1900 ] .

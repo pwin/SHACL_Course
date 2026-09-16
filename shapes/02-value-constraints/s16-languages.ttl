@@ -1,0 +1,75 @@
+# ==========================================================================
+#  S16  Languages
+# ==========================================================================
+#
+#  CHECKS
+#    Place names are in English, Welsh or Gaelic, and one name per
+#    language; shop names carry a tag.
+#
+#  HOW IT WORKS
+#    sh:languageIn takes a list of language tags and passes a value whose
+#    tag matches one of them, with the usual prefix rule, so cy-GB would
+#    match cy. A literal with no tag matches nothing, which is how the shop
+#    named without a tag is caught a second way. sh:uniqueLang true says no
+#    two values share a language tag; Newtown (F25) has two English labels
+#    and fails. Kendal's French label (F28) fails sh:languageIn. The SPARQL
+#    course's q11 lists the Welsh and Gaelic names these shapes are about.
+#
+#  DIAGRAM
+#       sh:languageIn ( "en" "cy" "gd" )
+#       "Wigtown"@en             ok
+#       "Baile na h-Uige"@gd     ok
+#       "Kendal"@fr              violation
+#       "The Foxed Page"         violation: no tag, so no match
+#
+#       sh:uniqueLang true
+#       "Newtown"@en, "New Town"@en, "Y Drenewydd"@cy     two @en  ->  violation
+#
+#  WHAT TO TAKE AWAY
+#    - sh:languageIn is an allow-list of tags. It rejects untagged
+#      literals, which is often what you want on a label.
+#    - sh:uniqueLang is one per language, not one in total. It is the
+#      constraint for 'one preferred label per language'.
+#    - A uniqueLang result has no sh:value: the problem is the pair, not
+#      either member.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F02-value-constraints%2Fs16-languages.ttl
+#  SPEC      SHACL §4.4.4 sh:languageIn
+#            https://www.w3.org/TR/shacl/#LanguageInConstraintComponent
+#            SHACL §4.4.5 sh:uniqueLang
+#            https://www.w3.org/TR/shacl/#UniqueLangConstraintComponent
+#  REPORTS   does not conform -- 3 violations, 0 warnings, 0 info; 6 shapes
+# ==========================================================================
+
+@prefix bt:   <https://example.org/bookshop-trail/> .
+@prefix bs:   <https://example.org/bookshop-trail/schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+bt:PlaceNames
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Place ;
+    sh:property [
+        sh:path        rdfs:label ;
+        sh:languageIn  ( "en" "cy" "gd" ) ;
+        sh:message     "Place names are in English, Welsh or Gaelic: {$value}." ;
+    ] .
+
+bt:SettlementNames
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Settlement ;
+    sh:property [
+        sh:path        rdfs:label ;
+        sh:uniqueLang  true ;
+        sh:message     "{$this} has more than one name in the same language." ;
+    ] .
+
+bt:ShopNames
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:property [
+        sh:path        rdfs:label ;
+        sh:languageIn  ( "en" "cy" "gd" ) ;
+        sh:message     "\"{$value}\" has no language tag, or one not in the list." ;
+    ] .

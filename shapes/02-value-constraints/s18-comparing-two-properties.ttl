@@ -1,0 +1,97 @@
+# ==========================================================================
+#  S18  Comparing two properties
+# ==========================================================================
+#
+#  CHECKS
+#    A segment's two ends differ; a work's label and title agree; a
+#    translation is not older than its original; and the gYear problem
+#    again.
+#
+#  HOW IT WORKS
+#    The property pair components compare the values of sh:path with the
+#    values of another property of the same focus node. sh:disjoint
+#    bs:segmentTo on bs:segmentFrom says no value is shared; the segment
+#    from The Inkwell to The Inkwell (F22) fails. sh:equals dct:title on
+#    rdfs:label says the two value sets are identical; the work whose title
+#    is hyphenated and whose label is not (F13) fails, and the result names
+#    the value on each side. sh:lessThanOrEquals compares by value, and the
+#    second property must be a plain predicate, but sh:path can be a
+#    sequence: (bs:translationOf bs:publicationYear) reaches the original's
+#    year, to be compared with the translation's own. Those are gYears, so
+#    on this engine every translation is reported, the one published before
+#    its original (F14) among six that are in order. bt:DiscountShape does
+#    the same comparison on decimals and behaves: it reports, as
+#    information, every stock record whose shelf price is below the
+#    recommended price.
+#
+#  DIAGRAM
+#       focus node          sh:path values        compared with      component
+#       bt:seg-...          bs:segmentFrom         bs:segmentTo       sh:disjoint      shared value -> violation
+#       bt:book-...         rdfs:label             dct:title          sh:equals        sets differ  -> violation
+#       bt:book-...-fr      translationOf/pubYear  bs:publicationYear sh:lessThanOrEquals   gYear: cannot compare
+#       bt:stock-...        ofWork/rrp             bs:shelfPrice      sh:lessThanOrEquals   rrp <= shelf?  no -> info
+#
+#       the second property is always a single predicate; the first may be a path
+#
+#  WHAT TO TAKE AWAY
+#    - sh:equals and sh:disjoint compare value sets; sh:lessThan and
+#      sh:lessThanOrEquals compare every pair of values.
+#    - The compared property is a predicate on the focus node. To compare
+#      with something further away, put the path on sh:path and the
+#      predicate on the other side.
+#    - sh:lessThan on xsd:gYear reports every pair on this engine. Use
+#      the STR cast from s14 when years are involved.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F02-value-constraints%2Fs18-comparing-two-properties.ttl
+#  SPEC      SHACL §4.5 Property Pair Constraint Components
+#            https://www.w3.org/TR/shacl/#core-components-property-pairs
+#            SHACL §4.5.4 sh:lessThanOrEquals
+#            https://www.w3.org/TR/shacl/#LessThanOrEqualsConstraintComponent
+#  REPORTS   does not conform -- 10 violations, 0 warnings, 58 info; 8 shapes
+# ==========================================================================
+
+@prefix bt:   <https://example.org/bookshop-trail/> .
+@prefix bs:   <https://example.org/bookshop-trail/schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+
+bt:SegmentEnds
+    a               sh:NodeShape ;
+    sh:targetClass  bs:TrailSegment ;
+    sh:property [
+        sh:path      bs:segmentFrom ;
+        sh:disjoint  bs:segmentTo ;
+        sh:message   "{$this} starts and ends at {$value}." ;
+    ] .
+
+bt:WorkTitles
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Work ;
+    sh:property [
+        sh:path     rdfs:label ;
+        sh:equals   dct:title ;
+        sh:message  "rdfs:label and dct:title disagree on {$this}: {$value}." ;
+    ] .
+
+# gYear: reported for every translation, in order or not. See s14.
+bt:TranslationDates
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Translation ;
+    sh:property [
+        sh:path              ( bs:translationOf bs:publicationYear ) ;
+        sh:lessThanOrEquals  bs:publicationYear ;
+        sh:message           "Original {$value}: cannot be compared with the translation's gYear on this engine." ;
+    ] .
+
+# Decimals compare. Which stock is sold below the recommended price?
+bt:DiscountShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:StockRecord ;
+    sh:property [
+        sh:path              ( bs:ofWork bs:rrp ) ;
+        sh:lessThanOrEquals  bs:shelfPrice ;
+        sh:severity          sh:Info ;
+        sh:message           "{$this}: RRP {$value} is above the shelf price. A discount." ;
+    ] .

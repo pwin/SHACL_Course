@@ -1,0 +1,72 @@
+# ==========================================================================
+#  S63  Shapes that check nothing
+# ==========================================================================
+#
+#  CHECKS
+#    Three ways to write a constraint the engine accepts and never applies.
+#
+#  HOW IT WORKS
+#    bt:NoTarget is a well-formed node shape with constraints and no
+#    target: it compiles, it counts, it checks nothing, and a rule on it
+#    would never fire (s43). bt:CountOnNodeShape puts sh:minCount 1 on the
+#    node shape itself, where it belongs to no path; the specification
+#    calls that ill-formed, and this engine ignores it without a word.
+#    bt:UntypedButTargeted is the case that does work, for contrast: a node
+#    with a target and property shapes is a shape whether or not it is
+#    typed sh:NodeShape. The canary reports, and the shape count of seven
+#    is the only sign the first two are there. s09 and s60 cover the target
+#    that matches nothing; this lesson is the constraint that is never
+#    reached.
+#
+#  DIAGRAM
+#       bt:NoTarget            a sh:NodeShape ; sh:property [ ... ]            no focus nodes
+#       bt:CountOnNodeShape    a sh:NodeShape ; sh:targetNode ... ; sh:minCount 1   ignored: no sh:path
+#       bt:UntypedButTargeted  sh:targetNode ... ; sh:property [ ... ]        works: a shape by use
+#
+#       shapes compiled: 7     results: 2   (one from the untyped shape, one canary)
+#
+#  WHAT TO TAKE AWAY
+#    - A shape with no target is a definition. It checks nothing unless
+#      another shape reaches it with sh:node, sh:not or a qualified
+#      shape.
+#    - Cardinality, datatype and the other property constraints belong on
+#      property shapes. On a node shape they are silently dropped by this
+#      engine.
+#    - Compare the shapes count with what you wrote, and keep a canary
+#      while you are unsure.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F10-debugging%2Fs63-shapes-that-check-nothing.ttl
+#  SPEC      SHACL §2.1 Shapes
+#            https://www.w3.org/TR/shacl/#shapes
+#            SHACL Appendix B Summary of SHACL Syntax Rules
+#            https://www.w3.org/TR/shacl/#syntax-rules
+#  REPORTS   does not conform -- 2 violations, 0 warnings, 0 info; 7 shapes
+# ==========================================================================
+
+@prefix bt:   <https://example.org/bookshop-trail/> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+bt:NoTarget
+    a  sh:NodeShape ;
+    sh:property [ sh:path rdfs:label ; sh:minCount 1 ] .
+
+# Ill-formed: sh:minCount without a property shape. Ignored by this engine.
+bt:CountOnNodeShape
+    a              sh:NodeShape ;
+    sh:targetNode  bt:shop-halfmoon ;
+    sh:minCount    1 ;
+    sh:message     "Never reported: there is no sh:path for the count to apply to." .
+
+# Works without rdf:type sh:NodeShape: the target and the property shape make it a shape.
+bt:UntypedButTargeted
+    sh:targetNode  bt:shop-halfmoon ;
+    sh:property [ sh:path rdfs:label ; sh:minCount 1 ;
+                  sh:message "{$this} has no name (reported by a shape with no rdf:type)." ] .
+
+bt:Canary
+    a              sh:NodeShape ;
+    sh:targetNode  bt:shop-inkwell ;
+    sh:property [ sh:path rdf:type ; sh:maxCount 0 ; sh:message "The canary: validation ran." ] .

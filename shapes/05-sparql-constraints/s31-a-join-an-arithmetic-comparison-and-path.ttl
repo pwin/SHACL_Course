@@ -1,0 +1,122 @@
+# ==========================================================================
+#  S31  A join, an arithmetic comparison, and $PATH
+# ==========================================================================
+#
+#  CHECKS
+#    A shelf price is at most twice the recommended price; no work predates
+#    its author; an event does not feature the dead.
+#
+#  HOW IT WORKS
+#    Each of these needs a value from a second node, which is a join, and
+#    Core has none. bt:StockPriceShape puts the sh:sparql on a property
+#    shape, where $PATH stands for the shape's sh:path and the results
+#    carry the path automatically. It joins the record to its work's bs:rrp
+#    and compares. The one record at three times the recommended price
+#    (F23) is reported, with the offending price as ?value.
+#    bt:WorkAfterBirth joins a work to its author's birth year, with the
+#    STR cast from s14, and finds the book published five years before its
+#    author was born (F11). bt:LivingFeature is on the clean data too: a
+#    lecture in 2025 by an author who died in 2004. That may be a memorial
+#    event or a mistake, so it is a warning. Its year comes from
+#    SUBSTR(STR(?date), 1, 4): YEAR() is defined on xsd:dateTime, and on an
+#    xsd:date this engine leaves it unbound, so the filter would never be
+#    true.
+#
+#  DIAGRAM
+#       property shape:  sh:path bs:shelfPrice ;  sh:sparql [ ... $this $PATH ?value ... ]
+#            $PATH is replaced by the shape's path before the query runs
+#            the result gets sh:resultPath bs:shelfPrice without being told
+#
+#       $this --shelfPrice--> 68.07
+#       $this --ofWork--> work --rrp--> 22.69        68.07 > 2 * 22.69  ->  a row
+#
+#       xsd:integer(SUBSTR(STR("2025-04-05"^^xsd:date), 1, 4)) = 2025
+#            >  xsd:integer(STR("2004"^^xsd:gYear)) = 2004
+#       (YEAR() of an xsd:date is unbound on this engine; see q130 in the SPARQL course)
+#
+#  WHAT TO TAKE AWAY
+#    - A join is a SPARQL constraint. If the condition mentions two
+#      nodes, it is not a Core constraint.
+#    - On a property shape, $PATH is the shape's path, and the result's
+#      path is filled in for you.
+#    - Project ?value to say which value the row is about. It becomes
+#      sh:value and fills {$value}.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F05-sparql-constraints%2Fs31-a-join-an-arithmetic-comparison-and-path.ttl
+#  SPEC      SHACL §5.3.1 Pre-bound Variables in SPARQL Constraints
+#            https://www.w3.org/TR/shacl/#sparql-constraints-prebound
+#            SHACL §5.3.2 Mapping of Solution Bindings to Result Properties
+#            https://www.w3.org/TR/shacl/#sparql-constraints-variables
+#  REPORTS   does not conform -- 2 violations, 1 warning, 0 info; 5 shapes
+# ==========================================================================
+
+@prefix bt:  <https://example.org/bookshop-trail/> .
+@prefix bs:  <https://example.org/bookshop-trail/schema#> .
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:StockPriceShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:StockRecord ;
+    sh:property [
+        sh:path  bs:shelfPrice ;
+        sh:sparql [
+            sh:prefixes  bt:prefixes ;
+            sh:message   "{$value} is more than twice the recommended price." ;
+            sh:select    """
+                SELECT $this ?value WHERE {
+                  $this $PATH ?value ;
+                        bs:ofWork/bs:rrp ?rrp .
+                  FILTER ( ?value > 2 * ?rrp )
+                }
+            """ ;
+        ] ;
+    ] .
+
+bt:WorkAfterBirth
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Work ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:message   "{$this} was published in {$value}, before its author was born." ;
+        sh:select    """
+            SELECT $this ?value WHERE {
+              $this bs:publicationYear ?value ;
+                    bs:author/bs:born ?born .
+              FILTER ( xsd:integer(STR(?value)) < xsd:integer(STR(?born)) )
+            }
+        """ ;
+    ] .
+
+bt:LivingFeature
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Event ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:severity  sh:Warning ;
+        sh:message   "{$this} features {$value}, who had died by then. A memorial, or a mistake?" ;
+        sh:select    """
+            SELECT $this ?value WHERE {
+              $this bs:featuring ?value ; bs:eventDate ?date .
+              ?value bs:died ?died .
+              FILTER ( xsd:integer(SUBSTR(STR(?date), 1, 4)) > xsd:integer(STR(?died)) )
+            }
+        """ ;
+    ] .

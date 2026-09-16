@@ -1,0 +1,81 @@
+# ==========================================================================
+#  S61  The shape that flags everything
+# ==========================================================================
+#
+#  CHECKS
+#    Four shapes that report every node they look at, on clean data, each
+#    for a different reason.
+#
+#  HOW IT WORKS
+#    The opposite failure is a report full of rows that are all wrong.
+#    bt:GYearOrder is the SPARQL course's sh:lessThan between bs:born and
+#    bs:died: gYears do not compare on this engine, so every author with
+#    both dates is reported (s14). bt:StringLabels asks for xsd:string on
+#    labels that are all rdf:langString (s11): 33 shops. bt:HeldAtForwards
+#    puts bs:heldAt on shops, where it should be the inverse: no shop has
+#    one, 33 minCount rows. bt:RetailerClass declares in the shapes graph
+#    that a bookshop is a bs:Retailer and asks every stock record's shop to
+#    be one: rdfs:subClassOf is read from the data graph, not the shapes
+#    graph, so none is, and 95 rows follow. When every focus node fails,
+#    the shape is wrong before the data is, and the count in the headline
+#    shows it first.
+#
+#  DIAGRAM
+#       symptom: a row for every focus node
+#
+#       cause                                       here
+#       a comparison the engine cannot make          sh:lessThan on xsd:gYear          8 rows
+#       a datatype the data never uses               xsd:string on "..."@en labels     33 rows
+#       a path in the wrong direction                bs:heldAt on a shop                33 rows
+#       a class hierarchy in the wrong graph         rdfs:subClassOf in the shapes file 95 rows
+#
+#  WHAT TO TAKE AWAY
+#    - A row for every node is a property of the shape, not the data.
+#      Read the shape again before touching the data.
+#    - rdfs:subClassOf is followed in the data graph. If the hierarchy
+#      lives with the shapes, sh:class will not see it (SHACL 1.2 Core
+#      §6.3 discusses this).
+#    - Datatype and direction mistakes fail every node the same way. Look
+#      at the first row's value and ask why it should have passed.
+#
+#  DATA      bookshop-trail-1.1.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F10-debugging%2Fs61-the-shape-that-flags-everything.ttl
+#  SPEC      SHACL 1.2 Core §6.3 Graph for rdfs:subClassOf Triples
+#            https://www.w3.org/TR/shacl12-core/#subClassOfInShapesGraph
+#            SHACL §4.1.2 sh:datatype
+#            https://www.w3.org/TR/shacl/#DatatypeConstraintComponent
+#  REPORTS   does not conform -- 169 violations, 0 warnings, 0 info; 8 shapes
+# ==========================================================================
+
+@prefix bt:   <https://example.org/bookshop-trail/> .
+@prefix bs:   <https://example.org/bookshop-trail/schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+bt:GYearOrder
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Author ;
+    sh:property [ sh:path bs:born ; sh:lessThan bs:died ;
+                  sh:message "Reported for every author with both dates: gYear does not compare." ] .
+
+bt:StringLabels
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:property [ sh:path rdfs:label ; sh:datatype xsd:string ;
+                  sh:message "Reported for every shop: a tagged label is an rdf:langString." ] .
+
+bt:HeldAtForwards
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:property [ sh:path bs:heldAt ; sh:minCount 1 ;
+                  sh:message "Reported for every shop: events point at shops, not the other way." ] .
+
+# The hierarchy is declared here, in the shapes graph. SHACL reads it from the data graph.
+bs:Bookshop  rdfs:subClassOf  bs:Retailer .
+
+bt:RetailerClass
+    a               sh:NodeShape ;
+    sh:targetClass  bs:StockRecord ;
+    sh:property [ sh:path bs:atShop ; sh:class bs:Retailer ;
+                  sh:message "Reported for every record: the subclass axiom is in the wrong graph." ] .

@@ -1,0 +1,81 @@
+# ==========================================================================
+#  S55  The same fact modelled twice
+# ==========================================================================
+#
+#  CHECKS
+#    The RDF 1.1 stock records and the RDF 1.2 stock annotations agree on
+#    every count.
+#
+#  HOW IT WORKS
+#    The 1.2 edition carries the stock twice: as bs:StockRecord nodes with
+#    bs:atShop, bs:ofWork and bs:copies, and as annotations on shop
+#    bs:stocks work. The SPARQL course's q68 shows the two side by side;
+#    this constraint checks that they agree. For each record it finds the
+#    annotation on the same shop and work through a triple term pattern and
+#    compares the counts. One annotation in the faulty data says thirteen
+#    copies where the record says twelve (F35). A check like this is what
+#    keeps a migration from RDF 1.1 to RDF 1.2 (q86, q121 in the SPARQL
+#    course) from drifting.
+#
+#  DIAGRAM
+#       RDF 1.1     bt:stock-inkwell--the-book-town  a bs:StockRecord ;
+#                       bs:atShop bt:shop-inkwell ; bs:ofWork bt:book-the-book-town ; bs:copies 12 .
+#       RDF 1.2     bt:shop-inkwell bs:stocks bt:book-the-book-town {| bs:copies 13 |} .
+#
+#       SELECT $this ?value WHERE {
+#         $this bs:atShop ?shop ; bs:ofWork ?work ; bs:copies ?n .
+#         ?claim rdf:reifies <<( ?shop bs:stocks ?work )>> ; bs:copies ?value .
+#         FILTER ( ?value != ?n ) }
+#
+#  WHAT TO TAKE AWAY
+#    - When the same fact is modelled two ways, a constraint that joins
+#      them is the only thing that keeps them equal.
+#    - A triple term pattern joins an annotation to the statement it
+#      annotates; the variables inside it bind like any others.
+#    - Write the consistency check before the migration, run it after.
+#
+#  DATA      bookshop-trail-faulty-1.2.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty-1.2.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F08-shacl-1-2%2Fs55-the-same-fact-modelled-twice.ttl
+#  SPEC      RDF 1.2 Concepts §2.2 Triple Terms and Reification
+#            https://www.w3.org/TR/rdf12-concepts/#section-triple-terms
+#            SHACL §5 SPARQL-based Constraints
+#            https://www.w3.org/TR/shacl/#sparql-constraints
+#  REPORTS   does not conform -- 1 violation, 0 warnings, 0 info; 1 shape
+# ==========================================================================
+
+@prefix bt:  <https://example.org/bookshop-trail/> .
+@prefix bs:  <https://example.org/bookshop-trail/schema#> .
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:StockAgreement
+    a               sh:NodeShape ;
+    sh:targetClass  bs:StockRecord ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:message   "The annotation says {$value} copies; the record disagrees." ;
+        sh:select    """
+            SELECT $this ?value WHERE {
+              $this bs:atShop ?shop ; bs:ofWork ?work ; bs:copies ?n .
+              ?claim rdf:reifies <<( ?shop bs:stocks ?work )>> ;
+                     bs:copies ?value .
+              FILTER ( ?value != ?n )
+            }
+        """ ;
+    ] .

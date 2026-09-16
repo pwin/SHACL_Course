@@ -1,0 +1,15 @@
+{
+  "name": "shacl-course-scripts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The Bookshop Trail SHACL course: the same SHACL engine the Turtle Editor Viewer runs, from the command line",
+  "author": "Peter Winstanley",
+  "license": "MIT",
+  "scripts": {
+    "validate": "node validate.mjs"
+  },
+  "dependencies": {
+    "n3": "^2.7.12",
+    "shacl-wasm-node": "^0.2.0"
+  }
+}

@@ -1,0 +1,87 @@
+# ==========================================================================
+#  S59  The inference that hides an error
+# ==========================================================================
+#
+#  CHECKS
+#    The same class constraints as s12, under RDFS: two of the errors
+#    disappear and two new ones appear.
+#
+#  HOW IT WORKS
+#    rdfs:range works the other way round from what a validator wants.
+#    bs:basedIn has range bs:Settlement, so under RDFS inference the author
+#    based in Wales (F16) makes Wales a settlement, and the publisher
+#    located in Wales (F19) does the same through the range of
+#    bs:locatedIn. Both sh:class bs:Settlement constraints now pass; the
+#    wrong data has typed the country to suit itself. Brecon, placed
+#    directly inside Wales (F26), still fails, because the range of
+#    bs:within is bs:Place and the constraint asks for a council area.
+#    Wales, now a settlement, fails that same constraint, because it sits
+#    directly inside Great Britain. And bt:PlaceKind from s26 -- a place is
+#    exactly one kind -- reports Wales again, a country and, since the
+#    inference, a settlement too. The SPARQL course's q143 calls this the
+#    inference nobody wanted. It is the reason inference is off by default
+#    here, and the reason to validate before you reason.
+#
+#  DIAGRAM
+#       bt:author-owen-harker  bs:basedIn  bt:place-wales .
+#       bs:basedIn  rdfs:range  bs:Settlement .
+#
+#       none    sh:class bs:Settlement on bs:basedIn      Wales is a Country     ->  violation
+#       RDFS    rdfs3:  ?o is a bs:Settlement             Wales is now both     ->  passes
+#               bt:PlaceKind (sh:xone of the four kinds)  Wales is two kinds    ->  violation
+#
+#       two errors hidden, two new ones surfaced, none of the data changed
+#
+#  WHAT TO TAKE AWAY
+#    - Range inference types the object to fit the property. A constraint
+#      that checks the object's class is then checking the inference, not
+#      the data.
+#    - Validate the asserted data first. Inference is for what the data
+#      implies, not for what it should have said.
+#    - The same shapes graph gives different reports under different
+#      inference settings. The report headline says which was used.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  INFERENCE rdfs   (the Inference dropdown in the editor)
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F09-inference%2Fs59-the-inference-that-hides-an-error.ttl&inference=rdfs
+#  SPEC      SHACL §1.5 Relationship between SHACL and RDFS inferencing
+#            https://www.w3.org/TR/shacl/#shacl-rdfs
+#            SHACL §4.1.1 sh:class
+#            https://www.w3.org/TR/shacl/#ClassConstraintComponent
+#  REPORTS   does not conform -- 3 violations, 0 warnings, 0 info; 13 shapes
+# ==========================================================================
+
+@prefix bt:   <https://example.org/bookshop-trail/> .
+@prefix bs:   <https://example.org/bookshop-trail/schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+bt:PersonLinks
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Person ;
+    sh:property [ sh:path bs:basedIn ; sh:class bs:Settlement ;
+                  sh:message "{$this} is based in {$value}, which is not a settlement." ] .
+
+bt:PublisherLinks
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Publisher ;
+    sh:property [ sh:path bs:locatedIn ; sh:class bs:Settlement ;
+                  sh:message "{$this} is located in {$value}, which is not a settlement." ] .
+
+bt:SettlementLinks
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Settlement ;
+    sh:property [ sh:path bs:within ; sh:class bs:CouncilArea ;
+                  sh:message "{$this} sits directly in {$value}, which is not a council area." ] .
+
+bt:PlaceKind
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Place ;
+    sh:xone (
+        [ sh:class bs:Country ]
+        [ sh:class bs:Region ]
+        [ sh:class bs:CouncilArea ]
+        [ sh:class bs:Settlement ]
+        [ sh:property [ sh:path skos:notation ; sh:hasValue "GB" ] ]
+    ) ;
+    sh:message  "{$this} is not exactly one kind of place." .

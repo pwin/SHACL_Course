@@ -1,0 +1,127 @@
+# ==========================================================================
+#  S62  Naming your shapes
+# ==========================================================================
+#
+#  CHECKS
+#    The same constraints as s38, with every property shape named and
+#    described, so the report says which rule fired.
+#
+#  HOW IT WORKS
+#    A property shape written as [ ... ] is a blank node, and the report
+#    can only call it 'bt:BookshopShape > property 3'. Give it an IRI and
+#    the report names it; add sh:name and sh:description and a form builder
+#    or a documentation tool can use them too. These are the non-validating
+#    characteristics of §2.3.2: they change nothing about what is checked.
+#    The query below groups the report by sh:sourceShape, which is only
+#    readable once the shapes have names. The convention here is the node
+#    shape's name, a hyphen, and the property's local name.
+#
+#  DIAGRAM
+#       before    sh:sourceShape  _:b12          shown as  bt:BookshopShape > property 3
+#       after     sh:sourceShape  bt:BookshopShape-founded
+#
+#       bt:BookshopShape-founded
+#           a               sh:PropertyShape ;
+#           sh:path         bs:founded ;
+#           sh:name         "founded" ;                <- non-validating
+#           sh:description  "The year the shop opened, as an xsd:gYear." ;
+#           sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:gYear .
+#
+#  WHAT TO TAKE AWAY
+#    - Name property shapes. sh:sourceShape is the fastest route from a
+#      report row to the rule that produced it.
+#    - sh:name, sh:description, sh:order and sh:group are for people and
+#      tools; validation ignores them.
+#    - A named shapes graph is documentation of the data model. Write it
+#      as if it will be read.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F10-debugging%2Fs62-naming-your-shapes.ttl
+#  SPEC      SHACL §2.3.2 Non-Validating Property Shape Characteristics
+#            https://www.w3.org/TR/shacl/#nonValidation
+#            SHACL §3.6.2.4 sh:sourceShape
+#            https://www.w3.org/TR/shacl/#results-source-shape
+#  REPORTS   does not conform -- 8 violations, 2 warnings, 0 info; 6 shapes
+# ==========================================================================
+
+@prefix bt:   <https://example.org/bookshop-trail/> .
+@prefix bs:   <https://example.org/bookshop-trail/schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+bt:BookshopShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:name         "Bookshop" ;
+    sh:description  "An independent bookshop on the trail." ;
+    sh:property     bt:BookshopShape-label, bt:BookshopShape-locatedIn, bt:BookshopShape-founded,
+                    bt:BookshopShape-staffCount, bt:BookshopShape-website .
+
+bt:IdentityGroup
+    a           sh:PropertyGroup ;
+    rdfs:label  "Identity" ;
+    sh:order    0 .
+
+bt:BookshopShape-label
+    a               sh:PropertyShape ;
+    sh:path         rdfs:label ;
+    sh:name         "name" ;
+    sh:description  "The shop's name, with a language tag." ;
+    sh:group        bt:IdentityGroup ;
+    sh:order        1 ;
+    sh:minCount     1 ;
+    sh:datatype     rdf:langString .
+
+bt:BookshopShape-locatedIn
+    a               sh:PropertyShape ;
+    sh:path         bs:locatedIn ;
+    sh:name         "town" ;
+    sh:description  "The settlement the shop is in. Exactly one." ;
+    sh:group        bt:IdentityGroup ;
+    sh:order        2 ;
+    sh:minCount     1 ;
+    sh:maxCount     1 ;
+    sh:class        bs:Settlement .
+
+bt:BookshopShape-founded
+    a               sh:PropertyShape ;
+    sh:path         bs:founded ;
+    sh:name         "founded" ;
+    sh:description  "The year the shop opened, as an xsd:gYear." ;
+    sh:order        3 ;
+    sh:minCount     1 ;
+    sh:maxCount     1 ;
+    sh:datatype     xsd:gYear .
+
+bt:BookshopShape-staffCount
+    a               sh:PropertyShape ;
+    sh:path         bs:staffCount ;
+    sh:name         "staff" ;
+    sh:order        4 ;
+    sh:datatype     xsd:integer ;
+    sh:minInclusive 1 .
+
+bt:BookshopShape-website
+    a               sh:PropertyShape ;
+    sh:path         bs:website ;
+    sh:name         "website" ;
+    sh:description  "Optional; at most one." ;
+    sh:order        5 ;
+    sh:maxCount     1 ;
+    sh:datatype     xsd:anyURI ;
+    sh:severity     sh:Warning .
+
+
+# ------------------------------------------------------------------------
+#  AFTERWARDS.  Queries to run in the SPARQL panel: on the report
+#  (Report as tab, then query that tab) or on the data.
+# ------------------------------------------------------------------------
+#
+#  -- Results by named shape  (on the report)
+#  PREFIX sh: <http://www.w3.org/ns/shacl#>
+#  SELECT ?shape (COUNT(?r) AS ?results)
+#  WHERE { ?r a sh:ValidationResult ; sh:sourceShape ?shape }
+#  GROUP BY ?shape
+#  ORDER BY DESC(?results)

@@ -1,0 +1,81 @@
+# ==========================================================================
+#  S28  Some of the values
+# ==========================================================================
+#
+#  CHECKS
+#    A shop is in exactly one country; every country contains a book town;
+#    no council area contains two.
+#
+#  HOW IT WORKS
+#    sh:class on a path with many values requires all of them to be of the
+#    class. To say 'at least one of them is', use sh:qualifiedValueShape
+#    with sh:qualifiedMinCount: the values that conform to the qualified
+#    shape are counted, and the count is compared. bt:ShopInOneCountry
+#    walks up from the shop's town through every bs:within and requires
+#    exactly one of the places reached to be a bs:Country. On the faulty
+#    data The Inkwell, placed in Wigtown and Hay-on-Wye (F04), reaches
+#    Scotland and Wales, and The Foxed Page, placed in a string, reaches
+#    nothing. bt:CouncilAreaBookTowns looks down instead, with an inverse
+#    path, and sh:qualifiedMaxCount 1 catches Powys once Newtown (F25)
+#    joins Hay-on-Wye as a book town.
+#
+#  DIAGRAM
+#       sh:path ( bs:locatedIn [ sh:oneOrMorePath bs:within ] )
+#       bt:shop-inkwell  ->  { wigtown's areas ..., scotland, gb,  hay's areas ..., wales }
+#                            qualified shape [ sh:class bs:Country ]:  scotland, wales  ->  2
+#                            sh:qualifiedMinCount 1  ok      sh:qualifiedMaxCount 1  violation
+#
+#       sh:path [ sh:inversePath bs:within ]   at bt:place-powys
+#                            { hay-on-wye, newtown, ... }
+#                            qualified shape [ bs:isBookTown true ]:  2   ->  qualifiedMaxCount 1 fails
+#
+#  WHAT TO TAKE AWAY
+#    - A plain constraint on a property shape applies to every value. A
+#      qualified value shape counts the values that conform to it.
+#    - qualifiedMinCount 1 is 'some value is a ...'; qualifiedMinCount 1
+#      with qualifiedMaxCount 1 is 'exactly one value is a ...'.
+#    - sh:qualifiedValueShapesDisjoint true stops one value from being
+#      counted by two sibling qualified shapes on the same property
+#      shape.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F04-shapes-and-logic%2Fs28-some-of-the-values.ttl
+#  SPEC      SHACL §4.7.3 sh:qualifiedValueShape
+#            https://www.w3.org/TR/shacl/#QualifiedValueShapeConstraintComponent
+#  REPORTS   does not conform -- 3 violations, 0 warnings, 0 info; 11 shapes
+# ==========================================================================
+
+@prefix bt: <https://example.org/bookshop-trail/> .
+@prefix bs: <https://example.org/bookshop-trail/schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+bt:ShopInOneCountry
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:property [
+        sh:path                 ( bs:locatedIn [ sh:oneOrMorePath bs:within ] ) ;
+        sh:qualifiedValueShape  [ sh:class bs:Country ] ;
+        sh:qualifiedMinCount    1 ;
+        sh:qualifiedMaxCount    1 ;
+        sh:message              "{$this} is in some number of countries other than one." ;
+    ] .
+
+bt:CountryHasBookTown
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Country ;
+    sh:property [
+        sh:path                 [ sh:inversePath [ sh:oneOrMorePath bs:within ] ] ;
+        sh:qualifiedValueShape  [ sh:property [ sh:path bs:isBookTown ; sh:hasValue true ] ] ;
+        sh:qualifiedMinCount    1 ;
+        sh:message              "{$this} has no book town." ;
+    ] .
+
+bt:CouncilAreaBookTowns
+    a               sh:NodeShape ;
+    sh:targetClass  bs:CouncilArea ;
+    sh:property [
+        sh:path                 [ sh:inversePath bs:within ] ;
+        sh:qualifiedValueShape  [ sh:property [ sh:path bs:isBookTown ; sh:hasValue true ] ] ;
+        sh:qualifiedMaxCount    1 ;
+        sh:message              "{$this} contains more than one book town." ;
+    ] .

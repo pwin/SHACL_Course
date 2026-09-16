@@ -1,0 +1,97 @@
+# ==========================================================================
+#  S51  To a fixpoint
+# ==========================================================================
+#
+#  CHECKS
+#    The same rule, repeated until nothing new appears: the full closure,
+#    and the count the SPARQL course measured.
+#
+#  HOW IT WORKS
+#    This is s50's file with the Inference dropdown at rules, iterated. The
+#    engine runs the rule set, adds what it produced, and runs it again
+#    until a round adds nothing, up to ten rounds. The probe now counts 186
+#    bs:within pairs -- the number the SPARQL course's reasoning table
+#    gives for the OWL reasoners and for the path bs:within+ -- and
+#    bt:ReachesGB reports nothing, because every settlement now has its
+#    direct link to Great Britain. Iteration is outside SHACL-AF. It is
+#    useful for a rule like this one and unsafe for a rule that tests for
+#    absence, which is s52.
+#
+#  DIAGRAM
+#       round 1   two-hop links appear
+#       round 2   three- and four-hop links appear
+#       round 3   nothing new  ->  stop
+#
+#       63 asserted  ->  186 pairs, the same 186 as bs:within+ in the SPARQL course
+#
+#  WHAT TO TAKE AWAY
+#    - Iterating a rule set gives the least fixpoint for rules that only
+#      add. The result is what a reasoner would materialise.
+#    - The ten-round cap is a safety net. A rule that mints a new term
+#      every round never settles, and the engine stops with an error
+#      rather than running out of memory.
+#    - A validator does not persist inferences. To keep the closure, run
+#      the same CONSTRUCT in the SPARQL course's module 17 and store it.
+#
+#  DATA      bookshop-trail-1.1.ttl
+#  INFERENCE rules-iterated   (the Inference dropdown in the editor)
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F07-rules%2Fs51-to-a-fixpoint.ttl&inference=rules-iterated
+#  SPEC      SHACL-AF §8.3 The sh:Rules Entailment Regime
+#            https://www.w3.org/TR/shacl-af/#Rules
+#            SHACL 1.2 Rules §3 SPARQL-RL
+#            https://www.w3.org/TR/shacl12-rules/#overview
+#  REPORTS   conforms -- 0 violations, 0 warnings, 186 info; 5 shapes
+# ==========================================================================
+
+@prefix bt:  <https://example.org/bookshop-trail/> .
+@prefix bs:  <https://example.org/bookshop-trail/schema#> .
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:PlaceShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Place ;
+    sh:rule [
+        a             sh:SPARQLRule ;
+        sh:prefixes   bt:prefixes ;
+        sh:construct  """
+            CONSTRUCT { $this bs:within ?c }
+            WHERE     { $this bs:within ?b . ?b bs:within ?c . }
+        """ ;
+    ] .
+
+bt:WithinProbe
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Place ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:severity  sh:Info ;
+        sh:message   "{$this} bs:within {$value}" ;
+        sh:select    "SELECT $this ?value WHERE { $this bs:within ?value }" ;
+    ] .
+
+bt:ReachesGB
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Settlement ;
+    sh:property [
+        sh:path      bs:within ;
+        sh:hasValue  bt:place-gb ;
+        sh:severity  sh:Warning ;
+        sh:message   "{$this} has no direct bs:within link to Great Britain yet." ;
+    ] .

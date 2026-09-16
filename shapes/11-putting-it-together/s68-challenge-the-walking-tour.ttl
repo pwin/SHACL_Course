@@ -1,0 +1,120 @@
+# ==========================================================================
+#  S68  Challenge: the walking tour
+# ==========================================================================
+#
+#  CHECKS
+#    Four questions about the trail that each need two or three techniques
+#    at once. Try them before reading the shapes.
+#
+#  HOW IT WORKS
+#    Every book town has at least two shops: a SPARQL target and an inverse
+#    path with sh:minCount 2 (all three pass). Every segment joins two
+#    shops that bs:connectsTo links in one direction or the other: a SPARQL
+#    constraint with a UNION (all pass). No two segments join the same pair
+#    of shops: a SPARQL constraint with a second segment variable (all
+#    pass). And which segments cross a border: a rule infers each shop's
+#    country first, then a constraint compares the two ends and reports the
+#    three that differ as information. The SPARQL course's module 14 sets
+#    challenges in the same spirit; these are the validation versions.
+#
+#  DIAGRAM
+#       book towns have two shops        sh:target [ SPARQL ]  +  sh:path [ sh:inversePath bs:locatedIn ] ; sh:minCount 2
+#       segment ends are linked          sh:sparql with { ?f bs:connectsTo ?t } UNION { ?t bs:connectsTo ?f }
+#       no duplicate segments            sh:sparql joining a second segment on the same two ends
+#       border crossings                 a rule for bs:inCountry, then a constraint comparing the ends
+#
+#  WHAT TO TAKE AWAY
+#    - Most real constraints are two techniques: a target that says who,
+#      and a path or a query that says what.
+#    - A rule can do the join once so that several constraints stay
+#      simple.
+#    - Passing constraints are worth keeping. They are the ones that will
+#      catch the next edit.
+#
+#  DATA      bookshop-trail-1.1.ttl
+#  INFERENCE rules   (the Inference dropdown in the editor)
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F11-putting-it-together%2Fs68-challenge-the-walking-tour.ttl&inference=rules
+#  SPEC      SHACL-AF §3.1 SPARQL-based Targets
+#            https://www.w3.org/TR/shacl-af/#SPARQLTarget
+#            SHACL §5 SPARQL-based Constraints
+#            https://www.w3.org/TR/shacl/#sparql-constraints
+#  REPORTS   conforms -- 0 violations, 0 warnings, 3 info; 8 shapes
+# ==========================================================================
+
+@prefix bt:  <https://example.org/bookshop-trail/> .
+@prefix bs:  <https://example.org/bookshop-trail/schema#> .
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:BookTownShape
+    a  sh:NodeShape ;
+    sh:target [ a sh:SPARQLTarget ; sh:prefixes bt:prefixes ;
+                sh:select "SELECT ?this WHERE { ?this bs:isBookTown true }" ] ;
+    sh:property [ sh:path [ sh:inversePath bs:locatedIn ] ; sh:minCount 2 ;
+                  sh:message "{$this} is a book town with fewer than two shops." ] .
+
+bt:SegmentLinked
+    a               sh:NodeShape ;
+    sh:targetClass  bs:TrailSegment ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:message   "The two ends of {$this} are not linked by bs:connectsTo." ;
+        sh:select    """
+            SELECT $this WHERE {
+              $this bs:segmentFrom ?f ; bs:segmentTo ?t .
+              FILTER NOT EXISTS { { ?f bs:connectsTo ?t } UNION { ?t bs:connectsTo ?f } }
+            }
+        """ ;
+    ] ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:message   "{$this} duplicates {$value}." ;
+        sh:select    """
+            SELECT $this ?value WHERE {
+              $this bs:segmentFrom ?f ; bs:segmentTo ?t .
+              ?value bs:segmentFrom ?f ; bs:segmentTo ?t .
+              FILTER ( ?value != $this )
+            }
+        """ ;
+    ] .
+
+bt:ShopCountry
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:rule [
+        a  sh:TripleRule ; sh:subject sh:this ; sh:predicate bs:inCountry ;
+        sh:object [ sh:filterShape [ sh:class bs:Country ] ;
+                    sh:nodes [ sh:path ( bs:locatedIn [ sh:oneOrMorePath bs:within ] ) ] ] ;
+    ] .
+
+bt:BorderCrossing
+    a               sh:NodeShape ;
+    sh:targetClass  bs:TrailSegment ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:severity  sh:Info ;
+        sh:message   "{$this} crosses a border into {$value}." ;
+        sh:select    """
+            SELECT $this ?value WHERE {
+              $this bs:segmentFrom ?f ; bs:segmentTo ?t .
+              ?f bs:inCountry ?from . ?t bs:inCountry ?value .
+              FILTER ( ?from != ?value )
+            }
+        """ ;
+    ] .

@@ -1,0 +1,79 @@
+# ==========================================================================
+#  S53  Two founding dates
+# ==========================================================================
+#
+#  CHECKS
+#    A shop has one founding year -- unless each year is a claim with a
+#    source, in which case it may have several.
+#
+#  HOW IT WORKS
+#    bookshop-trail-1.2.ttl is the RDF 1.2 edition: the same data plus
+#    annotations. Four shops have two founding years, each written as
+#    bs:founded 1919 {| bs:claimedBy ...; bs:confidence ... |}, and the
+#    SPARQL course's q61 to q63 are about choosing between them.
+#    bt:OneFoundingYear is s04's sh:maxCount 1, and on this data it reports
+#    the four, plus the faulty claim on Marginalia (F33), as warnings.
+#    bt:SourcedClaims is the SHACL 1.2 answer: allow several values, and
+#    require every reifier of a bs:founded triple to conform to a shape --
+#    a source of class bs:Source, a confidence no higher than 1.
+#    sh:reifierShape checks the annotation rather than the value. The claim
+#    on Marginalia has no source and a confidence of 1.4, and is the one
+#    violation. sh:reificationRequired true would also demand that every
+#    founding year be a claim; this build of the engine reads it and does
+#    not enforce it, so the 28 unannotated years pass.
+#
+#  DIAGRAM
+#       bt:shop-ex-libris  bs:founded "1919"^^xsd:gYear {| bs:claimedBy bt:source-national-register ; bs:confidence 0.99 |} .
+#       bt:shop-ex-libris  bs:founded "1921"^^xsd:gYear {| bs:claimedBy bt:source-local-paper ;        bs:confidence 0.40 |} .
+#
+#       sh:maxCount 1 on bs:founded         two values  ->  reported
+#
+#       sh:reifierShape [ ... ]  on bs:founded
+#            for each reifier of << shop bs:founded year >>:  does it conform?
+#            Marginalia's claim: no bs:claimedBy, confidence 1.4   ->  violation, value 1960
+#
+#  WHAT TO TAKE AWAY
+#    - In RDF 1.2 a triple can carry annotations through a reifier. SHACL
+#      1.2's sh:reifierShape validates the reifier, not the value.
+#    - A cardinality that was right for plain data may be wrong for
+#      annotated data. Decide whether several claims are allowed before
+#      you constrain the count.
+#    - sh:reificationRequired is in the draft and parsed by this engine,
+#      and not enforced by this build. Check what your validator does
+#      with it.
+#
+#  DATA      bookshop-trail-faulty-1.2.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty-1.2.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F08-shacl-1-2%2Fs53-two-founding-dates.ttl
+#  SPEC      SHACL 1.2 Core §7.8.5 sh:reifierShape, sh:reificationRequired
+#            https://www.w3.org/TR/shacl12-core/#ReifierShapeConstraintComponent
+#            RDF 1.2 Turtle §2.9 Reifying Triples
+#            https://www.w3.org/TR/rdf12-turtle/#reifying-triples
+#  REPORTS   does not conform -- 1 violation, 5 warnings, 0 info; 7 shapes
+# ==========================================================================
+
+@prefix bt: <https://example.org/bookshop-trail/> .
+@prefix bs: <https://example.org/bookshop-trail/schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+bt:OneFoundingYear
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:property [
+        sh:path      bs:founded ;
+        sh:maxCount  1 ;
+        sh:severity  sh:Warning ;
+        sh:message   "{$this} has more than one founding year on record." ;
+    ] .
+
+bt:SourcedClaims
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:property [
+        sh:path                  bs:founded ;
+        sh:reifierShape [
+            sh:property [ sh:path bs:claimedBy ;  sh:minCount 1 ; sh:class bs:Source ] ;
+            sh:property [ sh:path bs:confidence ; sh:maxInclusive 1 ; sh:minInclusive 0 ] ;
+        ] ;
+        sh:reificationRequired   true ;
+        sh:message               "A founding year of {$value} is claimed without a proper source." ;
+    ] .

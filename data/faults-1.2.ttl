@@ -1,0 +1,38 @@
+@prefix bt:    <https://example.org/bookshop-trail/> .
+@prefix bs:    <https://example.org/bookshop-trail/schema#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct:   <http://purl.org/dc/terms/> .
+@prefix geo:   <http://www.opengis.net/ont/geosparql#> .
+@prefix wgs84: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix prov:  <http://www.w3.org/ns/prov#> .
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+
+############################################################################
+#  FAULTS, RDF 1.2 EDITION -- mistakes in the statements about statements
+############################################################################
+#  Appended after faults.ttl to make bookshop-trail-faulty-1.2.ttl. These
+#  need the RDF 1.2 annotation syntax, so they cannot live in faults.ttl.
+############################################################################
+
+# F33  A founding claim with no source and a confidence above one
+#                                                          -> s53 (sh:reifierShape)
+bt:shop-marginalia  bs:founded  "1960"^^xsd:gYear
+    {| bs:confidence  "1.4"^^xsd:decimal |} .
+
+# F34  An attendance claimed by a string rather than a source
+#                                                          -> s54
+bt:event-ex-libris-2025-01-18  bs:attendance  "999"^^xsd:integer
+    {| bs:claimedBy  "the manager" |} .
+
+# F35  A stock annotation that disagrees with its RDF 1.1 record
+#      (the record says 12 copies of The Book Town at The Inkwell)
+#                                                          -> s55
+bt:shop-inkwell  bs:stocks  bt:book-the-book-town
+    {| bs:copies  "13"^^xsd:integer |} .
+
+# F36  A shop notice that runs to two lines                -> s57 (sh:singleLine)
+bt:shop-verso  skos:note  "Translated fiction from twenty languages.\nAsk at the counter."@en .

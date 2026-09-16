@@ -1,0 +1,94 @@
+# ==========================================================================
+#  S13  Ranges
+# ==========================================================================
+#
+#  CHECKS
+#    Coordinates on the globe, counts that are not negative, prices that
+#    are not negative, a confidence between 0 and 1.
+#
+#  HOW IT WORKS
+#    The four range components compare each value with a constant:
+#    sh:minInclusive and sh:maxInclusive allow equality, sh:minExclusive
+#    and sh:maxExclusive do not. They use SPARQL's comparison, so numbers
+#    of different numeric types compare by value. A value that cannot be
+#    compared at all -- the ticket price "free" against 0 -- is a
+#    violation, which is what the specification says should happen. Ten
+#    values fail on the faulty data, each named in the message with
+#    {$value}.
+#
+#  DIAGRAM
+#       sh:minInclusive 1      v >= 1        0 fails,  1 passes
+#       sh:minExclusive 0      v >  0        0 fails,  0.1 passes
+#       sh:maxInclusive 90     v <= 90       152.5 fails
+#       sh:maxExclusive ...    v <  ...
+#
+#       "free"  compared with 0    cannot be compared  ->  violation
+#
+#  WHAT TO TAKE AWAY
+#    - Inclusive or exclusive is the whole difference between the pairs.
+#      'Positive' is minExclusive 0; 'not negative' is minInclusive 0.
+#    - Comparison is SPARQL's: an integer and a decimal compare by value,
+#      a string and a number do not compare and the value fails.
+#    - Ranges are where {$value} in a message earns its place. Say the
+#      number.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F02-value-constraints%2Fs13-ranges.ttl
+#  SPEC      SHACL §4.3 Value Range Constraint Components
+#            https://www.w3.org/TR/shacl/#core-components-range
+#            SHACL §4.3.2 sh:minInclusive
+#            https://www.w3.org/TR/shacl/#MinInclusiveConstraintComponent
+#  REPORTS   does not conform -- 10 violations, 0 warnings, 0 info; 20 shapes
+# ==========================================================================
+
+@prefix bt:    <https://example.org/bookshop-trail/> .
+@prefix bs:    <https://example.org/bookshop-trail/schema#> .
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix wgs84: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+
+bt:PlaceRanges
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Place ;
+    sh:property [ sh:path wgs84:lat ;  sh:minInclusive -90 ;  sh:maxInclusive 90 ;
+                  sh:message "Latitude {$value} is off the globe." ] ;
+    sh:property [ sh:path wgs84:long ; sh:minInclusive -180 ; sh:maxInclusive 180 ] ;
+    sh:property [ sh:path bs:population ; sh:minInclusive 0 ] .
+
+bt:BookshopRanges
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:property [ sh:path bs:staffCount ; sh:minInclusive 1 ;
+                  sh:message "{$this} reports {$value} staff." ] ;
+    sh:property [ sh:path bs:floorArea ;  sh:minExclusive 0 ;
+                  sh:message "Floor area must be positive, not {$value}." ] .
+
+bt:WorkRanges
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Work ;
+    sh:property [ sh:path bs:pages ; sh:minInclusive 1 ; sh:message "{$value} pages is not a book." ] ;
+    sh:property [ sh:path bs:rrp ;   sh:minInclusive 0 ; sh:message "A negative price: {$value}." ] .
+
+bt:StockRanges
+    a               sh:NodeShape ;
+    sh:targetClass  bs:StockRecord ;
+    sh:property [ sh:path bs:copies ;     sh:minInclusive 0 ] ;
+    sh:property [ sh:path bs:shelfPrice ; sh:minInclusive 0 ] .
+
+bt:SegmentRanges
+    a               sh:NodeShape ;
+    sh:targetClass  bs:TrailSegment ;
+    sh:property [ sh:path bs:distanceKm ; sh:minExclusive 0 ; sh:maxExclusive 1000 ;
+                  sh:message "A segment of {$value} km goes nowhere, or too far." ] .
+
+bt:EventRanges
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Event ;
+    sh:property [ sh:path bs:attendance ;  sh:minInclusive 0 ] ;
+    sh:property [ sh:path bs:ticketPrice ; sh:minInclusive 0 ;
+                  sh:message "Ticket price {$value} cannot be compared with 0." ] .
+
+bt:SourceRanges
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Source ;
+    sh:property [ sh:path bs:confidence ; sh:minInclusive 0 ; sh:maxInclusive 1 ;
+                  sh:message "Confidence is a proportion; {$value} is more than certain." ] .

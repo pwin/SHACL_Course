@@ -1,0 +1,90 @@
+# ==========================================================================
+#  S34  What pre-binding forbids
+# ==========================================================================
+#
+#  CHECKS
+#    Works nobody stocks -- written the way pre-binding allows, with the
+#    three ways it does not.
+#
+#  HOW IT WORKS
+#    $this is pre-bound: the engine substitutes the focus node before the
+#    query runs, and the specification lists what a query may not then
+#    contain. MINUS, VALUES and SERVICE are forbidden, a sub-select must
+#    project $this, and $this may not be assigned with AS. This engine
+#    refuses the whole shapes graph with a message naming the construct, so
+#    the file cannot demonstrate them and stay runnable; the diagram shows
+#    the three forbidden spellings and the text the engine returns for
+#    each. The shape uses FILTER NOT EXISTS, which is allowed and is what
+#    MINUS would have meant, and reports the eight works no shop stocks as
+#    information. The SPARQL course's q17 is about why MINUS and NOT EXISTS
+#    differ; here only one of them is available.
+#
+#  DIAGRAM
+#       forbidden                                          the engine says
+#       SELECT $this WHERE { $this a bs:Work
+#           MINUS { ?r bs:ofWork $this } }                 MINUS cannot be combined with SHACL pre-binding
+#       SELECT $this WHERE { VALUES $this { ... } }        VALUES cannot be combined with SHACL pre-binding
+#       SELECT $this WHERE { SERVICE <...> { ... } }       SERVICE cannot be combined with SHACL pre-binding
+#
+#       allowed
+#       SELECT $this WHERE { FILTER NOT EXISTS { ?r bs:ofWork $this } }
+#       SELECT $this WHERE { { SELECT $this (COUNT(?x) AS ?n) WHERE { ... } GROUP BY $this } ... }
+#
+#  WHAT TO TAKE AWAY
+#    - Pre-binding is substitution, and MINUS, VALUES and SERVICE do not
+#      survive it. Write NOT EXISTS, put the list in the shapes graph
+#      (s37), and keep remote data out of shapes.
+#    - A sub-select inside a constraint must project $this, or the outer
+#      pattern has nothing to join on.
+#    - This engine fails loudly on all three. Some validators do not; a
+#      shape that passes everywhere but one engine is worth a second look
+#      at its query.
+#
+#  TRY IT
+#    Replace FILTER NOT EXISTS { ?r bs:ofWork $this } with MINUS { ?r
+#    bs:ofWork $this } and validate. The engine refuses the shapes graph
+#    and names MINUS.
+#
+#  DATA      bookshop-trail-1.1.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F05-sparql-constraints%2Fs34-what-pre-binding-forbids.ttl
+#  SPEC      SHACL Appendix A Pre-binding of Variables in SPARQL Queries
+#            https://www.w3.org/TR/shacl/#pre-binding
+#            SHACL §5.3.1 Pre-bound Variables in SPARQL Constraints
+#            https://www.w3.org/TR/shacl/#sparql-constraints-prebound
+#  REPORTS   conforms -- 0 violations, 0 warnings, 8 info; 2 shapes
+# ==========================================================================
+
+@prefix bt:  <https://example.org/bookshop-trail/> .
+@prefix bs:  <https://example.org/bookshop-trail/schema#> .
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:UnstockedWork
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Work ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:severity  sh:Info ;
+        sh:message   "No shop on the trail stocks {$this}." ;
+        sh:select    """
+            SELECT $this WHERE {
+              FILTER NOT EXISTS { ?record bs:ofWork $this }
+            }
+        """ ;
+    ] .

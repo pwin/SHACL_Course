@@ -1,0 +1,112 @@
+# ==========================================================================
+#  S54  Constraining the claims themselves
+# ==========================================================================
+#
+#  CHECKS
+#    Every claim names one statement and a real source, and a claim about a
+#    founding year is about a bookshop.
+#
+#  HOW IT WORKS
+#    A reifier is a node like any other, so it can be a focus node.
+#    sh:targetSubjectsOf bs:claimedBy picks every claim in the data, and
+#    the first two property shapes say it reifies exactly one statement and
+#    names a bs:Source. The attendance claimed by "the manager" (F34) fails
+#    the second. The third constraint looks inside the statement:
+#    rdf:reifies <<( ?shop bs:founded ?year )>> is a triple term pattern,
+#    and SPARQL 1.2 can match it. It requires the subject of a founding-
+#    year claim to be a bookshop, which all of them are, and the
+#    information rows list what each claim is about. Reifiers here are
+#    blank nodes, so the report shows them by label; the SPARQL course's
+#    q64 explains why that is what the annotation syntax produces.
+#
+#  DIAGRAM
+#       _:c1  rdf:reifies  <<( bt:shop-ex-libris bs:founded "1919"^^xsd:gYear )>> ;
+#             bs:claimedBy bt:source-national-register ;
+#             bs:confidence 0.99 .
+#
+#       sh:targetSubjectsOf bs:claimedBy      ->  _:c1 and every other claim is a focus node
+#
+#       SELECT $this ?value WHERE { $this rdf:reifies <<( ?value bs:founded ?year )>> }
+#            a triple term pattern: ?value binds to the shop inside the statement
+#
+#  WHAT TO TAKE AWAY
+#    - A reifier can be targeted and constrained directly.
+#      sh:targetSubjectsOf on the annotation property finds them all.
+#    - A SPARQL constraint can take a triple term apart with <<( s p o
+#      )>> in the pattern.
+#    - Blank-node reifiers appear in the report under the engine's
+#      labels. Name reifiers with ~ if you want stable identifiers (RDF
+#      1.2 Turtle).
+#
+#  DATA      bookshop-trail-faulty-1.2.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty-1.2.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F08-shacl-1-2%2Fs54-constraining-the-claims-themselves.ttl
+#  SPEC      RDF 1.2 Concepts §2.2 Triple Terms and Reification
+#            https://www.w3.org/TR/rdf12-concepts/#section-triple-terms
+#            SHACL §2.1.3.4 sh:targetSubjectsOf
+#            https://www.w3.org/TR/shacl/#targetSubjectsOf
+#  REPORTS   does not conform -- 1 violation, 0 warnings, 17 info; 5 shapes
+# ==========================================================================
+
+@prefix bt:  <https://example.org/bookshop-trail/> .
+@prefix bs:  <https://example.org/bookshop-trail/schema#> .
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:ClaimShape
+    a                    sh:NodeShape ;
+    sh:targetSubjectsOf  bs:claimedBy ;
+    sh:nodeKind          sh:BlankNode ;
+    sh:property [
+        sh:path      rdf:reifies ;
+        sh:minCount  1 ;
+        sh:maxCount  1 ;
+        sh:message   "A claim reifies exactly one statement." ;
+    ] ;
+    sh:property [
+        sh:path      bs:claimedBy ;
+        sh:class     bs:Source ;
+        sh:message   "{$value} is not a bs:Source." ;
+    ] ;
+    sh:property [
+        sh:path          bs:confidence ;
+        sh:datatype      xsd:decimal ;
+        sh:minInclusive  0 ;
+        sh:maxInclusive  1 ;
+    ] ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:message   "A founding-year claim about {$value}, which is not a bookshop." ;
+        sh:select    """
+            SELECT $this ?value WHERE {
+              $this rdf:reifies <<( ?value bs:founded ?year )>> .
+              FILTER NOT EXISTS { ?value a bs:Bookshop }
+            }
+        """ ;
+    ] ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:severity  sh:Info ;
+        sh:message   "{$this} is a claim about {$value}." ;
+        sh:select    """
+            SELECT $this ?value WHERE {
+              $this rdf:reifies <<( ?value ?p ?o )>> .
+            }
+        """ ;
+    ] .

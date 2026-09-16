@@ -1,0 +1,108 @@
+# ==========================================================================
+#  S48  Conditions, and a rule switched off
+# ==========================================================================
+#
+#  CHECKS
+#    Shops with a cafe get an amenity; shops without a website get a
+#    status; a third rule is present and inactive.
+#
+#  HOW IT WORKS
+#    sh:condition names one or more shapes the focus node must conform to
+#    before the rule fires. bt:CafeRule fires only for shops that conform
+#    to bt:HasCafe, and 22 do. bt:OfflineRule uses a negated condition, [
+#    sh:not bt:HasWebsite ], and fires for the six without one: negation as
+#    failure, which s52 comes back to. bt:SecondHandRule carries
+#    sh:deactivated true and produces nothing; a rule can be kept in the
+#    file and out of the run exactly as a shape can. The probe shows the 28
+#    inferred triples.
+#
+#  DIAGRAM
+#       sh:rule [ a sh:TripleRule ;
+#           sh:condition bt:HasCafe ;                  <- fires only if $this conforms to this shape
+#           sh:subject sh:this ; sh:predicate bs:amenity ; sh:object "cafe" ]
+#
+#       bt:HasCafe  a sh:NodeShape ; sh:property [ sh:path bs:hasCafe ; sh:hasValue true ]
+#
+#       sh:condition [ sh:not bt:HasWebsite ]         <- fires if $this does NOT conform
+#
+#       sh:deactivated true                           <- compiled, never fired
+#
+#  WHAT TO TAKE AWAY
+#    - sh:condition is a guard: a conformance check of the focus node
+#      before the rule runs. Several conditions must all hold.
+#    - [ sh:not S ] as a condition is negation as failure: the rule fires
+#      because something is absent.
+#    - sh:deactivated works on rules as on shapes.
+#
+#  DATA      bookshop-trail-1.1.ttl
+#  INFERENCE rules   (the Inference dropdown in the editor)
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F07-rules%2Fs48-conditions-and-a-rule-switched-off.ttl&inference=rules
+#  SPEC      SHACL-AF §8.2.1 sh:condition
+#            https://www.w3.org/TR/shacl-af/#condition
+#            SHACL-AF §8.2.3 sh:deactivated
+#            https://www.w3.org/TR/shacl-af/#deactivated
+#  REPORTS   conforms -- 0 violations, 0 warnings, 28 info; 8 shapes
+# ==========================================================================
+
+@prefix bt:  <https://example.org/bookshop-trail/> .
+@prefix bs:  <https://example.org/bookshop-trail/schema#> .
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:HasCafe     a sh:NodeShape ; sh:property [ sh:path bs:hasCafe ; sh:hasValue true ] .
+bt:HasWebsite  a sh:NodeShape ; sh:property [ sh:path bs:website ; sh:minCount 1 ] .
+
+bt:BookshopShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:rule [
+        a             sh:TripleRule ;
+        sh:condition  bt:HasCafe ;
+        sh:subject    sh:this ;
+        sh:predicate  bs:amenity ;
+        sh:object     "cafe" ;
+    ] ;
+    sh:rule [
+        a             sh:TripleRule ;
+        sh:condition  [ sh:not bt:HasWebsite ] ;
+        sh:subject    sh:this ;
+        sh:predicate  bs:status ;
+        sh:object     "offline" ;
+    ] ;
+    sh:rule [
+        a               sh:TripleRule ;
+        sh:deactivated  true ;
+        sh:subject      sh:this ;
+        sh:predicate    bs:amenity ;
+        sh:object       "second-hand" ;
+    ] .
+
+bt:AmenityProbe
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:severity  sh:Info ;
+        sh:message   "inferred: {$this} has {$value}" ;
+        sh:select    """
+            SELECT $this ?value WHERE {
+              { $this bs:amenity ?value } UNION { $this bs:status ?value }
+            }
+        """ ;
+    ] .

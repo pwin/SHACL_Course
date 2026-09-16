@@ -1,0 +1,79 @@
+# ==========================================================================
+#  S15  Strings: length and pattern
+# ==========================================================================
+#
+#  CHECKS
+#    An ISBN-13 is thirteen digits starting 978 or 979; a website starts
+#    with a scheme; an event kind is one of seven words.
+#
+#  HOW IT WORKS
+#    sh:pattern is a SPARQL REGEX over the string form of each value, with
+#    sh:flags passed through, so "i" makes it case-insensitive.
+#    sh:minLength and sh:maxLength count characters of the string form. The
+#    hyphenated ISBN (F08) fails the pattern and the maximum length, one
+#    row each. The ISBN with a wrong check digit (F10) passes: it is
+#    thirteen digits starting 978, and no pattern can do arithmetic. Module
+#    06 writes the constraint component that can. The website without a
+#    scheme (F06) fails ^https?://, and the eventKind "Recital" fails the
+#    list of seven, spelled as an alternation.
+#
+#  DIAGRAM
+#       sh:pattern "^97[89][0-9]{10}$"
+#       "9787063088596"        matches                 ok
+#       "978-0-14-118776-1"    hyphens                 violation  (and 17 > 13 for maxLength)
+#       "9780141187762"        wrong check digit       passes -- a pattern cannot add up
+#
+#       sh:pattern "^(reading|signing|panel|workshop|launch|lecture|book club)$" ; sh:flags "i"
+#       "Launch"               matches case-insensitively
+#       "Recital"              violation
+#
+#  WHAT TO TAKE AWAY
+#    - sh:pattern works on the lexical form of any literal, gYears
+#      included. It is a regular expression, so anchor it.
+#    - Length is measured in characters of the string form. "12" and 12
+#      both have length 2.
+#    - A pattern checks shape, not truth. Anything that needs arithmetic
+#      or a lookup needs SPARQL.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F02-value-constraints%2Fs15-strings-length-and-pattern.ttl
+#  SPEC      SHACL §4.4 String-based Constraint Components
+#            https://www.w3.org/TR/shacl/#core-components-string
+#            SHACL §4.4.3 sh:pattern
+#            https://www.w3.org/TR/shacl/#PatternConstraintComponent
+#  REPORTS   does not conform -- 4 violations, 0 warnings, 0 info; 6 shapes
+# ==========================================================================
+
+@prefix bt: <https://example.org/bookshop-trail/> .
+@prefix bs: <https://example.org/bookshop-trail/schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+bt:WorkStrings
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Work ;
+    sh:property [
+        sh:path       bs:isbn ;
+        sh:pattern    "^97[89][0-9]{10}$" ;
+        sh:minLength  13 ;
+        sh:maxLength  13 ;
+        sh:message    "An ISBN-13 is 978 or 979 and ten more digits, no hyphens: {$value}." ;
+    ] .
+
+bt:BookshopStrings
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:property [
+        sh:path     bs:website ;
+        sh:pattern  "^https?://" ;
+        sh:message  "A website starts with http:// or https://: {$value}." ;
+    ] .
+
+bt:EventStrings
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Event ;
+    sh:property [
+        sh:path     bs:eventKind ;
+        sh:pattern  "^(reading|signing|panel|workshop|launch|lecture|book club)$" ;
+        sh:flags    "i" ;
+        sh:message  "{$value} is not one of the seven kinds of event." ;
+    ] .

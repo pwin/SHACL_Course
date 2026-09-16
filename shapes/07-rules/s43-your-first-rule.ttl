@@ -1,0 +1,112 @@
+# ==========================================================================
+#  S43  Your first rule
+# ==========================================================================
+#
+#  CHECKS
+#    Every bookshop is also a schema:BookStore -- inferred, then made
+#    visible in the report.
+#
+#  HOW IT WORKS
+#    sh:rule attaches a rule to a shape, and the rule fires once for each
+#    of the shape's focus nodes. A sh:TripleRule builds one triple from
+#    three node expressions: sh:subject sh:this is the focus node,
+#    sh:predicate rdf:type is a constant, sh:object schema:BookStore is a
+#    constant. With the Inference dropdown at none the rule is ignored; at
+#    rules it runs before validation, and the data the shapes see now has
+#    33 triples nobody wrote. A validator's only output is its report, so
+#    bt:TypeProbe makes the inferences visible: a SPARQL constraint at Info
+#    severity that selects the new type, one row per shop.
+#    bt:BookStoreShape shows the other consequence: its target is the
+#    inferred class, and under rules it has 33 focus nodes. The data in the
+#    tab is not changed; the inferred graph lives only for the run.
+#
+#  DIAGRAM
+#       bt:BookshopShape
+#         sh:targetClass bs:Bookshop              33 focus nodes
+#         sh:rule [ a sh:TripleRule ;
+#            sh:subject   sh:this ;               <- the focus node
+#            sh:predicate rdf:type ;              <- a constant
+#            sh:object    schema:BookStore ]      <- a constant
+#
+#       Inference: none     data as written             probe: 0 rows    BookStoreShape: 0 targets
+#       Inference: rules    data + 33 inferred triples  probe: 33 rows   BookStoreShape: 33 targets
+#
+#       the report is the only window onto the inferences
+#
+#  WHAT TO TAKE AWAY
+#    - A rule fires on its shape's focus nodes. A shape with no target
+#      has no focus nodes and its rules never run.
+#    - Rules run before validation. Everything downstream -- targets,
+#      constraints, counts -- sees the inferred triples.
+#    - To see what a rule produced, write a shape that reports it. An
+#      Info-severity SPARQL constraint is the usual form.
+#
+#  TRY IT
+#    Set Inference back to none and validate again: no rows, and the
+#    headline still says Conforms. Then set it to rules.
+#
+#  DATA      04-bookshops.ttl
+#  INFERENCE rules   (the Inference dropdown in the editor)
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2F04-bookshops.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F07-rules%2Fs43-your-first-rule.ttl&inference=rules
+#  SPEC      SHACL-AF §8 SHACL Rules
+#            https://www.w3.org/TR/shacl-af/#rules
+#            SHACL-AF §8.5 Triple Rules
+#            https://www.w3.org/TR/shacl-af/#TripleRule
+#  REPORTS   conforms -- 0 violations, 0 warnings, 33 info; 5 shapes
+# ==========================================================================
+
+@prefix bt:     <https://example.org/bookshop-trail/> .
+@prefix bs:     <https://example.org/bookshop-trail/schema#> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <https://schema.org/> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:BookshopShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:rule [
+        a             sh:TripleRule ;
+        sh:subject    sh:this ;
+        sh:predicate  rdf:type ;
+        sh:object     schema:BookStore ;
+    ] .
+
+# Reports each inferred type as information.
+bt:TypeProbe
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:severity  sh:Info ;
+        sh:message   "inferred: {$this} rdf:type {$value}" ;
+        sh:select    """
+            SELECT $this ?value WHERE {
+              $this rdf:type ?value .
+              FILTER ( ?value = schema:BookStore )
+            }
+        """ ;
+    ] .
+
+# A shape whose target only exists once the rule has run.
+bt:BookStoreShape
+    a               sh:NodeShape ;
+    sh:targetClass  schema:BookStore ;
+    sh:property [ sh:path rdfs:label ; sh:minCount 1 ] .

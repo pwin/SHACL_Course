@@ -1,0 +1,65 @@
+# ==========================================================================
+#  S25  Not
+# ==========================================================================
+#
+#  CHECKS
+#    A bookshop is not a publisher, a settlement is not a shop, and nobody
+#    specialises in 'Literature'.
+#
+#  HOW IT WORKS
+#    sh:not takes a shape and passes a node that does not conform to it. On
+#    a node shape it tests the focus node: bt:BookshopShape says a shop
+#    does not conform to [ sh:class bs:Publisher ], and the shop that is
+#    typed as both (F03) fails. The vocabulary declares the two classes
+#    disjoint with owl:AllDisjointClasses; that is a statement for a
+#    reasoner, and this is the same statement for a validator. On a
+#    property shape sh:not tests each value: [ sh:hasValue bt:genre-
+#    literature ] as a node shape means 'is that node', so sh:not of it
+#    means 'is not that node', and no shop specialises in the top of the
+#    scheme.
+#
+#  DIAGRAM
+#       sh:not S      passes n   when   n does not conform to S
+#
+#       bt:shop-halfmoon  a bs:Bookshop, bs:Publisher
+#            conforms to [ sh:class bs:Publisher ]  ->  sh:not fails  ->  violation
+#
+#       sh:property [ sh:path bs:specialises ; sh:not [ sh:hasValue bt:genre-literature ] ]
+#            each value v:  v conforms to [ sh:hasValue X ]  iff  v = X
+#
+#  WHAT TO TAKE AWAY
+#    - sh:not is a conformance check turned round. Anything that can be a
+#      shape can be negated.
+#    - owl:disjointWith is advice to a reasoner; sh:not [ sh:class ... ]
+#      is the check.
+#    - A node shape with sh:hasValue and no path tests whether the node
+#      is that value. Inside sh:not it is 'anything but'.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F04-shapes-and-logic%2Fs25-not.ttl
+#  SPEC      SHACL §4.6.1 sh:not
+#            https://www.w3.org/TR/shacl/#NotConstraintComponent
+#            SHACL §4.6 Logical Constraint Components
+#            https://www.w3.org/TR/shacl/#core-components-logical
+#  REPORTS   does not conform -- 1 violation, 0 warnings, 0 info; 6 shapes
+# ==========================================================================
+
+@prefix bt: <https://example.org/bookshop-trail/> .
+@prefix bs: <https://example.org/bookshop-trail/schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+bt:BookshopShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:not          [ sh:class bs:Publisher ] ;
+    sh:message      "{$this} is typed as both a bookshop and a publisher; the vocabulary says those are disjoint." ;
+    sh:property [
+        sh:path     bs:specialises ;
+        sh:not      [ sh:hasValue bt:genre-literature ] ;
+        sh:message  "A specialism narrower than the whole of literature, please." ;
+    ] .
+
+bt:SettlementShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Settlement ;
+    sh:not          [ sh:class bs:Bookshop ] .

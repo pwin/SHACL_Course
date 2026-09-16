@@ -1,0 +1,107 @@
+# ==========================================================================
+#  S32  What a query can put in the result
+# ==========================================================================
+#
+#  CHECKS
+#    The six shops without a website again, with the path and the value
+#    chosen by the query, and what this engine does with ?message.
+#
+#  HOW IT WORKS
+#    Beyond $this, three projected variables have meaning. ?value becomes
+#    sh:value; ?path becomes sh:resultPath, which is how a node-shape
+#    constraint gets a path into its results; ?message is meant to override
+#    sh:message row by row. bt:NoWebsite binds ?path to bs:website and
+#    ?value to the shop's label, so the rows read as 'this shop, this
+#    property, this name'. bt:MessageProbe binds ?message, and its rows
+#    still show the sh:message text: this build ignores a bound ?message,
+#    and it also leaves {?var} templates unfilled. Keep row-specific detail
+#    in ?value and the words in sh:message. sh:severity inside the
+#    sh:sparql block works, and is used here to make both shapes report
+#    information rather than violations. That placement is SHACL 1.2: the
+#    1.0 specification allows sh:severity on shapes only, and pySHACL,
+#    which follows 1.0, reports these twelve rows as violations. Where
+#    shapes have to run on a 1.0 validator, give the constraint a shape of
+#    its own and put the severity there.
+#
+#  DIAGRAM
+#       SELECT $this ?value ?path WHERE { ... BIND(bs:website AS ?path) ... }
+#
+#       projected     becomes              in the message template
+#       $this         sh:focusNode         {$this}
+#       ?value        sh:value             {$value}
+#       ?path         sh:resultPath        {$path}
+#       ?message      sh:resultMessage     -- not on this engine: sh:message is used
+#
+#       {?anyOtherVariable}   left as written
+#
+#  WHAT TO TAKE AWAY
+#    - ?value and ?path are the two projections worth using. They shape
+#      the row the reader sees.
+#    - A node-shape SPARQL constraint has no path unless the query binds
+#      ?path.
+#    - Portability: ?message and {?var} are in the specification and not
+#      in this engine; sh:severity on a sh:sparql block is in SHACL 1.2
+#      and not in 1.0 validators. sh:message with {$value}, and severity
+#      on the shape, work everywhere.
+#
+#  DATA      bookshop-trail-1.1.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F05-sparql-constraints%2Fs32-what-a-query-can-put-in-the-result.ttl
+#  SPEC      SHACL §5.3.2 Mapping of Solution Bindings to Result Properties
+#            https://www.w3.org/TR/shacl/#sparql-constraints-variables
+#            SHACL §2.1.5 Declaring Messages for a Shape
+#            https://www.w3.org/TR/shacl/#message
+#  REPORTS   conforms -- 0 violations, 0 warnings, 12 info; 4 shapes
+# ==========================================================================
+
+@prefix bt:  <https://example.org/bookshop-trail/> .
+@prefix bs:  <https://example.org/bookshop-trail/schema#> .
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:NoWebsite
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:severity  sh:Info ;
+        sh:message   "{$value} has no {$path}." ;
+        sh:select    """
+            SELECT $this ?value ?path WHERE {
+              $this rdfs:label ?value .
+              FILTER NOT EXISTS { $this bs:website ?w }
+              BIND ( bs:website AS ?path )
+            }
+        """ ;
+    ] .
+
+# Binds ?message. On this engine the rows show sh:message instead.
+bt:MessageProbe
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:severity  sh:Info ;
+        sh:message   "Text from sh:message. A bound ?message would replace this on an engine that honours it." ;
+        sh:select    """
+            SELECT $this ?message WHERE {
+              FILTER NOT EXISTS { $this bs:website ?w }
+              BIND ( "Text from the ?message variable." AS ?message )
+            }
+        """ ;
+    ] .

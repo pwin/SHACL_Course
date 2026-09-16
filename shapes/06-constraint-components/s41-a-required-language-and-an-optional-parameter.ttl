@@ -1,0 +1,108 @@
+# ==========================================================================
+#  S41  A required language, and an optional parameter
+# ==========================================================================
+#
+#  CHECKS
+#    Every Welsh place has a Welsh name -- with an option to accept one
+#    from skos:altLabel.
+#
+#  HOW IT WORKS
+#    sh:languageIn says which languages are allowed; nothing in Core says
+#    one is required. bt:RequiredLanguageConstraintComponent does:
+#    bt:requiredLanguage names a tag, and the property validator reports a
+#    focus node with no value of $PATH in that language. A second
+#    parameter, bt:alsoAccept, is marked sh:optional true: when the using
+#    shape leaves it out the variable is unbound, and the query copes with
+#    COALESCE. The shape targets the places inside Wales with a SPARQL
+#    target from s33. Three council areas -- Powys, Ceredigion and the City
+#    of Cardiff -- have English names only, and are reported as warnings;
+#    the towns all have Welsh ones.
+#
+#  DIAGRAM
+#       sh:parameter [ sh:path bt:requiredLanguage ]                      required
+#       sh:parameter [ sh:path bt:alsoAccept ; sh:optional true ]         may be absent
+#
+#       SELECT $this WHERE {
+#         FILTER NOT EXISTS {
+#           { $this $PATH ?l }
+#           UNION
+#           { $this ?p ?l . FILTER ( BOUND($alsoAccept) && ?p = $alsoAccept ) }
+#           FILTER ( LANG(?l) = $requiredLanguage )
+#         }
+#       }
+#
+#       bt:place-powys   rdfs:label "Powys"@en        no @cy  ->  warning
+#
+#  WHAT TO TAKE AWAY
+#    - A component can require what Core can only permit. 'At least one
+#      value in language X' is one line once the component exists.
+#    - sh:optional true on a parameter means the variable may be unbound.
+#      Test with BOUND or COALESCE rather than assuming.
+#    - Targets and components compose: the component says what to check,
+#      the target says of whom.
+#
+#  DATA      bookshop-trail-1.1.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F06-constraint-components%2Fs41-a-required-language-and-an-optional-parameter.ttl
+#  SPEC      SHACL §6.2.1 Parameter Declarations (sh:parameter)
+#            https://www.w3.org/TR/shacl/#constraint-components-parameters
+#            SHACL §6.2.2 Label Templates (sh:labelTemplate)
+#            https://www.w3.org/TR/shacl/#labelTemplate
+#  REPORTS   conforms -- 0 violations, 3 warnings, 0 info; 4 shapes
+# ==========================================================================
+
+@prefix bt:   <https://example.org/bookshop-trail/> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:RequiredLanguageConstraintComponent
+    a  sh:ConstraintComponent ;
+    rdfs:label  "a value in a required language" ;
+    sh:parameter [ sh:path bt:requiredLanguage ; sh:datatype xsd:string ] ;
+    sh:parameter [ sh:path bt:alsoAccept ; sh:nodeKind sh:IRI ; sh:optional true ] ;
+    sh:propertyValidator [
+        a  sh:SPARQLSelectValidator ;
+        sh:prefixes  bt:prefixes ;
+        sh:message   "{$this} has no name in the required language." ;
+        sh:select  """
+            SELECT $this WHERE {
+              FILTER NOT EXISTS {
+                { $this $PATH ?l }
+                UNION
+                { $this ?p ?l . FILTER ( BOUND($alsoAccept) && ?p = $alsoAccept ) }
+                FILTER ( LANG(?l) = $requiredLanguage )
+              }
+            }
+        """ ;
+    ] .
+
+bt:WelshPlaceShape
+    a  sh:NodeShape ;
+    sh:target [
+        a            sh:SPARQLTarget ;
+        sh:prefixes  bt:prefixes ;
+        sh:select    "SELECT ?this WHERE { ?this bs:within+ bt:place-wales }" ;
+    ] ;
+    sh:property [
+        sh:path              rdfs:label ;
+        bt:requiredLanguage  "cy" ;
+        bt:alsoAccept        skos:altLabel ;
+        sh:severity          sh:Warning ;
+    ] .

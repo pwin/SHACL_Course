@@ -1,0 +1,62 @@
+# ==========================================================================
+#  S06  Pinning one node, and switching a shape off
+# ==========================================================================
+#
+#  CHECKS
+#    Check one named shop against several constraints, and keep a shape in
+#    the file without running it.
+#
+#  HOW IT WORKS
+#    sh:targetNode names the focus nodes one by one. While a shape is being
+#    written, pointing it at a single node you know keeps the report short
+#    and the cause of each row obvious; the SPARQL course does the same
+#    thing with a VALUES clause in q94. The Foxed Page has two websites, so
+#    the one violation is that. sh:deactivated true takes a shape out of
+#    validation without deleting it: bt:EveryShopShape would report every
+#    shop without a website, and reports nothing. It still counts in the
+#    shapes total.
+#
+#  DIAGRAM
+#       sh:targetNode bt:shop-foxed-page       one focus node, whatever else is in the data
+#            |
+#            +-- rdfs:label   minCount 1     "The Foxed Page"        ok
+#            +-- bs:locatedIn minCount 1     "Kendal"                ok  (a string, but present)
+#            +-- bs:website   maxCount 1     two values              1 violation
+#
+#       sh:deactivated true                    compiled, counted, never run
+#
+#  WHAT TO TAKE AWAY
+#    - sh:targetNode is the fastest way to develop a shape: one node, one
+#      report row per problem.
+#    - Several targets on one shape are unioned. targetNode and
+#      targetClass can be used together.
+#    - sh:deactivated keeps a shape in the file and out of the report.
+#      Remember to take it off.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F01-first-shapes%2Fs06-pinning-one-node-and-switching-a-shape-off.ttl
+#  SPEC      SHACL §2.1.3.1 sh:targetNode
+#            https://www.w3.org/TR/shacl/#targetNode
+#            SHACL §2.1.6 Deactivating a Shape
+#            https://www.w3.org/TR/shacl/#deactivated
+#  REPORTS   does not conform -- 1 violation, 0 warnings, 0 info; 6 shapes
+# ==========================================================================
+
+@prefix bt:   <https://example.org/bookshop-trail/> .
+@prefix bs:   <https://example.org/bookshop-trail/schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+bt:OneShopShape
+    a              sh:NodeShape ;
+    sh:targetNode  bt:shop-foxed-page ;
+    sh:property [ sh:path rdfs:label ;   sh:minCount 1 ] ;
+    sh:property [ sh:path bs:locatedIn ; sh:minCount 1 ] ;
+    sh:property [ sh:path bs:website ;   sh:maxCount 1 ;
+                  sh:message "{$this} lists more than one website." ] .
+
+bt:EveryShopShape
+    a               sh:NodeShape ;
+    sh:deactivated  true ;
+    sh:targetClass  bs:Bookshop ;
+    sh:property [ sh:path bs:website ; sh:minCount 1 ] .

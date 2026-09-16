@@ -1,0 +1,108 @@
+# ==========================================================================
+#  S52  Negation that goes stale
+# ==========================================================================
+#
+#  CHECKS
+#    Mark the shops without a website, then give every such shop a
+#    placeholder website -- and see the mark outlive its reason.
+#
+#  HOW IT WORKS
+#    bt:MarkRule at order 1 gives a shop with no website a bs:status
+#    "offline", a conclusion drawn from absence. bt:FillRule at order 2
+#    gives the same shops a placeholder bs:website. Rules only add, so
+#    after the run six shops have both a website and a status that says
+#    they have none. The probe finds them. Swapping the orders would fix
+#    this case, because the mark would then be tested after the fill, and
+#    the true fix in general is to make sure nothing later supplies what a
+#    rule tested the absence of. SHACL 1.2 Rules (SPARQL-RL) requires a
+#    rule set to be stratified so that negation only looks at strata that
+#    are already complete; SHACL-AF has no such requirement, and the
+#    responsibility is the author's.
+#
+#  DIAGRAM
+#       order 1   MarkRule    condition [ sh:not HasWebsite ]   ->  shop bs:status "offline"     (6 shops)
+#       order 2   FillRule    condition [ sh:not HasWebsite ]   ->  shop bs:website <placeholder> (6 shops)
+#
+#       after the run:   bt:shop-marginalia  bs:website <...pending> ;  bs:status "offline" .
+#                        both true in the graph; the second no longer true of the data
+#
+#       SPARQL-RL: stratify, so that NOT EXISTS is only ever evaluated over a finished stratum
+#
+#  WHAT TO TAKE AWAY
+#    - A rule that tests for absence draws a conclusion that a later rule
+#      can invalidate. Rules never retract.
+#    - Order the rule set so that nothing after a negation supplies what
+#      it tested for, or keep to a single pass and check by hand.
+#    - Stratified negation is what SHACL 1.2 Rules adds; until then it is
+#      a discipline rather than a guarantee.
+#
+#  DATA      bookshop-trail-1.1.ttl
+#  INFERENCE rules   (the Inference dropdown in the editor)
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F07-rules%2Fs52-negation-that-goes-stale.ttl&inference=rules
+#  SPEC      SHACL 1.2 Rules §3.4 Negation
+#            https://www.w3.org/TR/shacl12-rules/#desc-negation
+#            SHACL 1.2 Rules §4.4 Stratification
+#            https://www.w3.org/TR/shacl12-rules/#stratification
+#  REPORTS   conforms -- 0 violations, 6 warnings, 0 info; 8 shapes
+# ==========================================================================
+
+@prefix bt:  <https://example.org/bookshop-trail/> .
+@prefix bs:  <https://example.org/bookshop-trail/schema#> .
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Prefixes for the SPARQL inside this file. @prefix lines are Turtle syntax
+# and do not reach the query engine; sh:declare does.
+bt:prefixes
+    a  owl:Ontology ;
+    sh:declare [ sh:prefix "bt" ;   sh:namespace "https://example.org/bookshop-trail/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "bs" ;   sh:namespace "https://example.org/bookshop-trail/schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdf" ;  sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "xsd" ;  sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "dct" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "geo" ;  sh:namespace "http://www.opengis.net/ont/geosparql#"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "schema" ; sh:namespace "https://schema.org/"^^xsd:anyURI ] ;
+    sh:declare [ sh:prefix "sh" ;   sh:namespace "http://www.w3.org/ns/shacl#"^^xsd:anyURI ] .
+
+bt:HasWebsite  a sh:NodeShape ; sh:property [ sh:path bs:website ; sh:minCount 1 ] .
+
+bt:MarkShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:order        1 ;
+    sh:rule [
+        a             sh:TripleRule ;
+        sh:condition  [ sh:not bt:HasWebsite ] ;
+        sh:subject    sh:this ;
+        sh:predicate  bs:status ;
+        sh:object     "offline" ;
+    ] .
+
+bt:FillShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:order        2 ;
+    sh:rule [
+        a             sh:TripleRule ;
+        sh:condition  [ sh:not bt:HasWebsite ] ;
+        sh:subject    sh:this ;
+        sh:predicate  bs:website ;
+        sh:object     <https://example.org/bookshop-trail/website-pending> ;
+    ] .
+
+bt:StaleProbe
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:sparql [
+        sh:prefixes  bt:prefixes ;
+        sh:severity  sh:Warning ;
+        sh:message   "{$this} is marked offline and has the website {$value}: the mark outlived its reason." ;
+        sh:select    """
+            SELECT $this ?value WHERE {
+              $this bs:status "offline" ; bs:website ?value .
+            }
+        """ ;
+    ] .

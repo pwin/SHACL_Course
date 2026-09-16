@@ -1,0 +1,93 @@
+# ==========================================================================
+#  S12  sh:class, and why it needs rdf:type
+# ==========================================================================
+#
+#  CHECKS
+#    What a shop, a person, an event, a record and a settlement may point
+#    at.
+#
+#  HOW IT WORKS
+#    sh:class C passes a value when the value has rdf:type C, or a type
+#    that is an rdfs:subClassOf C in the data graph. It fails everything
+#    else: a literal, a node of the wrong class, and a node with no
+#    rdf:type at all. That last case is the one to remember. The Ghost Shop
+#    (F07) has a label, a town and a founding year, and fails sh:class
+#    bs:Bookshop because nobody typed it. Six values fail on the faulty
+#    data: the string town and the place used as a genre (F06), an author
+#    based in a country (F16), the record at the untyped shop (F24), Brecon
+#    placed inside Wales with no council area between (F26), and the event
+#    held at a publisher (F20). bt:pub-orbit is typed bs:Publisher and
+#    passes sh:class bs:Publisher, whatever else is wrong with it; module
+#    04 comes back to that with sh:node.
+#
+#  DIAGRAM
+#       sh:class bs:Bookshop  passes a value v  when the data has
+#
+#            v  rdf:type  bs:Bookshop
+#       or   v  rdf:type  C .   C  rdfs:subClassOf+  bs:Bookshop        (in the data graph)
+#
+#       bt:shop-ghost  rdfs:label "The Ghost Shop"@en ; bs:locatedIn ... ; bs:founded ...
+#                      (no rdf:type)                                     -> fails
+#
+#       bt:book-cold-harbour-he  a bs:Translation .   bs:Translation rdfs:subClassOf bs:Work
+#                                                                        -> passes sh:class bs:Work
+#
+#  WHAT TO TAKE AWAY
+#    - sh:class is a test of rdf:type, with rdfs:subClassOf followed in
+#      the data graph. It says nothing about the node's other properties.
+#    - An untyped node fails sh:class however well described it is. If
+#      your data does not type everything, say so with sh:node instead
+#      (module 04).
+#    - sh:class on a literal fails. That is the intended answer, not an
+#      error.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F02-value-constraints%2Fs12-sh-class-and-why-it-needs-rdf-type.ttl
+#  SPEC      SHACL §4.1.1 sh:class
+#            https://www.w3.org/TR/shacl/#ClassConstraintComponent
+#  REPORTS   does not conform -- 6 violations, 0 warnings, 0 info; 17 shapes
+# ==========================================================================
+
+@prefix bt:   <https://example.org/bookshop-trail/> .
+@prefix bs:   <https://example.org/bookshop-trail/schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+bt:BookshopLinks
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:property [ sh:path bs:locatedIn ;   sh:class bs:Settlement ;
+                  sh:message "{$this} is located in {$value}, which is not a settlement." ] ;
+    sh:property [ sh:path bs:specialises ; sh:class skos:Concept ;
+                  sh:message "A specialism is a concept from the genre scheme, not {$value}." ] .
+
+bt:PersonLinks
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Person ;
+    sh:property [ sh:path bs:basedIn ; sh:class bs:Settlement ] .
+
+bt:EventLinks
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Event ;
+    sh:property [ sh:path bs:heldAt ;    sh:class bs:Bookshop ] ;
+    sh:property [ sh:path bs:featuring ; sh:class bs:Author ] .
+
+bt:StockLinks
+    a               sh:NodeShape ;
+    sh:targetClass  bs:StockRecord ;
+    sh:property [ sh:path bs:atShop ; sh:class bs:Bookshop ;
+                  sh:message "{$value} is not typed as a bookshop." ] ;
+    sh:property [ sh:path bs:ofWork ; sh:class bs:Work ] .
+
+bt:SettlementLinks
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Settlement ;
+    sh:property [ sh:path bs:within ; sh:class bs:CouncilArea ;
+                  sh:message "A settlement sits directly inside a council area; {$value} is not one." ] .
+
+bt:WorkLinks
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Work ;
+    sh:property [ sh:path bs:publishedBy ; sh:class bs:Publisher ] ;
+    sh:property [ sh:path bs:author ;      sh:class bs:Author ] ;
+    sh:property [ sh:path bs:translationOf ; sh:class bs:Work ] .

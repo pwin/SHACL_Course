@@ -1,0 +1,68 @@
+# ==========================================================================
+#  S04  Exactly one town
+# ==========================================================================
+#
+#  CHECKS
+#    Each shop is in exactly one settlement, has exactly one founding year,
+#    and at most one website.
+#
+#  HOW IT WORKS
+#    sh:minCount and sh:maxCount together give a cardinality range. [1..1]
+#    is 'exactly one'; [0..1] is 'optional, but not more than one'; a bare
+#    sh:minCount 1 is 'at least one'. On the faulty data three shops fail,
+#    one per property: The Inkwell has been placed in a second town (F04),
+#    the shop with no name also has no founding year (F01), and The Foxed
+#    Page lists two websites (F06). The website maximum needs no minimum:
+#    six real shops have none, and s03 decided that was allowed.
+#
+#  DIAGRAM
+#                          minCount  maxCount     reads as
+#       bs:locatedIn          1         1         exactly one
+#       bs:founded            1         1         exactly one
+#       bs:website            -         1         at most one
+#
+#       bt:shop-inkwell   bs:locatedIn  bt:place-wigtown, bt:place-hay-on-wye    2 > 1
+#       bt:shop-halfmoon  bs:founded    (nothing)                                0 < 1
+#       bt:shop-foxed-page bs:website   "www...", "https://..."                  2 > 1
+#
+#  WHAT TO TAKE AWAY
+#    - minCount and maxCount are independent. Use both for 'exactly one',
+#      one of them for 'at least' or 'at most'.
+#    - A maxCount result has no sh:value either: it is about the count,
+#      not any one value.
+#    - Property shapes are cheap. One node shape can carry as many as the
+#      class has properties, and a report row names the one that fired.
+#
+#  DATA      bookshop-trail-faulty.ttl
+#  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F01-first-shapes%2Fs04-exactly-one-town.ttl
+#  SPEC      SHACL §4.2.1 sh:minCount
+#            https://www.w3.org/TR/shacl/#MinCountConstraintComponent
+#            SHACL §4.2.2 sh:maxCount
+#            https://www.w3.org/TR/shacl/#MaxCountConstraintComponent
+#  REPORTS   does not conform -- 3 violations, 0 warnings, 0 info; 4 shapes
+# ==========================================================================
+
+@prefix bt: <https://example.org/bookshop-trail/> .
+@prefix bs: <https://example.org/bookshop-trail/schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+bt:BookshopShape
+    a               sh:NodeShape ;
+    sh:targetClass  bs:Bookshop ;
+    sh:property [
+        sh:path      bs:locatedIn ;
+        sh:minCount  1 ;
+        sh:maxCount  1 ;
+        sh:message   "A shop is in exactly one settlement." ;
+    ] ;
+    sh:property [
+        sh:path      bs:founded ;
+        sh:minCount  1 ;
+        sh:maxCount  1 ;
+        sh:message   "A shop records the one year it opened." ;
+    ] ;
+    sh:property [
+        sh:path      bs:website ;
+        sh:maxCount  1 ;
+        sh:message   "At most one website." ;
+    ] .
