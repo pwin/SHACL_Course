@@ -107,7 +107,7 @@ s(
 """,
     learn=[
         "A row for every node is a property of the shape, not the data. Read the shape again before touching the data.",
-        "rdfs:subClassOf is followed in the data graph. If the hierarchy lives with the shapes, sh:class will not see it (SHACL 1.2 Core §6.3 discusses this).",
+        "rdfs:subClassOf is followed in the data graph. If the hierarchy lives with the shapes, sh:class will not see it (SHACL 1.2 Core 6.3 discusses this).",
         "Datatype and direction mistakes fail every node the same way. Look at the first row's value and ask why it should have passed.",
     ],
     body="""
@@ -151,7 +151,7 @@ s(
         "can only call it 'bt:BookshopShape > property 3'. Give it an IRI and "
         "the report names it; add sh:name and sh:description and a form "
         "builder or a documentation tool can use them too. These are the "
-        "non-validating characteristics of §2.3.2: they change nothing about "
+        "non-validating characteristics of 2.3.2: they change nothing about "
         "what is checked. The query below groups the report by "
         "sh:sourceShape, which is only readable once the shapes have names. "
         "The convention here is the node shape's name, a hyphen, and the "

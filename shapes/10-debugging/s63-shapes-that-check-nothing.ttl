@@ -37,7 +37,7 @@
 #
 #  DATA      bookshop-trail-faulty.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F10-debugging%2Fs63-shapes-that-check-nothing.ttl
-#  SPEC      SHACL §2.1 Shapes
+#  SPEC      SHACL 2.1 Shapes
 #            https://www.w3.org/TR/shacl/#shapes
 #            SHACL Appendix B Summary of SHACL Syntax Rules
 #            https://www.w3.org/TR/shacl/#syntax-rules

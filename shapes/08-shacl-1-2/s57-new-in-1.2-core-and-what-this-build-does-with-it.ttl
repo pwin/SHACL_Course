@@ -45,9 +45,9 @@
 #
 #  DATA      bookshop-trail-faulty-1.2.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty-1.2.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F08-shacl-1-2%2Fs57-new-in-1.2-core-and-what-this-build-does-with-it.ttl
-#  SPEC      SHACL 1.2 Core §7.4.4 sh:singleLine
+#  SPEC      SHACL 1.2 Core 7.4.4 sh:singleLine
 #            https://www.w3.org/TR/shacl12-core/#SingleLineConstraintComponent
-#            SHACL 1.2 Core §7.5 List Constraint Components
+#            SHACL 1.2 Core 7.5 List Constraint Components
 #            https://www.w3.org/TR/shacl12-core/#core-components-list
 #  REPORTS   does not conform -- 2 violations, 0 warnings, 0 info; 8 shapes
 # ==========================================================================

@@ -6,12 +6,12 @@ Each `.ttl` file carries its own explanation: what it checks, how it works, a di
 
 **In the standards.** The sections this module is defined by:
 
-- [SHACL §6 SPARQL-based Constraint Components](https://www.w3.org/TR/shacl/#sparql-constraint-components)
-- [SHACL §6.2.1 Parameter Declarations (sh:parameter)](https://www.w3.org/TR/shacl/#constraint-components-parameters)
-- [SHACL §6.2.2 Label Templates (sh:labelTemplate)](https://www.w3.org/TR/shacl/#labelTemplate)
-- [SHACL §6.2.3 Validators](https://www.w3.org/TR/shacl/#constraint-components-validators)
-- [SHACL §6.2.3.1 SELECT-based Validators](https://www.w3.org/TR/shacl/#SPARQLSelectValidator)
-- [SHACL §6.2.3.2 ASK-based Validators](https://www.w3.org/TR/shacl/#SPARQLAskValidator)
+- [SHACL section 6 SPARQL-based Constraint Components](https://www.w3.org/TR/shacl/#sparql-constraint-components)
+- [SHACL 6.2.1 Parameter Declarations (sh:parameter)](https://www.w3.org/TR/shacl/#constraint-components-parameters)
+- [SHACL 6.2.2 Label Templates (sh:labelTemplate)](https://www.w3.org/TR/shacl/#labelTemplate)
+- [SHACL 6.2.3 Validators](https://www.w3.org/TR/shacl/#constraint-components-validators)
+- [SHACL 6.2.3.1 SELECT-based Validators](https://www.w3.org/TR/shacl/#SPARQLSelectValidator)
+- [SHACL 6.2.3.2 ASK-based Validators](https://www.w3.org/TR/shacl/#SPARQLAskValidator)
 - [SHACL Appendix D Summary of SHACL Core Validators](https://www.w3.org/TR/shacl/#core-validators)
 
 | Lesson | Checks | Data |

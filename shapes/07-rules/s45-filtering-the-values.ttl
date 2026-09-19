@@ -40,9 +40,9 @@
 #  DATA      bookshop-trail-1.1.ttl
 #  INFERENCE rules   (the Inference dropdown in the editor)
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F07-rules%2Fs45-filtering-the-values.ttl&inference=rules
-#  SPEC      SHACL-AF §6.3 Filter Shape Expressions
+#  SPEC      SHACL-AF 6.3 Filter Shape Expressions
 #            https://www.w3.org/TR/shacl-af/#node-expressions-filter-shape
-#            SHACL-AF §6 Node Expressions
+#            SHACL-AF section 6 Node Expressions
 #            https://www.w3.org/TR/shacl-af/#node-expressions
 #  REPORTS   conforms -- 0 violations, 0 warnings, 33 info; 7 shapes
 # ==========================================================================

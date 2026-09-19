@@ -34,9 +34,9 @@
 #
 #  DATA      bookshop-trail-faulty.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F02-value-constraints%2Fs13-ranges.ttl
-#  SPEC      SHACL §4.3 Value Range Constraint Components
+#  SPEC      SHACL 4.3 Value Range Constraint Components
 #            https://www.w3.org/TR/shacl/#core-components-range
-#            SHACL §4.3.2 sh:minInclusive
+#            SHACL 4.3.2 sh:minInclusive
 #            https://www.w3.org/TR/shacl/#MinInclusiveConstraintComponent
 #  REPORTS   does not conform -- 10 violations, 0 warnings, 0 info; 20 shapes
 # ==========================================================================

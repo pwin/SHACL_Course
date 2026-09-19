@@ -38,9 +38,9 @@
 #
 #  DATA      bookshop-trail-faulty.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F03-property-paths%2Fs22-any-number-of-hops.ttl
-#  SPEC      SHACL §2.3.1.5 Zero-Or-More Paths
+#  SPEC      SHACL 2.3.1.5 Zero-Or-More Paths
 #            https://www.w3.org/TR/shacl/#property-path-zero-or-more
-#            SHACL §2.3.1.7 Zero-Or-One Paths
+#            SHACL 2.3.1.7 Zero-Or-One Paths
 #            https://www.w3.org/TR/shacl/#property-path-zero-or-one
 #  REPORTS   does not conform -- 5 violations, 0 warnings, 0 info; 6 shapes
 # ==========================================================================

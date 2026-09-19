@@ -37,9 +37,9 @@
 #
 #  DATA      bookshop-trail-faulty.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F02-value-constraints%2Fs15-strings-length-and-pattern.ttl
-#  SPEC      SHACL §4.4 String-based Constraint Components
+#  SPEC      SHACL 4.4 String-based Constraint Components
 #            https://www.w3.org/TR/shacl/#core-components-string
-#            SHACL §4.4.3 sh:pattern
+#            SHACL 4.4.3 sh:pattern
 #            https://www.w3.org/TR/shacl/#PatternConstraintComponent
 #  REPORTS   does not conform -- 4 violations, 0 warnings, 0 info; 6 shapes
 # ==========================================================================

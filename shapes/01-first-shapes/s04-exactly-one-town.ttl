@@ -35,9 +35,9 @@
 #
 #  DATA      bookshop-trail-faulty.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F01-first-shapes%2Fs04-exactly-one-town.ttl
-#  SPEC      SHACL §4.2.1 sh:minCount
+#  SPEC      SHACL 4.2.1 sh:minCount
 #            https://www.w3.org/TR/shacl/#MinCountConstraintComponent
-#            SHACL §4.2.2 sh:maxCount
+#            SHACL 4.2.2 sh:maxCount
 #            https://www.w3.org/TR/shacl/#MaxCountConstraintComponent
 #  REPORTS   does not conform -- 3 violations, 0 warnings, 0 info; 4 shapes
 # ==========================================================================

@@ -38,7 +38,7 @@
 #
 #  DATA      bookshop-trail-faulty.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F02-value-constraints%2Fs10-the-right-kind-of-value.ttl
-#  SPEC      SHACL §4.1.2 sh:datatype
+#  SPEC      SHACL 4.1.2 sh:datatype
 #            https://www.w3.org/TR/shacl/#DatatypeConstraintComponent
 #  REPORTS   does not conform -- 7 violations, 0 warnings, 0 info; 13 shapes
 # ==========================================================================

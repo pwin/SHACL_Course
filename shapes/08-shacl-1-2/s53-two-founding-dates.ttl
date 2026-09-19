@@ -44,9 +44,9 @@
 #
 #  DATA      bookshop-trail-faulty-1.2.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty-1.2.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F08-shacl-1-2%2Fs53-two-founding-dates.ttl
-#  SPEC      SHACL 1.2 Core §7.8.5 sh:reifierShape, sh:reificationRequired
+#  SPEC      SHACL 1.2 Core 7.8.5 sh:reifierShape, sh:reificationRequired
 #            https://www.w3.org/TR/shacl12-core/#ReifierShapeConstraintComponent
-#            RDF 1.2 Turtle §2.9 Reifying Triples
+#            RDF 1.2 Turtle 2.9 Reifying Triples
 #            https://www.w3.org/TR/rdf12-turtle/#reifying-triples
 #  REPORTS   does not conform -- 1 violation, 5 warnings, 0 info; 7 shapes
 # ==========================================================================

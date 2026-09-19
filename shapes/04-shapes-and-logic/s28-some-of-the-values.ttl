@@ -40,7 +40,7 @@
 #
 #  DATA      bookshop-trail-faulty.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F04-shapes-and-logic%2Fs28-some-of-the-values.ttl
-#  SPEC      SHACL §4.7.3 sh:qualifiedValueShape
+#  SPEC      SHACL 4.7.3 sh:qualifiedValueShape
 #            https://www.w3.org/TR/shacl/#QualifiedValueShapeConstraintComponent
 #  REPORTS   does not conform -- 3 violations, 0 warnings, 0 info; 11 shapes
 # ==========================================================================

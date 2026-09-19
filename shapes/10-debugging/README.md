@@ -6,13 +6,13 @@ Each `.ttl` file carries its own explanation: what it checks, how it works, a di
 
 **In the standards.** The sections this module is defined by:
 
-- [SHACL §3.4.1 Failures](https://www.w3.org/TR/shacl/#failures)
-- [SHACL §3.5 Conformance Checking](https://www.w3.org/TR/shacl/#conformance-definition)
-- [SHACL §2.1.3 Targets](https://www.w3.org/TR/shacl/#targets)
-- [SHACL §3.7 Value Nodes](https://www.w3.org/TR/shacl/#value-nodes)
-- [SHACL §2.1.4 Declaring the Severity of a Shape](https://www.w3.org/TR/shacl/#severity)
-- [SHACL §3.6.2.4 sh:sourceShape](https://www.w3.org/TR/shacl/#results-source-shape)
-- [SHACL §4.1.2 sh:datatype](https://www.w3.org/TR/shacl/#DatatypeConstraintComponent)
+- [SHACL 3.4.1 Failures](https://www.w3.org/TR/shacl/#failures)
+- [SHACL 3.5 Conformance Checking](https://www.w3.org/TR/shacl/#conformance-definition)
+- [SHACL 2.1.3 Targets](https://www.w3.org/TR/shacl/#targets)
+- [SHACL 3.7 Value Nodes](https://www.w3.org/TR/shacl/#value-nodes)
+- [SHACL 2.1.4 Declaring the Severity of a Shape](https://www.w3.org/TR/shacl/#severity)
+- [SHACL 3.6.2.4 sh:sourceShape](https://www.w3.org/TR/shacl/#results-source-shape)
+- [SHACL 4.1.2 sh:datatype](https://www.w3.org/TR/shacl/#DatatypeConstraintComponent)
 
 | Lesson | Checks | Data |
 |---|---|---|

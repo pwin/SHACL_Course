@@ -49,7 +49,7 @@
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F06-constraint-components%2Fs42-core-components-are-sparql-too.ttl
 #  SPEC      SHACL Appendix D Summary of SHACL Core Validators
 #            https://www.w3.org/TR/shacl/#core-validators
-#            SHACL §6 SPARQL-based Constraint Components
+#            SHACL section 6 SPARQL-based Constraint Components
 #            https://www.w3.org/TR/shacl/#sparql-constraint-components
 #  REPORTS   does not conform -- 1 violation, 0 warnings, 2 info; 8 shapes
 # ==========================================================================

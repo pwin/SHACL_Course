@@ -8,11 +8,11 @@ Lessons marked with an inference mode need the **Inference** dropdown set to tha
 
 **In the standards.** The sections this module is defined by:
 
-- [SHACL §3.1 Shapes Graph](https://www.w3.org/TR/shacl/#shapes-graph)
-- [SHACL §3.6 Validation Report](https://www.w3.org/TR/shacl/#validation-report)
-- [SHACL §3.6.2 Validation Result](https://www.w3.org/TR/shacl/#results-validation-result)
-- [SHACL-AF §8 SHACL Rules](https://www.w3.org/TR/shacl-af/#rules)
-- [SHACL §5 SPARQL-based Constraints](https://www.w3.org/TR/shacl/#sparql-constraints)
+- [SHACL 3.1 Shapes Graph](https://www.w3.org/TR/shacl/#shapes-graph)
+- [SHACL 3.6 Validation Report](https://www.w3.org/TR/shacl/#validation-report)
+- [SHACL 3.6.2 Validation Result](https://www.w3.org/TR/shacl/#results-validation-result)
+- [SHACL-AF section 8 SHACL Rules](https://www.w3.org/TR/shacl-af/#rules)
+- [SHACL section 5 SPARQL-based Constraints](https://www.w3.org/TR/shacl/#sparql-constraints)
 
 | Lesson | Checks | Data |
 |---|---|---|

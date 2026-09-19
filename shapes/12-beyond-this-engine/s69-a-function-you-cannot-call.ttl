@@ -43,9 +43,9 @@
 #
 #  DATA      bookshop-trail-1.1.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F12-beyond-this-engine%2Fs69-a-function-you-cannot-call.ttl
-#  SPEC      SHACL-AF §5 SHACL Functions
+#  SPEC      SHACL-AF section 5 SHACL Functions
 #            https://www.w3.org/TR/shacl-af/#functions
-#            SHACL-AF §5.4 SPARQL-based Functions
+#            SHACL-AF 5.4 SPARQL-based Functions
 #            https://www.w3.org/TR/shacl-af/#SPARQLFunction
 #  REPORTS   conforms -- 0 violations, 0 warnings, 4 info; 5 shapes
 # ==========================================================================

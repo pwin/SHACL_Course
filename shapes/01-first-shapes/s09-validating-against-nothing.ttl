@@ -41,9 +41,9 @@
 #
 #  DATA      04-bookshops.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2F04-bookshops.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F01-first-shapes%2Fs09-validating-against-nothing.ttl
-#  SPEC      SHACL §3.5 Conformance Checking
+#  SPEC      SHACL 3.5 Conformance Checking
 #            https://www.w3.org/TR/shacl/#conformance-definition
-#            SHACL §2.1.3.2 sh:targetClass
+#            SHACL 2.1.3.2 sh:targetClass
 #            https://www.w3.org/TR/shacl/#targetClass
 #  REPORTS   does not conform -- 1 violation, 0 warnings, 0 info; 4 shapes
 # ==========================================================================

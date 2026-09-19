@@ -39,9 +39,9 @@
 #  DATA      bookshop-trail-1.1.ttl
 #  INFERENCE rules   (the Inference dropdown in the editor)
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F11-putting-it-together%2Fs67-a-rule-set-for-the-trail.ttl&inference=rules
-#  SPEC      SHACL-AF §8 SHACL Rules
+#  SPEC      SHACL-AF section 8 SHACL Rules
 #            https://www.w3.org/TR/shacl-af/#rules
-#            SHACL-AF §8.6 SPARQL Rules
+#            SHACL-AF 8.6 SPARQL Rules
 #            https://www.w3.org/TR/shacl-af/#SPARQLRule
 #  REPORTS   conforms -- 0 violations, 1 warning, 6 info; 11 shapes
 # ==========================================================================

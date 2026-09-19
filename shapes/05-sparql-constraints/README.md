@@ -6,16 +6,16 @@ Each `.ttl` file carries its own explanation: what it checks, how it works, a di
 
 **In the standards.** The sections this module is defined by:
 
-- [SHACL §5 SPARQL-based Constraints](https://www.w3.org/TR/shacl/#sparql-constraints)
-- [SHACL §5.2 Syntax of SPARQL-based Constraints](https://www.w3.org/TR/shacl/#sparql-constraints-syntax)
-- [SHACL §5.2.1 Prefix Declarations for SPARQL Queries](https://www.w3.org/TR/shacl/#sparql-prefixes)
-- [SHACL §5.3.1 Pre-bound Variables in SPARQL Constraints](https://www.w3.org/TR/shacl/#sparql-constraints-prebound)
-- [SHACL §5.3.2 Mapping of Solution Bindings to Result Properties](https://www.w3.org/TR/shacl/#sparql-constraints-variables)
+- [SHACL section 5 SPARQL-based Constraints](https://www.w3.org/TR/shacl/#sparql-constraints)
+- [SHACL 5.2 Syntax of SPARQL-based Constraints](https://www.w3.org/TR/shacl/#sparql-constraints-syntax)
+- [SHACL 5.2.1 Prefix Declarations for SPARQL Queries](https://www.w3.org/TR/shacl/#sparql-prefixes)
+- [SHACL 5.3.1 Pre-bound Variables in SPARQL Constraints](https://www.w3.org/TR/shacl/#sparql-constraints-prebound)
+- [SHACL 5.3.2 Mapping of Solution Bindings to Result Properties](https://www.w3.org/TR/shacl/#sparql-constraints-variables)
 - [SHACL Appendix A Pre-binding of Variables in SPARQL Queries](https://www.w3.org/TR/shacl/#pre-binding)
-- [SHACL-AF §3.1 SPARQL-based Targets](https://www.w3.org/TR/shacl-af/#SPARQLTarget)
-- [SHACL 1.2 Core §3.1.3.6 Where Targets (sh:targetWhere)](https://www.w3.org/TR/shacl12-core/#targetWhere)
-- [SHACL §3.6 Validation Report](https://www.w3.org/TR/shacl/#validation-report)
-- [SHACL §1.6 Relationship between SHACL and SPARQL](https://www.w3.org/TR/shacl/#shacl-sparql)
+- [SHACL-AF 3.1 SPARQL-based Targets](https://www.w3.org/TR/shacl-af/#SPARQLTarget)
+- [SHACL 1.2 Core 3.1.3.6 Where Targets (sh:targetWhere)](https://www.w3.org/TR/shacl12-core/#targetWhere)
+- [SHACL 3.6 Validation Report](https://www.w3.org/TR/shacl/#validation-report)
+- [SHACL 1.6 Relationship between SHACL and SPARQL](https://www.w3.org/TR/shacl/#shacl-sparql)
 
 | Lesson | Checks | Data |
 |---|---|---|

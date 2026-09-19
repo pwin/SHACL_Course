@@ -8,22 +8,22 @@ Lessons marked with an inference mode need the **Inference** dropdown set to tha
 
 **In the standards.** The sections this module is defined by:
 
-- [SHACL-AF §8 SHACL Rules](https://www.w3.org/TR/shacl-af/#rules)
-- [SHACL-AF §8.2 General Syntax of SHACL Rules](https://www.w3.org/TR/shacl-af/#rules-syntax)
-- [SHACL-AF §8.5 Triple Rules](https://www.w3.org/TR/shacl-af/#TripleRule)
-- [SHACL-AF §8.6 SPARQL Rules](https://www.w3.org/TR/shacl-af/#SPARQLRule)
-- [SHACL-AF §8.2.1 sh:condition](https://www.w3.org/TR/shacl-af/#condition)
-- [SHACL-AF §8.2.2 sh:order](https://www.w3.org/TR/shacl-af/#rules-order)
-- [SHACL-AF §8.2.3 sh:deactivated](https://www.w3.org/TR/shacl-af/#deactivated)
-- [SHACL-AF §8.4 General Execution Instructions for SHACL Rules](https://www.w3.org/TR/shacl-af/#rules-execution)
-- [SHACL-AF §6 Node Expressions](https://www.w3.org/TR/shacl-af/#node-expressions)
-- [SHACL-AF §6.5 Path Expressions](https://www.w3.org/TR/shacl-af/#node-expressions-path)
-- [SHACL-AF §6.3 Filter Shape Expressions](https://www.w3.org/TR/shacl-af/#node-expressions-filter-shape)
-- [SHACL-AF §6.7 Union Expressions](https://www.w3.org/TR/shacl-af/#union)
-- [SHACL-AF §6.6 Intersection Expressions](https://www.w3.org/TR/shacl-af/#intersection)
-- [SHACL-AF §8.3 The sh:Rules Entailment Regime](https://www.w3.org/TR/shacl-af/#Rules)
-- [SHACL 1.2 Rules §3 SPARQL-RL](https://www.w3.org/TR/shacl12-rules/#overview)
-- [SHACL 1.2 Rules §4.4 Stratification](https://www.w3.org/TR/shacl12-rules/#stratification)
+- [SHACL-AF section 8 SHACL Rules](https://www.w3.org/TR/shacl-af/#rules)
+- [SHACL-AF 8.2 General Syntax of SHACL Rules](https://www.w3.org/TR/shacl-af/#rules-syntax)
+- [SHACL-AF 8.5 Triple Rules](https://www.w3.org/TR/shacl-af/#TripleRule)
+- [SHACL-AF 8.6 SPARQL Rules](https://www.w3.org/TR/shacl-af/#SPARQLRule)
+- [SHACL-AF 8.2.1 sh:condition](https://www.w3.org/TR/shacl-af/#condition)
+- [SHACL-AF 8.2.2 sh:order](https://www.w3.org/TR/shacl-af/#rules-order)
+- [SHACL-AF 8.2.3 sh:deactivated](https://www.w3.org/TR/shacl-af/#deactivated)
+- [SHACL-AF 8.4 General Execution Instructions for SHACL Rules](https://www.w3.org/TR/shacl-af/#rules-execution)
+- [SHACL-AF section 6 Node Expressions](https://www.w3.org/TR/shacl-af/#node-expressions)
+- [SHACL-AF 6.5 Path Expressions](https://www.w3.org/TR/shacl-af/#node-expressions-path)
+- [SHACL-AF 6.3 Filter Shape Expressions](https://www.w3.org/TR/shacl-af/#node-expressions-filter-shape)
+- [SHACL-AF 6.7 Union Expressions](https://www.w3.org/TR/shacl-af/#union)
+- [SHACL-AF 6.6 Intersection Expressions](https://www.w3.org/TR/shacl-af/#intersection)
+- [SHACL-AF 8.3 The sh:Rules Entailment Regime](https://www.w3.org/TR/shacl-af/#Rules)
+- [SHACL 1.2 Rules section 3 SPARQL-RL](https://www.w3.org/TR/shacl12-rules/#overview)
+- [SHACL 1.2 Rules 4.4 Stratification](https://www.w3.org/TR/shacl12-rules/#stratification)
 
 | Lesson | Checks | Data |
 |---|---|---|

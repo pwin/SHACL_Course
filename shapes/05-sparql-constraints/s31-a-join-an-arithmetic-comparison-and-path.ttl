@@ -44,9 +44,9 @@
 #
 #  DATA      bookshop-trail-faulty.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F05-sparql-constraints%2Fs31-a-join-an-arithmetic-comparison-and-path.ttl
-#  SPEC      SHACL §5.3.1 Pre-bound Variables in SPARQL Constraints
+#  SPEC      SHACL 5.3.1 Pre-bound Variables in SPARQL Constraints
 #            https://www.w3.org/TR/shacl/#sparql-constraints-prebound
-#            SHACL §5.3.2 Mapping of Solution Bindings to Result Properties
+#            SHACL 5.3.2 Mapping of Solution Bindings to Result Properties
 #            https://www.w3.org/TR/shacl/#sparql-constraints-variables
 #  REPORTS   does not conform -- 2 violations, 1 warning, 0 info; 5 shapes
 # ==========================================================================

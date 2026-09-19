@@ -44,9 +44,9 @@
 #
 #  DATA      bookshop-trail-faulty.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F06-constraint-components%2Fs39-an-isbn-check-digit.ttl
-#  SPEC      SHACL §6 SPARQL-based Constraint Components
+#  SPEC      SHACL section 6 SPARQL-based Constraint Components
 #            https://www.w3.org/TR/shacl/#sparql-constraint-components
-#            SHACL §6.2.3.2 ASK-based Validators
+#            SHACL 6.2.3.2 ASK-based Validators
 #            https://www.w3.org/TR/shacl/#SPARQLAskValidator
 #  REPORTS   does not conform -- 1 violation, 0 warnings, 0 info; 3 shapes
 # ==========================================================================

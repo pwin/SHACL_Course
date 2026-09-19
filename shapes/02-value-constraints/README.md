@@ -6,21 +6,21 @@ Each `.ttl` file carries its own explanation: what it checks, how it works, a di
 
 **In the standards.** The sections this module is defined by:
 
-- [SHACL §4.1.2 sh:datatype](https://www.w3.org/TR/shacl/#DatatypeConstraintComponent)
-- [SHACL §4.1.3 sh:nodeKind](https://www.w3.org/TR/shacl/#NodeKindConstraintComponent)
-- [SHACL §4.1.1 sh:class](https://www.w3.org/TR/shacl/#ClassConstraintComponent)
-- [SHACL §4.3 Value Range Constraint Components](https://www.w3.org/TR/shacl/#core-components-range)
-- [SHACL §4.4 String-based Constraint Components](https://www.w3.org/TR/shacl/#core-components-string)
-- [SHACL §4.4.3 sh:pattern](https://www.w3.org/TR/shacl/#PatternConstraintComponent)
-- [SHACL §4.4.4 sh:languageIn](https://www.w3.org/TR/shacl/#LanguageInConstraintComponent)
-- [SHACL §4.4.5 sh:uniqueLang](https://www.w3.org/TR/shacl/#UniqueLangConstraintComponent)
-- [SHACL §4.8.3 sh:in](https://www.w3.org/TR/shacl/#InConstraintComponent)
-- [SHACL §4.8.2 sh:hasValue](https://www.w3.org/TR/shacl/#HasValueConstraintComponent)
-- [SHACL §4.5 Property Pair Constraint Components](https://www.w3.org/TR/shacl/#core-components-property-pairs)
-- [SHACL §4.5.3 sh:lessThan](https://www.w3.org/TR/shacl/#LessThanConstraintComponent)
-- [SHACL §4.5.4 sh:lessThanOrEquals](https://www.w3.org/TR/shacl/#LessThanOrEqualsConstraintComponent)
-- [SHACL §4.5.1 sh:equals](https://www.w3.org/TR/shacl/#EqualsConstraintComponent)
-- [SHACL §4.5.2 sh:disjoint](https://www.w3.org/TR/shacl/#DisjointConstraintComponent)
+- [SHACL 4.1.2 sh:datatype](https://www.w3.org/TR/shacl/#DatatypeConstraintComponent)
+- [SHACL 4.1.3 sh:nodeKind](https://www.w3.org/TR/shacl/#NodeKindConstraintComponent)
+- [SHACL 4.1.1 sh:class](https://www.w3.org/TR/shacl/#ClassConstraintComponent)
+- [SHACL 4.3 Value Range Constraint Components](https://www.w3.org/TR/shacl/#core-components-range)
+- [SHACL 4.4 String-based Constraint Components](https://www.w3.org/TR/shacl/#core-components-string)
+- [SHACL 4.4.3 sh:pattern](https://www.w3.org/TR/shacl/#PatternConstraintComponent)
+- [SHACL 4.4.4 sh:languageIn](https://www.w3.org/TR/shacl/#LanguageInConstraintComponent)
+- [SHACL 4.4.5 sh:uniqueLang](https://www.w3.org/TR/shacl/#UniqueLangConstraintComponent)
+- [SHACL 4.8.3 sh:in](https://www.w3.org/TR/shacl/#InConstraintComponent)
+- [SHACL 4.8.2 sh:hasValue](https://www.w3.org/TR/shacl/#HasValueConstraintComponent)
+- [SHACL 4.5 Property Pair Constraint Components](https://www.w3.org/TR/shacl/#core-components-property-pairs)
+- [SHACL 4.5.3 sh:lessThan](https://www.w3.org/TR/shacl/#LessThanConstraintComponent)
+- [SHACL 4.5.4 sh:lessThanOrEquals](https://www.w3.org/TR/shacl/#LessThanOrEqualsConstraintComponent)
+- [SHACL 4.5.1 sh:equals](https://www.w3.org/TR/shacl/#EqualsConstraintComponent)
+- [SHACL 4.5.2 sh:disjoint](https://www.w3.org/TR/shacl/#DisjointConstraintComponent)
 
 | Lesson | Checks | Data |
 |---|---|---|

@@ -44,9 +44,9 @@
 #
 #  DATA      bookshop-trail-faulty.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F02-value-constraints%2Fs18-comparing-two-properties.ttl
-#  SPEC      SHACL §4.5 Property Pair Constraint Components
+#  SPEC      SHACL 4.5 Property Pair Constraint Components
 #            https://www.w3.org/TR/shacl/#core-components-property-pairs
-#            SHACL §4.5.4 sh:lessThanOrEquals
+#            SHACL 4.5.4 sh:lessThanOrEquals
 #            https://www.w3.org/TR/shacl/#LessThanOrEqualsConstraintComponent
 #  REPORTS   does not conform -- 10 violations, 0 warnings, 58 info; 8 shapes
 # ==========================================================================

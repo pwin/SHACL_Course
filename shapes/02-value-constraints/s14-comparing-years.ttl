@@ -41,9 +41,9 @@
 #
 #  DATA      bookshop-trail-faulty.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F02-value-constraints%2Fs14-comparing-years.ttl
-#  SPEC      SHACL §4.3 Value Range Constraint Components
+#  SPEC      SHACL 4.3 Value Range Constraint Components
 #            https://www.w3.org/TR/shacl/#core-components-range
-#            SHACL §5 SPARQL-based Constraints
+#            SHACL section 5 SPARQL-based Constraints
 #            https://www.w3.org/TR/shacl/#sparql-constraints
 #  REPORTS   does not conform -- 2 violations, 0 warnings, 0 info; 4 shapes
 # ==========================================================================

@@ -6,21 +6,21 @@ Each `.ttl` file carries its own explanation: what it checks, how it works, a di
 
 **In the standards.** The sections this module is defined by:
 
-- [SHACL §2.1 Shapes](https://www.w3.org/TR/shacl/#shapes)
-- [SHACL §2.1.3 Targets](https://www.w3.org/TR/shacl/#targets)
-- [SHACL §2.1.3.2 sh:targetClass](https://www.w3.org/TR/shacl/#targetClass)
-- [SHACL §2.1.3.1 sh:targetNode](https://www.w3.org/TR/shacl/#targetNode)
-- [SHACL §2.1.3.4 sh:targetSubjectsOf](https://www.w3.org/TR/shacl/#targetSubjectsOf)
-- [SHACL §2.1.3.5 sh:targetObjectsOf](https://www.w3.org/TR/shacl/#targetObjectsOf)
-- [SHACL §2.1.3.3 Implicit Class Targets](https://www.w3.org/TR/shacl/#implicit-targetClass)
-- [SHACL §2.3 Property Shapes](https://www.w3.org/TR/shacl/#property-shapes)
-- [SHACL §4.2.1 sh:minCount](https://www.w3.org/TR/shacl/#MinCountConstraintComponent)
-- [SHACL §4.2.2 sh:maxCount](https://www.w3.org/TR/shacl/#MaxCountConstraintComponent)
-- [SHACL §2.1.4 Declaring the Severity of a Shape](https://www.w3.org/TR/shacl/#severity)
-- [SHACL §2.1.5 Declaring Messages for a Shape](https://www.w3.org/TR/shacl/#message)
-- [SHACL §2.1.6 Deactivating a Shape](https://www.w3.org/TR/shacl/#deactivated)
-- [SHACL §3.6.2 Validation Result](https://www.w3.org/TR/shacl/#results-validation-result)
-- [SHACL §3.5 Conformance Checking](https://www.w3.org/TR/shacl/#conformance-definition)
+- [SHACL 2.1 Shapes](https://www.w3.org/TR/shacl/#shapes)
+- [SHACL 2.1.3 Targets](https://www.w3.org/TR/shacl/#targets)
+- [SHACL 2.1.3.2 sh:targetClass](https://www.w3.org/TR/shacl/#targetClass)
+- [SHACL 2.1.3.1 sh:targetNode](https://www.w3.org/TR/shacl/#targetNode)
+- [SHACL 2.1.3.4 sh:targetSubjectsOf](https://www.w3.org/TR/shacl/#targetSubjectsOf)
+- [SHACL 2.1.3.5 sh:targetObjectsOf](https://www.w3.org/TR/shacl/#targetObjectsOf)
+- [SHACL 2.1.3.3 Implicit Class Targets](https://www.w3.org/TR/shacl/#implicit-targetClass)
+- [SHACL 2.3 Property Shapes](https://www.w3.org/TR/shacl/#property-shapes)
+- [SHACL 4.2.1 sh:minCount](https://www.w3.org/TR/shacl/#MinCountConstraintComponent)
+- [SHACL 4.2.2 sh:maxCount](https://www.w3.org/TR/shacl/#MaxCountConstraintComponent)
+- [SHACL 2.1.4 Declaring the Severity of a Shape](https://www.w3.org/TR/shacl/#severity)
+- [SHACL 2.1.5 Declaring Messages for a Shape](https://www.w3.org/TR/shacl/#message)
+- [SHACL 2.1.6 Deactivating a Shape](https://www.w3.org/TR/shacl/#deactivated)
+- [SHACL 3.6.2 Validation Result](https://www.w3.org/TR/shacl/#results-validation-result)
+- [SHACL 3.5 Conformance Checking](https://www.w3.org/TR/shacl/#conformance-definition)
 
 | Lesson | Checks | Data |
 |---|---|---|

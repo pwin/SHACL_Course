@@ -45,9 +45,9 @@
 #
 #  DATA      bookshop-trail-faulty.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F01-first-shapes%2Fs02-reading-a-violation.ttl
-#  SPEC      SHACL §3.6.2 Validation Result
+#  SPEC      SHACL 3.6.2 Validation Result
 #            https://www.w3.org/TR/shacl/#results-validation-result
-#            SHACL §2.1.5 Declaring Messages for a Shape
+#            SHACL 2.1.5 Declaring Messages for a Shape
 #            https://www.w3.org/TR/shacl/#message
 #  REPORTS   does not conform -- 1 violation, 0 warnings, 0 info; 2 shapes
 # ==========================================================================

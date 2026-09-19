@@ -44,9 +44,9 @@
 #  DATA      bookshop-trail-faulty.ttl
 #  INFERENCE rdfs   (the Inference dropdown in the editor)
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F09-inference%2Fs59-the-inference-that-hides-an-error.ttl&inference=rdfs
-#  SPEC      SHACL §1.5 Relationship between SHACL and RDFS inferencing
+#  SPEC      SHACL 1.5 Relationship between SHACL and RDFS inferencing
 #            https://www.w3.org/TR/shacl/#shacl-rdfs
-#            SHACL §4.1.1 sh:class
+#            SHACL 4.1.1 sh:class
 #            https://www.w3.org/TR/shacl/#ClassConstraintComponent
 #  REPORTS   does not conform -- 3 violations, 0 warnings, 0 info; 13 shapes
 # ==========================================================================

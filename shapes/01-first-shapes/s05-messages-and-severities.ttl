@@ -47,9 +47,9 @@
 #
 #  DATA      bookshop-trail-faulty.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F01-first-shapes%2Fs05-messages-and-severities.ttl
-#  SPEC      SHACL §2.1.4 Declaring the Severity of a Shape
+#  SPEC      SHACL 2.1.4 Declaring the Severity of a Shape
 #            https://www.w3.org/TR/shacl/#severity
-#            SHACL §2.1.5 Declaring Messages for a Shape
+#            SHACL 2.1.5 Declaring Messages for a Shape
 #            https://www.w3.org/TR/shacl/#message
 #  REPORTS   does not conform -- 7 violations, 1 warning, 7 info; 6 shapes
 # ==========================================================================

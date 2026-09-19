@@ -6,17 +6,17 @@ Each `.ttl` file carries its own explanation: what it checks, how it works, a di
 
 **In the standards.** The sections this module is defined by:
 
-- [SHACL §4.7.1 sh:node](https://www.w3.org/TR/shacl/#NodeConstraintComponent)
-- [SHACL §4.7.2 sh:property](https://www.w3.org/TR/shacl/#PropertyConstraintComponent)
-- [SHACL §4.6 Logical Constraint Components](https://www.w3.org/TR/shacl/#core-components-logical)
-- [SHACL §4.6.1 sh:not](https://www.w3.org/TR/shacl/#NotConstraintComponent)
-- [SHACL §4.6.2 sh:and](https://www.w3.org/TR/shacl/#AndConstraintComponent)
-- [SHACL §4.6.3 sh:or](https://www.w3.org/TR/shacl/#OrConstraintComponent)
-- [SHACL §4.6.4 sh:xone](https://www.w3.org/TR/shacl/#XoneConstraintComponent)
-- [SHACL §4.7.3 sh:qualifiedValueShape](https://www.w3.org/TR/shacl/#QualifiedValueShapeConstraintComponent)
-- [SHACL §4.8.1 sh:closed, sh:ignoredProperties](https://www.w3.org/TR/shacl/#ClosedConstraintComponent)
-- [SHACL §3.4.3 Handling of Recursive Shapes](https://www.w3.org/TR/shacl/#shapes-recursion)
-- [SHACL §3.7 Value Nodes](https://www.w3.org/TR/shacl/#value-nodes)
+- [SHACL 4.7.1 sh:node](https://www.w3.org/TR/shacl/#NodeConstraintComponent)
+- [SHACL 4.7.2 sh:property](https://www.w3.org/TR/shacl/#PropertyConstraintComponent)
+- [SHACL 4.6 Logical Constraint Components](https://www.w3.org/TR/shacl/#core-components-logical)
+- [SHACL 4.6.1 sh:not](https://www.w3.org/TR/shacl/#NotConstraintComponent)
+- [SHACL 4.6.2 sh:and](https://www.w3.org/TR/shacl/#AndConstraintComponent)
+- [SHACL 4.6.3 sh:or](https://www.w3.org/TR/shacl/#OrConstraintComponent)
+- [SHACL 4.6.4 sh:xone](https://www.w3.org/TR/shacl/#XoneConstraintComponent)
+- [SHACL 4.7.3 sh:qualifiedValueShape](https://www.w3.org/TR/shacl/#QualifiedValueShapeConstraintComponent)
+- [SHACL 4.8.1 sh:closed, sh:ignoredProperties](https://www.w3.org/TR/shacl/#ClosedConstraintComponent)
+- [SHACL 3.4.3 Handling of Recursive Shapes](https://www.w3.org/TR/shacl/#shapes-recursion)
+- [SHACL 3.7 Value Nodes](https://www.w3.org/TR/shacl/#value-nodes)
 
 | Lesson | Checks | Data |
 |---|---|---|

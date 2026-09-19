@@ -11,7 +11,7 @@
 #    can only call it 'bt:BookshopShape > property 3'. Give it an IRI and
 #    the report names it; add sh:name and sh:description and a form builder
 #    or a documentation tool can use them too. These are the non-validating
-#    characteristics of §2.3.2: they change nothing about what is checked.
+#    characteristics of 2.3.2: they change nothing about what is checked.
 #    The query below groups the report by sh:sourceShape, which is only
 #    readable once the shapes have names. The convention here is the node
 #    shape's name, a hyphen, and the property's local name.
@@ -37,9 +37,9 @@
 #
 #  DATA      bookshop-trail-faulty.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F10-debugging%2Fs62-naming-your-shapes.ttl
-#  SPEC      SHACL §2.3.2 Non-Validating Property Shape Characteristics
+#  SPEC      SHACL 2.3.2 Non-Validating Property Shape Characteristics
 #            https://www.w3.org/TR/shacl/#nonValidation
-#            SHACL §3.6.2.4 sh:sourceShape
+#            SHACL 3.6.2.4 sh:sourceShape
 #            https://www.w3.org/TR/shacl/#results-source-shape
 #  REPORTS   does not conform -- 8 violations, 2 warnings, 0 info; 6 shapes
 # ==========================================================================

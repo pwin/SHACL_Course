@@ -34,15 +34,15 @@
 #      Read the shape again before touching the data.
 #    - rdfs:subClassOf is followed in the data graph. If the hierarchy
 #      lives with the shapes, sh:class will not see it (SHACL 1.2 Core
-#      §6.3 discusses this).
+#      6.3 discusses this).
 #    - Datatype and direction mistakes fail every node the same way. Look
 #      at the first row's value and ask why it should have passed.
 #
 #  DATA      bookshop-trail-1.1.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F10-debugging%2Fs61-the-shape-that-flags-everything.ttl
-#  SPEC      SHACL 1.2 Core §6.3 Graph for rdfs:subClassOf Triples
+#  SPEC      SHACL 1.2 Core 6.3 Graph for rdfs:subClassOf Triples
 #            https://www.w3.org/TR/shacl12-core/#subClassOfInShapesGraph
-#            SHACL §4.1.2 sh:datatype
+#            SHACL 4.1.2 sh:datatype
 #            https://www.w3.org/TR/shacl/#DatatypeConstraintComponent
 #  REPORTS   does not conform -- 169 violations, 0 warnings, 0 info; 8 shapes
 # ==========================================================================

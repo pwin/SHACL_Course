@@ -327,7 +327,7 @@ python scripts/check_links.py       # every standards link, anchors included
 
 Everything this course teaches is defined somewhere, usually in one short
 section of one document. Start with the
-[SHACL Recommendation](https://www.w3.org/TR/shacl/); §4 is the constraint
+[SHACL Recommendation](https://www.w3.org/TR/shacl/); section 4 is the constraint
 component reference you will open most often, and Appendix D shows each Core
 component as the SPARQL it is equivalent to.
 

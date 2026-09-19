@@ -29,12 +29,12 @@ The headline says **Conforms** or **Does not conform**, then the counts: violati
 
 | Column | What it is | Where the specification defines it |
 |---|---|---|
-| Severity | `Violation` counts against conformance; `Warning` and `Info` do not | [§2.1.4](https://www.w3.org/TR/shacl/#severity) |
-| Focus node | The node that was checked | [§3.6.2.1](https://www.w3.org/TR/shacl/#results-focus-node) |
-| Path | The property the constraint is about; blank for a constraint on the node itself. A compound path is written out, as `^bs:heldAt` or `bs:within*` | [§3.6.2.2](https://www.w3.org/TR/shacl/#results-path) |
-| Value | The offending value, where there is one. A count has none | [§3.6.2.3](https://www.w3.org/TR/shacl/#results-value) |
-| Message | The shape's `sh:message` with `{$this}`, `{$path}` and `{$value}` filled in, or the constraint component's name | [§3.6.2.7](https://www.w3.org/TR/shacl/#results-message) |
-| Shape | Which shape said so. A property shape written as `[ ... ]` has no name, and shows as `bt:BookshopShape › property 2` | [§3.6.2.4](https://www.w3.org/TR/shacl/#results-source-shape) |
+| Severity | `Violation` counts against conformance; `Warning` and `Info` do not | [2.1.4](https://www.w3.org/TR/shacl/#severity) |
+| Focus node | The node that was checked | [3.6.2.1](https://www.w3.org/TR/shacl/#results-focus-node) |
+| Path | The property the constraint is about; blank for a constraint on the node itself. A compound path is written out, as `^bs:heldAt` or `bs:within*` | [3.6.2.2](https://www.w3.org/TR/shacl/#results-path) |
+| Value | The offending value, where there is one. A count has none | [3.6.2.3](https://www.w3.org/TR/shacl/#results-value) |
+| Message | The shape's `sh:message` with `{$this}`, `{$path}` and `{$value}` filled in, or the constraint component's name | [3.6.2.7](https://www.w3.org/TR/shacl/#results-message) |
+| Shape | Which shape said so. A property shape written as `[ ... ]` has no name, and shows as `bt:BookshopShape › property 2` | [3.6.2.4](https://www.w3.org/TR/shacl/#results-source-shape) |
 
 Two things to know about the headline. **The shapes count is the number of shapes that compiled**, node shapes and property shapes together; if it is smaller than you expect, something did not compile as a shape (s63). And **Conforms means no violations were found**, which is also what it says when nothing was checked (s09). In this engine a warning or an info does not stop a report from conforming; the specification's own rule is stricter, and module 08 says how.
 

@@ -43,9 +43,9 @@
 #  DATA      bookshop-trail-1.1.ttl
 #  INFERENCE rules   (the Inference dropdown in the editor)
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F07-rules%2Fs44-a-value-copied-along-a-path.ttl&inference=rules
-#  SPEC      SHACL-AF §6.5 Path Expressions
+#  SPEC      SHACL-AF 6.5 Path Expressions
 #            https://www.w3.org/TR/shacl-af/#node-expressions-path
-#            SHACL-AF §8.5 Triple Rules
+#            SHACL-AF 8.5 Triple Rules
 #            https://www.w3.org/TR/shacl-af/#TripleRule
 #  REPORTS   does not conform -- 12 violations, 0 warnings, 45 info; 6 shapes
 # ==========================================================================

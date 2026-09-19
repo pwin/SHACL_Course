@@ -48,9 +48,9 @@
 #  DATA      04-bookshops.ttl
 #  INFERENCE rules   (the Inference dropdown in the editor)
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2F04-bookshops.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F07-rules%2Fs43-your-first-rule.ttl&inference=rules
-#  SPEC      SHACL-AF §8 SHACL Rules
+#  SPEC      SHACL-AF section 8 SHACL Rules
 #            https://www.w3.org/TR/shacl-af/#rules
-#            SHACL-AF §8.5 Triple Rules
+#            SHACL-AF 8.5 Triple Rules
 #            https://www.w3.org/TR/shacl-af/#TripleRule
 #  REPORTS   conforms -- 0 violations, 0 warnings, 33 info; 5 shapes
 # ==========================================================================

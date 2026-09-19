@@ -8,10 +8,10 @@ Lessons marked with an inference mode need the **Inference** dropdown set to tha
 
 **In the standards.** The sections this module is defined by:
 
-- [SHACL §1.5 Relationship between SHACL and RDFS inferencing](https://www.w3.org/TR/shacl/#shacl-rdfs)
-- [SHACL 1.2 Core §6.3 Graph for rdfs:subClassOf Triples](https://www.w3.org/TR/shacl12-core/#subClassOfInShapesGraph)
-- [SHACL §2.1.3.2 sh:targetClass](https://www.w3.org/TR/shacl/#targetClass)
-- [SHACL §4.1.1 sh:class](https://www.w3.org/TR/shacl/#ClassConstraintComponent)
+- [SHACL 1.5 Relationship between SHACL and RDFS inferencing](https://www.w3.org/TR/shacl/#shacl-rdfs)
+- [SHACL 1.2 Core 6.3 Graph for rdfs:subClassOf Triples](https://www.w3.org/TR/shacl12-core/#subClassOfInShapesGraph)
+- [SHACL 2.1.3.2 sh:targetClass](https://www.w3.org/TR/shacl/#targetClass)
+- [SHACL 4.1.1 sh:class](https://www.w3.org/TR/shacl/#ClassConstraintComponent)
 
 | Lesson | Checks | Data |
 |---|---|---|

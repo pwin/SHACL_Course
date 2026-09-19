@@ -6,16 +6,16 @@ Each `.ttl` file carries its own explanation: what it checks, how it works, a di
 
 **In the standards.** The sections this module is defined by:
 
-- [SHACL 1.2 Core §7.8.5 sh:reifierShape, sh:reificationRequired](https://www.w3.org/TR/shacl12-core/#ReifierShapeConstraintComponent)
-- [SHACL 1.2 Core §3.1.3.3 Implicit Class Targets and sh:ShapeClass](https://www.w3.org/TR/shacl12-core/#implicit-targetClass)
-- [SHACL 1.2 Core §3.1.3.6 Where Targets (sh:targetWhere)](https://www.w3.org/TR/shacl12-core/#targetWhere)
-- [SHACL 1.2 Core §3.1.3.7 Explicit shape targets (sh:shape)](https://www.w3.org/TR/shacl12-core/#explicit-shape-target)
-- [SHACL 1.2 Core §3.1.4 Declaring the Severity of a Shape or Constraint](https://www.w3.org/TR/shacl12-core/#severity)
-- [SHACL 1.2 Core §7.4.4 sh:singleLine](https://www.w3.org/TR/shacl12-core/#SingleLineConstraintComponent)
-- [SHACL 1.2 Core §7.6.3 sh:subsetOf](https://www.w3.org/TR/shacl12-core/#SubsetOfConstraintComponent)
-- [SHACL 1.2 Core §6.7.1.2 sh:conformanceDisallows](https://www.w3.org/TR/shacl12-core/#conformanceDisallows)
-- [RDF 1.2 Concepts §2.2 Triple Terms and Reification](https://www.w3.org/TR/rdf12-concepts/#section-triple-terms)
-- [RDF 1.2 Turtle §2.9 Reifying Triples](https://www.w3.org/TR/rdf12-turtle/#reifying-triples)
+- [SHACL 1.2 Core 7.8.5 sh:reifierShape, sh:reificationRequired](https://www.w3.org/TR/shacl12-core/#ReifierShapeConstraintComponent)
+- [SHACL 1.2 Core 3.1.3.3 Implicit Class Targets and sh:ShapeClass](https://www.w3.org/TR/shacl12-core/#implicit-targetClass)
+- [SHACL 1.2 Core 3.1.3.6 Where Targets (sh:targetWhere)](https://www.w3.org/TR/shacl12-core/#targetWhere)
+- [SHACL 1.2 Core 3.1.3.7 Explicit shape targets (sh:shape)](https://www.w3.org/TR/shacl12-core/#explicit-shape-target)
+- [SHACL 1.2 Core 3.1.4 Declaring the Severity of a Shape or Constraint](https://www.w3.org/TR/shacl12-core/#severity)
+- [SHACL 1.2 Core 7.4.4 sh:singleLine](https://www.w3.org/TR/shacl12-core/#SingleLineConstraintComponent)
+- [SHACL 1.2 Core 7.6.3 sh:subsetOf](https://www.w3.org/TR/shacl12-core/#SubsetOfConstraintComponent)
+- [SHACL 1.2 Core 6.7.1.2 sh:conformanceDisallows](https://www.w3.org/TR/shacl12-core/#conformanceDisallows)
+- [RDF 1.2 Concepts 2.2 Triple Terms and Reification](https://www.w3.org/TR/rdf12-concepts/#section-triple-terms)
+- [RDF 1.2 Turtle 2.9 Reifying Triples](https://www.w3.org/TR/rdf12-turtle/#reifying-triples)
 
 | Lesson | Checks | Data |
 |---|---|---|

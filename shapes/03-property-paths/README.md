@@ -6,15 +6,15 @@ Each `.ttl` file carries its own explanation: what it checks, how it works, a di
 
 **In the standards.** The sections this module is defined by:
 
-- [SHACL §2.3.1 SHACL Property Paths](https://www.w3.org/TR/shacl/#property-paths)
-- [SHACL §2.3.1.2 Sequence Paths](https://www.w3.org/TR/shacl/#property-path-sequence)
-- [SHACL §2.3.1.4 Inverse Paths](https://www.w3.org/TR/shacl/#property-path-inverse)
-- [SHACL §2.3.1.3 Alternative Paths](https://www.w3.org/TR/shacl/#property-path-alternative)
-- [SHACL §2.3.1.5 Zero-Or-More Paths](https://www.w3.org/TR/shacl/#property-path-zero-or-more)
-- [SHACL §2.3.1.6 One-Or-More Paths](https://www.w3.org/TR/shacl/#property-path-one-or-more)
-- [SHACL §2.3.1.7 Zero-Or-One Paths](https://www.w3.org/TR/shacl/#property-path-zero-or-one)
-- [SHACL §3.6.2.2 sh:resultPath](https://www.w3.org/TR/shacl/#results-path)
-- [SPARQL 1.2 Query §9 Property Paths](https://www.w3.org/TR/sparql12-query/#x9-property-paths)
+- [SHACL 2.3.1 SHACL Property Paths](https://www.w3.org/TR/shacl/#property-paths)
+- [SHACL 2.3.1.2 Sequence Paths](https://www.w3.org/TR/shacl/#property-path-sequence)
+- [SHACL 2.3.1.4 Inverse Paths](https://www.w3.org/TR/shacl/#property-path-inverse)
+- [SHACL 2.3.1.3 Alternative Paths](https://www.w3.org/TR/shacl/#property-path-alternative)
+- [SHACL 2.3.1.5 Zero-Or-More Paths](https://www.w3.org/TR/shacl/#property-path-zero-or-more)
+- [SHACL 2.3.1.6 One-Or-More Paths](https://www.w3.org/TR/shacl/#property-path-one-or-more)
+- [SHACL 2.3.1.7 Zero-Or-One Paths](https://www.w3.org/TR/shacl/#property-path-zero-or-one)
+- [SHACL 3.6.2.2 sh:resultPath](https://www.w3.org/TR/shacl/#results-path)
+- [SPARQL 1.2 Query section 9 Property Paths](https://www.w3.org/TR/sparql12-query/#x9-property-paths)
 
 | Lesson | Checks | Data |
 |---|---|---|

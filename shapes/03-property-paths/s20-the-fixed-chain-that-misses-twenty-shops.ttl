@@ -46,9 +46,9 @@
 #
 #  DATA      bookshop-trail-1.1.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F03-property-paths%2Fs20-the-fixed-chain-that-misses-twenty-shops.ttl
-#  SPEC      SHACL §2.3.1.6 One-Or-More Paths
+#  SPEC      SHACL 2.3.1.6 One-Or-More Paths
 #            https://www.w3.org/TR/shacl/#property-path-one-or-more
-#            SHACL §4.8.2 sh:hasValue
+#            SHACL 4.8.2 sh:hasValue
 #            https://www.w3.org/TR/shacl/#HasValueConstraintComponent
 #  REPORTS   does not conform -- 20 violations, 0 warnings, 0 info; 4 shapes
 # ==========================================================================

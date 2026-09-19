@@ -35,9 +35,9 @@
 #  DATA      bookshop-trail-1.1.ttl
 #  INFERENCE rules   (the Inference dropdown in the editor)
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F07-rules%2Fs46-union-and-intersection.ttl&inference=rules
-#  SPEC      SHACL-AF §6.7 Union Expressions
+#  SPEC      SHACL-AF 6.7 Union Expressions
 #            https://www.w3.org/TR/shacl-af/#union
-#            SHACL-AF §6.6 Intersection Expressions
+#            SHACL-AF 6.6 Intersection Expressions
 #            https://www.w3.org/TR/shacl-af/#intersection
 #  REPORTS   conforms -- 0 violations, 0 warnings, 54 info; 10 shapes
 # ==========================================================================

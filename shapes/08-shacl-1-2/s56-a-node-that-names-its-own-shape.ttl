@@ -34,9 +34,9 @@
 #
 #  DATA      bookshop-trail-faulty.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F08-shacl-1-2%2Fs56-a-node-that-names-its-own-shape.ttl
-#  SPEC      SHACL 1.2 Core §3.1.3.7 Explicit shape targets (sh:shape)
+#  SPEC      SHACL 1.2 Core 3.1.3.7 Explicit shape targets (sh:shape)
 #            https://www.w3.org/TR/shacl12-core/#explicit-shape-target
-#            SHACL 1.2 Core §3.1.3.6 Where Targets (sh:targetWhere)
+#            SHACL 1.2 Core 3.1.3.6 Where Targets (sh:targetWhere)
 #            https://www.w3.org/TR/shacl12-core/#targetWhere
 #  REPORTS   does not conform -- 2 violations, 0 warnings, 0 info; 4 shapes
 # ==========================================================================

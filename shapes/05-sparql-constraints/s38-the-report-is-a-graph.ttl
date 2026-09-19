@@ -45,9 +45,9 @@
 #
 #  DATA      bookshop-trail-faulty.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F05-sparql-constraints%2Fs38-the-report-is-a-graph.ttl
-#  SPEC      SHACL §3.6 Validation Report
+#  SPEC      SHACL 3.6 Validation Report
 #            https://www.w3.org/TR/shacl/#validation-report
-#            SHACL §3.6.2 Validation Result
+#            SHACL 3.6.2 Validation Result
 #            https://www.w3.org/TR/shacl/#results-validation-result
 #  REPORTS   does not conform -- 13 violations, 2 warnings, 0 info; 12 shapes
 # ==========================================================================

@@ -39,9 +39,9 @@
 #
 #  DATA      bookshop-trail-1.1.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-1.1.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F11-putting-it-together%2Fs65-shapes-as-questions.ttl
-#  SPEC      SHACL §2.1.4 Declaring the Severity of a Shape
+#  SPEC      SHACL 2.1.4 Declaring the Severity of a Shape
 #            https://www.w3.org/TR/shacl/#severity
-#            SHACL §3.6 Validation Report
+#            SHACL 3.6 Validation Report
 #            https://www.w3.org/TR/shacl/#validation-report
 #  REPORTS   conforms -- 0 violations, 0 warnings, 36 info; 12 shapes
 # ==========================================================================

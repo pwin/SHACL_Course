@@ -35,9 +35,9 @@
 #
 #  DATA      bookshop-trail-faulty.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F02-value-constraints%2Fs17-a-fixed-list-of-values.ttl
-#  SPEC      SHACL §4.8.3 sh:in
+#  SPEC      SHACL 4.8.3 sh:in
 #            https://www.w3.org/TR/shacl/#InConstraintComponent
-#            SHACL §4.8.2 sh:hasValue
+#            SHACL 4.8.2 sh:hasValue
 #            https://www.w3.org/TR/shacl/#HasValueConstraintComponent
 #  REPORTS   does not conform -- 3 violations, 0 warnings, 0 info; 8 shapes
 # ==========================================================================
