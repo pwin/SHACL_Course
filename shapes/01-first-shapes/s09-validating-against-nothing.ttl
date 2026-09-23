@@ -28,8 +28,8 @@
 #            1 violation, always  ->  proof that validation happened
 #
 #  WHAT TO TAKE AWAY
-#    - Conforms means no violations were found. It does not mean anything
-#      was checked.
+#    - Conforms means nothing that counts was found. It does not mean
+#      anything was checked.
 #    - While writing shapes, keep one constraint that must fail. When it
 #      stops failing, the data is not what you think.
 #    - The shapes count in the headline tells you how many shapes
