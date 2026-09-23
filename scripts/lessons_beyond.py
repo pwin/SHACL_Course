@@ -69,7 +69,7 @@ bt:BornBefore1920Inline
     ] .
 """,
     data=D11, declare=True,
-    expect=dict(conforms=True, min_infos=3, violations=0),
+    expect=dict(conforms=False, min_infos=3, violations=0),
 )
 specs.register("s69", "afFunctions", "afSparqlFunction")
 

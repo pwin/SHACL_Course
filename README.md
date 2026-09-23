@@ -12,11 +12,15 @@ SHACL 1.2 that run today — on the [SPARQL course](https://github.com/pwin/SPAR
 dataset, in the same browser editor, with the report each lesson produces
 printed beside it.
 
-The two courses are one package. The SPARQL course asks the Bookshop Trail
-questions and gets tables back; this one says what well-formed Bookshop Trail
-data looks like and gets a report of everywhere the data falls short. They
-share the data, the editor and the house style, and each points at the other
-where a query and a shape are two ways of saying the same thing.
+The courses are one package. The [SPARQL course](https://www.semantechs.co.uk/SPARQL_Course/)
+asks the Bookshop Trail questions and gets tables back; this one says what
+well-formed Bookshop Trail data looks like and gets a report of everywhere the
+data falls short; and the **[ontology course](https://www.semantechs.co.uk/Ontology_Course/)**
+builds the vocabulary both of them use, from the words in a brief to an OWL 2
+DL schema a reasoner has agreed with. They share the data, the editor and the
+house style, and each points at the others where a query, a shape and an axiom
+are three ways of saying the same thing: `q28`, `s20`, `o52`. This course is
+hosted at <https://www.semantechs.co.uk/SHACL_Course/>.
 
 Everything here runs in one environment:
 
@@ -242,9 +246,9 @@ table, measured. The short version:
 | | |
 |---|---|
 | **runs** | all of SHACL Core, SHACL-SPARQL constraints and components, SPARQL targets, `$shapesGraph`, SHACL-AF triple and SPARQL rules with conditions and order, RDFS inference, and from 1.2: `sh:ShapeClass`, `sh:targetWhere`, `sh:shape`, `sh:reifierShape`, `sh:singleLine`, the list constraints |
-| **runs, with a difference** | comparisons on `xsd:gYear` fail every value (s14); only violations count against `sh:conforms` (s03); SELECT property validators run per value (s42); recursive shapes treat an in-progress check as passing (s29) |
+| **runs, with a difference** | comparisons on `xsd:gYear` fail every value (s14); SELECT property validators run per value (s42); recursive shapes treat an in-progress check as passing (s29) |
 | **error** | SHACL functions, `sh:expression`, `sh:nodeKind sh:TripleTerm`, `MINUS`/`VALUES`/`SERVICE` under pre-binding, SPARQL-RL |
-| **silent** | `?message` in a constraint, `sh:SPARQLTargetType`, `sh:uniqueValuesFor`, `sh:reificationRequired`, `sh:severity` as an annotation, `sh:resultAnnotation`, `sh:values` |
+| **silent** | `sh:SPARQLTargetType`, `sh:uniqueValuesFor`, `sh:resultAnnotation` |
 
 The last row is the one to know: a feature that is read and ignored looks like
 conformance. Lessons s09, s60 and s70 are about noticing.

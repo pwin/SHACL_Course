@@ -125,9 +125,11 @@ s(
         "right is not the validator's job; recording the decision is, and "
         "sh:severity is where it goes. sh:Violation means the data is wrong. "
         "sh:Warning means someone should look. sh:Info means this is a fact "
-        "you asked to be told. Here it is a warning, and the report still says "
-        "conforms, because in this engine only violations count against "
-        "conformance.",
+        "you asked to be told. Here it is a warning, and the report says the "
+        "data does not conform, because by default every one of those three "
+        "severities counts. A report can say otherwise: sh:conformanceDisallows "
+        "lists the severities being judged by, and the verdict then travels "
+        "with the rule that produced it.",
     diagram="""
    the shape says        every shop  --website-->  something
    the data says         27 shops do, 6 do not
@@ -136,16 +138,23 @@ s(
 
    sh:severity records the decision:
      sh:Violation   the data is wrong           counts against conforms
-     sh:Warning     someone should look         does not
-     sh:Info        a fact you asked for        does not
+     sh:Warning     someone should look         counts
+     sh:Info        a fact you asked for        counts
+     sh:Debug       for the shape author        does not   (1.2)
+     sh:Trace       for the shape author        does not   (1.2)
+
+   a report may narrow that:  sh:conformanceDisallows sh:Violation
+                              -> only violations count, and the report says so
 """,
     learn=[
         "A shape is a statement of policy. When the data disagrees, check the policy before you fix the data.",
         "Severity is a property of the shape, and it is how you say what kind of finding this is.",
-        "In this engine, Warning and Info do not stop a report from conforming. The specification's default is stricter, and pySHACL says Does not conform for these same six rows; module 12 has the comparison.",
+        "Warning and Info stop a report from conforming, as the specification says and as pySHACL has always done. This engine counted only violations until 0.3.0; module 12 records the difference and when it went.",
     ],
-    tryit="Change sh:Warning to sh:Violation and validate again. Same six rows; the "
-          "headline changes to Does not conform.",
+    tryit="Change sh:Warning to sh:Info and validate again. Same six rows, same "
+          "verdict: all three severities count. Then add sh:conformanceDisallows "
+          "sh:Violation to ask for a narrower judgement, and the headline turns "
+          "to Conforms while the six rows stay.",
     body="""
 bt:WebsiteExpected
     a               sh:NodeShape ;
@@ -158,7 +167,7 @@ bt:WebsiteExpected
     ] .
 """,
     data=D11,
-    expect=dict(conforms=True, warnings=6, violations=0, focus=["shop-marginalia", "shop-ex-libris"]),
+    expect=dict(conforms=False, warnings=6, violations=0, focus=["shop-marginalia", "shop-ex-libris"]),
 )
 specs.register("s03", "severity", "conforms")
 

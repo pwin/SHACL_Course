@@ -218,7 +218,7 @@ bt:WelshPlaceShape
     ] .
 """,
     data=D11, declare=True,
-    expect=dict(conforms=True, warnings=3, focus=["place-powys", "place-ceredigion", "place-city-of-cardiff"]),
+    expect=dict(conforms=False, warnings=3, focus=["place-powys", "place-ceredigion", "place-city-of-cardiff"]),
 )
 specs.register("s41", "parameters", "labelTemplate")
 

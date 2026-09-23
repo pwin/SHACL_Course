@@ -254,7 +254,7 @@ bt:MessageProbe
     ] .
 """,
     data=D11, declare=True,
-    expect=dict(conforms=True, infos=12, violations=0, focus=["shop-signature"]),
+    expect=dict(conforms=False, infos=12, violations=0, focus=["shop-signature"]),
 )
 specs.register("s32", "bindings", "message")
 
@@ -385,7 +385,7 @@ bt:UnstockedWork
     ] .
 """,
     data=D11, declare=True,
-    expect=dict(conforms=True, infos=8, violations=0, focus=["book-the-shieling"]),
+    expect=dict(conforms=False, infos=8, violations=0, focus=["book-the-shieling"]),
 )
 specs.register("s34", "prebinding", "prebound")
 
@@ -454,7 +454,7 @@ bt:BusyShop
     ] .
 """,
     data=D11, declare=True,
-    expect=dict(conforms=True, warnings=1, infos=1, focus=["shop-ex-libris"]),
+    expect=dict(conforms=False, warnings=1, infos=1, focus=["shop-ex-libris"]),
 )
 specs.register("s35", "sparqlAggregates", "prebound")
 
@@ -501,7 +501,7 @@ bt:UnreachableShopShape
     ] .
 """,
     data=D11, declare=True,
-    expect=dict(conforms=True, warnings=2, focus=["shop-penwith", "shop-west-quay"]),
+    expect=dict(conforms=False, warnings=2, focus=["shop-penwith", "shop-west-quay"]),
 )
 specs.register("s36", "sparqlPaths", "sparql")
 

@@ -64,7 +64,7 @@ bt:SourcedClaims
     ] .
 """,
     data=DFAULTY12,
-    expect=dict(conforms=False, violations=1, warnings=5, focus=["shop-marginalia", "shop-ex-libris"]),
+    expect=dict(conforms=False, violations=30, warnings=5, focus=["shop-marginalia", "shop-ex-libris"]),
 )
 specs.register("s53", "c12reifier", "turtle12annot")
 
@@ -307,6 +307,6 @@ bt:AnnotatedSeverity-label
     sh:minCount  1 {| sh:severity sh:Warning |} .
 """,
     data=DFAULTY12,
-    expect=dict(conforms=False, violations=2, focus=["shop-verso", "shop-halfmoon"]),
+    expect=dict(conforms=False, violations=1, warnings=1, focus=["shop-verso"]),
 )
 specs.register("s57", "c12singleLine", "c12lists")

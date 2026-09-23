@@ -441,7 +441,7 @@ bt:OffSpecialism
     ] .
 """,
     data=D11, declare=True,
-    expect=dict(conforms=True, violations=0, min_infos=32),
+    expect=dict(conforms=False, violations=0, min_infos=32),
 )
 specs.register("s65", "severity", "report")
 
@@ -618,7 +618,7 @@ bt:HighValueStock
     ] .
 """,
     data=D11, inference=RULES, declare=True,
-    expect=dict(conforms=True, warnings=1, min_infos=3, focus=["shop-clock-tower", "shop-ex-libris"]),
+    expect=dict(conforms=False, warnings=1, min_infos=3, focus=["shop-clock-tower", "shop-ex-libris"]),
 )
 specs.register("s67", "afRules", "afSparqlRule")
 
@@ -706,6 +706,6 @@ bt:BorderCrossing
     ] .
 """,
     data=D11, inference=RULES, declare=True,
-    expect=dict(conforms=True, violations=0, infos=3, focus=["seg-gutter-gilt-borderprint"]),
+    expect=dict(conforms=False, violations=0, infos=3, focus=["seg-gutter-gilt-borderprint"]),
 )
 specs.register("s68", "afSparqlTarget", "sparql")

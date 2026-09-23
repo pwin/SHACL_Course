@@ -80,7 +80,7 @@ bt:BookStoreShape
     sh:property [ sh:path rdfs:label ; sh:minCount 1 ] .
 """,
     data=DSHOPS, inference=RULES, declare=True, extra_prefixes=("schema",),
-    expect=dict(conforms=True, infos=33, violations=0),
+    expect=dict(conforms=False, infos=33, violations=0),
 )
 specs.register("s43", "afRules", "afTripleRule")
 
@@ -220,7 +220,7 @@ bt:CountryRequired
     ] .
 """,
     data=D11, inference=RULES, declare=True,
-    expect=dict(conforms=True, infos=33, violations=0),
+    expect=dict(conforms=False, infos=33, violations=0),
 )
 specs.register("s45", "afFilterShape", "afNodeExpr")
 
@@ -295,7 +295,7 @@ bt:SpecialismProbe
     ] .
 """,
     data=D11, inference=RULES, declare=True,
-    expect=dict(conforms=True, min_infos=12, violations=0),
+    expect=dict(conforms=False, min_infos=12, violations=0),
 )
 specs.register("s46", "afUnion", "afIntersection")
 
@@ -377,7 +377,7 @@ bt:UnnumberedProbe
     ] .
 """,
     data=D11, inference=RULES, declare=True,
-    expect=dict(conforms=True, min_infos=12, violations=0, focus=["book-hedgerow-alphabet"]),
+    expect=dict(conforms=False, min_infos=12, violations=0, focus=["book-hedgerow-alphabet"]),
 )
 specs.register("s47", "afSparqlRule", "sparqlConstruct")
 
@@ -453,7 +453,7 @@ bt:AmenityProbe
     ] .
 """,
     data=D11, inference=RULES, declare=True,
-    expect=dict(conforms=True, infos=28, violations=0),
+    expect=dict(conforms=False, infos=28, violations=0),
 )
 specs.register("s48", "afCondition", "afRuleDeactivated")
 
@@ -534,7 +534,7 @@ bt:TooEarlyProbe
     ] .
 """,
     data=D11, inference=RULES, declare=True,
-    expect=dict(conforms=True, min_infos=33, warnings=0, violations=0),
+    expect=dict(conforms=False, min_infos=33, warnings=0, violations=0),
 )
 specs.register("s49", "afOrder", "afExecution")
 
@@ -600,7 +600,7 @@ bt:ReachesGB
     ] .
 """,
     data=D11, inference=RULES, declare=True,
-    expect=dict(conforms=True, min_infos=100, min_warnings=1),
+    expect=dict(conforms=False, min_infos=100, min_warnings=1),
 )
 specs.register("s50", "afEntailment", "afExecution")
 
@@ -663,7 +663,7 @@ bt:ReachesGB
     ] .
 """,
     data=D11, inference=RULES_ITERATED, declare=True,
-    expect=dict(conforms=True, infos=186, warnings=0),
+    expect=dict(conforms=False, infos=186, warnings=0),
 )
 specs.register("s51", "afEntailment", "r12overview")
 
@@ -738,6 +738,6 @@ bt:StaleProbe
     ] .
 """,
     data=D11, inference=RULES, declare=True,
-    expect=dict(conforms=True, warnings=6, violations=0, focus=["shop-marginalia"]),
+    expect=dict(conforms=False, warnings=6, violations=0, focus=["shop-marginalia"]),
 )
 specs.register("s52", "r12negation", "r12stratification")

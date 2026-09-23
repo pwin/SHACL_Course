@@ -196,7 +196,7 @@ bt:PublisherWithWork
     sh:property [ sh:path [ sh:inversePath bs:publishedBy ] ; sh:minCount 1 ] .
 """,
     data=D11,
-    expect=dict(conforms=True, violations=0, warnings=4, min_infos=1,
+    expect=dict(conforms=False, violations=0, warnings=4, min_infos=1,
                 focus=["place-durham", "place-perth", "place-fort-william", "place-truro"]),
 )
 specs.register("s21", "pathInverse", "pathAlternative")
@@ -317,7 +317,7 @@ bt:Junction
     ] .
 """,
     data=D11,
-    expect=dict(conforms=True, violations=0, min_infos=1),
+    expect=dict(conforms=False, violations=0, min_infos=1),
     queries=[Query("The path structure inside a result", """
 PREFIX sh:  <http://www.w3.org/ns/shacl#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>

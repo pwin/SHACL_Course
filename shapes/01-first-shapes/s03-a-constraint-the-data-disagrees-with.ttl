@@ -14,8 +14,11 @@
 #    not the validator's job; recording the decision is, and sh:severity is
 #    where it goes. sh:Violation means the data is wrong. sh:Warning means
 #    someone should look. sh:Info means this is a fact you asked to be
-#    told. Here it is a warning, and the report still says conforms,
-#    because in this engine only violations count against conformance.
+#    told. Here it is a warning, and the report says the data does not
+#    conform, because by default every one of those three severities
+#    counts. A report can say otherwise: sh:conformanceDisallows lists
+#    the severities being judged by, and the verdict then travels with
+#    the rule that produced it.
 #
 #  DIAGRAM
 #       the shape says        every shop  --website-->  something
@@ -25,8 +28,13 @@
 #
 #       sh:severity records the decision:
 #         sh:Violation   the data is wrong           counts against conforms
-#         sh:Warning     someone should look         does not
-#         sh:Info        a fact you asked for        does not
+#         sh:Warning     someone should look         counts
+#         sh:Info        a fact you asked for        counts
+#         sh:Debug       for the shape author        does not   (1.2)
+#         sh:Trace       for the shape author        does not   (1.2)
+#
+#       a report may narrow that:  sh:conformanceDisallows sh:Violation
+#                                  -> only violations count, and it says so
 #
 #  WHAT TO TAKE AWAY
 #    - A shape is a statement of policy. When the data disagrees, check
@@ -39,7 +47,7 @@
 #      comparison.
 #
 #  TRY IT
-#    Change sh:Warning to sh:Violation and validate again. Same six rows;
+#    Change sh:Warning to sh:Info and validate again. Same six rows;
 #    the headline changes to Does not conform.
 #
 #  DATA      bookshop-trail-1.1.ttl

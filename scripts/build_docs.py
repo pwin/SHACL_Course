@@ -218,7 +218,7 @@ def lab_html() -> str:
       shapes graph's <code>sh:rule</code>s once first (module 07); <em>rules, iterated</em> repeats them to a fixpoint.</p>
       <p>The tab's text is never changed; the expanded graph lives for the run only.</p></div>
     <div class="panel"><h3>Two things about the headline</h3>
-      <p>The shapes count is how many shapes compiled; compare it with what you wrote. And <b>Conforms</b> means no violations
+      <p>The shapes count is how many shapes compiled; compare it with what you wrote. And <b>Conforms</b> means no results
       were found, which is also what it says when nothing was checked. Lesson s09 is about that.</p></div>
   </div>
 
@@ -267,7 +267,7 @@ def matrix_html() -> str:
     return f"""
 <section class="module ref" id="engine">
   <div class="module-head"><div class="module-num">Reference</div><h2>What this engine does with each feature</h2>
-  <p class="module-blurb">Measured against <code>shacl-wasm-node</code> 0.2.0, the build the editor ships, while the course was
+  <p class="module-blurb">Measured against <code>shacl-wasm-node</code> 0.3.2, the build the editor ships, while the course was
   written. <em>runs</em> means a lesson shows it; <em>error</em> means the engine refuses and says why; <em>silent</em> means the
   feature is read and ignored, and the report looks the same as if it had passed. Module 12's README has the comparison with
   pySHACL.</p></div>
@@ -495,7 +495,8 @@ def main() -> None:
   <p class="brand">The Bookshop Trail <em>SHACL</em></p>
   <p class="tagline">A Semantechs teaching resource</p>
   <ol>{"".join(f"<li>{a}</li>" for a in rail)}</ol>
-  <p class="railnote">The companion to <a href="{SPARQL_REPO}">the SPARQL course</a>: same data, same editor, the other way of asking it questions.</p>
+  <p class="railnote">One of three: the <a href="https://www.semantechs.co.uk/SPARQL_Course/">SPARQL course</a> asks the same data questions,
+  and the <a href="https://www.semantechs.co.uk/Ontology_Course/">ontology course</a> builds the vocabulary both use. Lessons cite each other by number.</p>
 </nav>
 <main>
 <header class="hero">

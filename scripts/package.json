@@ -10,6 +10,6 @@
   },
   "dependencies": {
     "n3": "^2.7.12",
-    "shacl-wasm-node": "^0.2.0"
+    "shacl-wasm-node": "^0.3.2"
   }
 }
