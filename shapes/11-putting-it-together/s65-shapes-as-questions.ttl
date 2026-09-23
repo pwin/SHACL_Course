@@ -43,7 +43,7 @@
 #            https://www.w3.org/TR/shacl/#severity
 #            SHACL 3.6 Validation Report
 #            https://www.w3.org/TR/shacl/#validation-report
-#  REPORTS   conforms -- 0 violations, 0 warnings, 36 info; 12 shapes
+#  REPORTS   does not conform -- 0 violations, 0 warnings, 36 info; 12 shapes
 # ==========================================================================
 
 @prefix bt:  <https://example.org/bookshop-trail/> .

@@ -39,7 +39,7 @@
 #            https://www.w3.org/TR/shacl-af/#rules-order
 #            SHACL-AF 8.4 General Execution Instructions for SHACL Rules
 #            https://www.w3.org/TR/shacl-af/#rules-execution
-#  REPORTS   conforms -- 0 violations, 0 warnings, 46 info; 10 shapes
+#  REPORTS   does not conform -- 0 violations, 0 warnings, 46 info; 10 shapes
 # ==========================================================================
 
 @prefix bt:   <https://example.org/bookshop-trail/> .

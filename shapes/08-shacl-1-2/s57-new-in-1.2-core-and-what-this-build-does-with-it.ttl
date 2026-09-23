@@ -49,7 +49,7 @@
 #            https://www.w3.org/TR/shacl12-core/#SingleLineConstraintComponent
 #            SHACL 1.2 Core 7.5 List Constraint Components
 #            https://www.w3.org/TR/shacl12-core/#core-components-list
-#  REPORTS   does not conform -- 2 violations, 0 warnings, 0 info; 8 shapes
+#  REPORTS   does not conform -- 1 violation, 1 warning, 0 info; 8 shapes
 # ==========================================================================
 
 @prefix bt:   <https://example.org/bookshop-trail/> .

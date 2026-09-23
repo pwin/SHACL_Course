@@ -29,7 +29,7 @@ The headline says **Conforms** or **Does not conform**, then the counts: violati
 
 | Column | What it is | Where the specification defines it |
 |---|---|---|
-| Severity | `Violation` counts against conformance; `Warning` and `Info` do not | [2.1.4](https://www.w3.org/TR/shacl/#severity) |
+| Severity | `Violation`, `Warning` and `Info` all count against conformance, unless the report narrows it with `sh:conformanceDisallows` (s03) | [2.1.4](https://www.w3.org/TR/shacl/#severity) |
 | Focus node | The node that was checked | [3.6.2.1](https://www.w3.org/TR/shacl/#results-focus-node) |
 | Path | The property the constraint is about; blank for a constraint on the node itself. A compound path is written out, as `^bs:heldAt` or `bs:within*` | [3.6.2.2](https://www.w3.org/TR/shacl/#results-path) |
 | Value | The offending value, where there is one. A count has none | [3.6.2.3](https://www.w3.org/TR/shacl/#results-value) |

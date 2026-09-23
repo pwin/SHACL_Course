@@ -39,7 +39,7 @@
 #            https://www.w3.org/TR/sparql12-query/#x9-property-paths
 #            SHACL section 5 SPARQL-based Constraints
 #            https://www.w3.org/TR/shacl/#sparql-constraints
-#  REPORTS   conforms -- 0 violations, 2 warnings, 0 info; 2 shapes
+#  REPORTS   does not conform -- 0 violations, 2 warnings, 0 info; 2 shapes
 # ==========================================================================
 
 @prefix bt:  <https://example.org/bookshop-trail/> .

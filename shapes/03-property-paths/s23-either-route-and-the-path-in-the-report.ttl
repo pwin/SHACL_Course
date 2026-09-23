@@ -45,7 +45,7 @@
 #            https://www.w3.org/TR/shacl/#property-path-alternative
 #            SHACL 3.6.2.2 sh:resultPath
 #            https://www.w3.org/TR/shacl/#results-path
-#  REPORTS   conforms -- 0 violations, 0 warnings, 3 info; 4 shapes
+#  REPORTS   does not conform -- 0 violations, 0 warnings, 3 info; 4 shapes
 # ==========================================================================
 
 @prefix bt: <https://example.org/bookshop-trail/> .

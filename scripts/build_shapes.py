@@ -84,17 +84,17 @@ def module_readme(module: str, lessons: list) -> str:
             "",
             "`python scripts/compare_pyshacl.py` runs eight of this course's lessons through pySHACL 0.40 "
             "as well and prints both reports side by side. The directional literals in the data "
-            "(`@ar--rtl`) are stripped first, because rdflib does not read them. What it showed while "
-            "this course was written:",
+            "(`@ar--rtl`) are stripped first, because rdflib does not read them. What it shows with "
+            "the engine at 0.3.2:",
             "",
             "| Lesson | The engine in the editor | pySHACL | Why |",
             "|---|---|---|---|",
-            "| s03 six shops without a website | conforms, 6 warnings | does not conform, 6 warnings | the specification's default counts warnings against conformance; this build does not |",
+            "| s03 six shops without a website | does not conform, 6 warnings | the same | the specification's default counts warnings against conformance; this engine did not until 0.3.0 |",
             "| s05 messages and severities | 7 violations, 1 warning, 7 infos | the same | severity does not inherit from node shape to property shape on either |",
             "| s14 comparing years | 2 violations | 2 violations | pySHACL cannot compare the gYear either; the STR cast works on both |",
             "| s18 comparing two properties | 10 violations, 58 infos | error | `sh:lessThanOrEquals` on gYear values stops pySHACL with an exception |",
             "| s32 what a query can put in the result | 12 infos | 12 violations | `sh:severity` inside `sh:sparql` is SHACL 1.2; pySHACL takes the shape's severity |",
-            "| s41 a required language | conforms, 3 warnings | does not conform, 3 warnings | conformance again; the component itself agrees |",
+            "| s41 a required language | does not conform, 3 warnings | the same | the component agrees, and since 0.3.0 so does the verdict |",
             "| s53, s57 SHACL 1.2 and RDF 1.2 | runs | error | rdflib does not parse the `{\\| ... \\|}` annotations in the 1.2 data |",
             "",
         ]

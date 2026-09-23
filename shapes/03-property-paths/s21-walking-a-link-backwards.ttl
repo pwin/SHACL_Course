@@ -45,7 +45,7 @@
 #            https://www.w3.org/TR/shacl/#property-path-inverse
 #            SHACL 2.3.1.3 Alternative Paths
 #            https://www.w3.org/TR/shacl/#property-path-alternative
-#  REPORTS   conforms -- 0 violations, 4 warnings, 5 info; 10 shapes
+#  REPORTS   does not conform -- 0 violations, 4 warnings, 5 info; 10 shapes
 # ==========================================================================
 
 @prefix bt:   <https://example.org/bookshop-trail/> .

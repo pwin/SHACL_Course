@@ -51,7 +51,7 @@
 #            https://www.w3.org/TR/shacl/#pre-binding
 #            SHACL 5.3.1 Pre-bound Variables in SPARQL Constraints
 #            https://www.w3.org/TR/shacl/#sparql-constraints-prebound
-#  REPORTS   conforms -- 0 violations, 0 warnings, 8 info; 2 shapes
+#  REPORTS   does not conform -- 0 violations, 0 warnings, 8 info; 2 shapes
 # ==========================================================================
 
 @prefix bt:  <https://example.org/bookshop-trail/> .

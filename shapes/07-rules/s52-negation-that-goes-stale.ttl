@@ -43,7 +43,7 @@
 #            https://www.w3.org/TR/shacl12-rules/#desc-negation
 #            SHACL 1.2 Rules 4.4 Stratification
 #            https://www.w3.org/TR/shacl12-rules/#stratification
-#  REPORTS   conforms -- 0 violations, 6 warnings, 0 info; 8 shapes
+#  REPORTS   does not conform -- 0 violations, 6 warnings, 0 info; 8 shapes
 # ==========================================================================
 
 @prefix bt:  <https://example.org/bookshop-trail/> .

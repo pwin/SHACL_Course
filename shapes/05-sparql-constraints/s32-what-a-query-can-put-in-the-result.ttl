@@ -50,7 +50,7 @@
 #            https://www.w3.org/TR/shacl/#sparql-constraints-variables
 #            SHACL 2.1.5 Declaring Messages for a Shape
 #            https://www.w3.org/TR/shacl/#message
-#  REPORTS   conforms -- 0 violations, 0 warnings, 12 info; 4 shapes
+#  REPORTS   does not conform -- 0 violations, 0 warnings, 12 info; 4 shapes
 # ==========================================================================
 
 @prefix bt:  <https://example.org/bookshop-trail/> .

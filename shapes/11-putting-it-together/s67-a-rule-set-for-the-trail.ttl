@@ -43,7 +43,7 @@
 #            https://www.w3.org/TR/shacl-af/#rules
 #            SHACL-AF 8.6 SPARQL Rules
 #            https://www.w3.org/TR/shacl-af/#SPARQLRule
-#  REPORTS   conforms -- 0 violations, 1 warning, 6 info; 11 shapes
+#  REPORTS   does not conform -- 0 violations, 1 warning, 6 info; 11 shapes
 # ==========================================================================
 
 @prefix bt:  <https://example.org/bookshop-trail/> .

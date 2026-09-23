@@ -42,7 +42,7 @@
 #            https://www.w3.org/TR/sparql12-query/#x11-aggregates
 #            SHACL 5.3.1 Pre-bound Variables in SPARQL Constraints
 #            https://www.w3.org/TR/shacl/#sparql-constraints-prebound
-#  REPORTS   conforms -- 0 violations, 1 warning, 1 info; 4 shapes
+#  REPORTS   does not conform -- 0 violations, 1 warning, 1 info; 4 shapes
 # ==========================================================================
 
 @prefix bt:  <https://example.org/bookshop-trail/> .

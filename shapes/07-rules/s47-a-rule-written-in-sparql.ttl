@@ -43,7 +43,7 @@
 #            https://www.w3.org/TR/shacl-af/#SPARQLRule
 #            SPARQL 1.2 Query 16.2 CONSTRUCT
 #            https://www.w3.org/TR/sparql12-query/#x16-2-construct
-#  REPORTS   conforms -- 0 violations, 0 warnings, 27 info; 6 shapes
+#  REPORTS   does not conform -- 0 violations, 0 warnings, 27 info; 6 shapes
 # ==========================================================================
 
 @prefix bt:  <https://example.org/bookshop-trail/> .

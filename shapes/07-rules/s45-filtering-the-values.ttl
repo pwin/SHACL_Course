@@ -44,7 +44,7 @@
 #            https://www.w3.org/TR/shacl-af/#node-expressions-filter-shape
 #            SHACL-AF section 6 Node Expressions
 #            https://www.w3.org/TR/shacl-af/#node-expressions
-#  REPORTS   conforms -- 0 violations, 0 warnings, 33 info; 7 shapes
+#  REPORTS   does not conform -- 0 violations, 0 warnings, 33 info; 7 shapes
 # ==========================================================================
 
 @prefix bt:  <https://example.org/bookshop-trail/> .
