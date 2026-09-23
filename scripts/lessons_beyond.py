@@ -96,7 +96,10 @@ s(
    sh:SPARQLFunction            error             "custom function ... is not supported" (s69)
    sh:resultAnnotation          silent            results appear without the annotation
    ?message in a constraint     silent            sh:message is used instead (s32)
-   sh:severity as annotation    silent            Violation (s57)
+
+   enforced since engine 0.3.0, and silent before it:
+   sh:severity as annotation    enforced          the annotated severity is used
+   sh:reificationRequired       enforced          unannotated values are reported
 
    canary  ->  1 row, so the run happened
 """,
