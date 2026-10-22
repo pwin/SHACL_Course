@@ -23,11 +23,11 @@ Each `.ttl` file carries its own explanation: what it checks, how it works, a di
 | Lesson | Checks | Data |
 |---|---|---|
 | [s69 A function you cannot call](s69-a-function-you-cannot-call.ttl) | A SHACL function that turns a gYear into an integer -- declared, refused by this engine, and replaced by the same expression inline. | `bookshop-trail-1.1.ttl` |
-| [s70 Targets the engine ignores](s70-targets-the-engine-ignores.ttl) | A SPARQL target type with a parameter, and sh:uniqueValuesFor: two features this build reads and does nothing with. | `bookshop-trail-1.1.ttl` |
+| [s70 Targets the engine ignores](s70-targets-the-engine-ignores.ttl) | A SPARQL target type with a parameter, which this build reads and does nothing with, and sh:uniqueValuesFor, which runs only in the form the specification gives it. | `bookshop-trail-1.1.ttl` |
 
 ## What this engine does with each feature
 
-Measured against `shacl-wasm-node` 0.2.0, the build the Turtle Editor Viewer ships, while this course was written. *runs* means the lesson shows it; *error* means the engine refuses and says why; *silent* means the feature is read and ignored, and the report looks the same as if it had passed -- the case to test for before relying on anything in that row.
+Measured against `shacl-wasm-node` 0.2.0 when this course was written, and re-measured against 0.3.4, the build the Turtle Editor Viewer ships. *runs* means the lesson shows it; *error* means the engine refuses and says why; *silent* means the feature is read and ignored, and the report looks the same as if it had passed -- the case to test for before relying on anything in that row. Where a row changed between the two builds, its note says what 0.2.0 did: an upgrade that moves a feature between columns is the reason to re-test one.
 
 | Feature | Defined in | This build | Lesson | Note |
 |---|---|---|---|---|
@@ -35,41 +35,42 @@ Measured against `shacl-wasm-node` 0.2.0, the build the Turtle Editor Viewer shi
 | Comparisons on xsd:gYear | SHACL 4.3, 4.5 | **runs, with a difference** | s14, s18, s61 | Range and pair comparisons cannot compare gYear values and report every one. xsd:date compares as expected. Cast through STR() in a SPARQL constraint. |
 | Recursive shapes | SHACL 3.4.3 | **runs, with a difference** | s29 | Undefined by the specification. A check already in progress for the same node and shape is treated as passing, so a cycle in the data is not detected by recursion. |
 | sh:severity on a node shape | SHACL 2.1.4 | **runs** | s05 | Applies to constraints on the node shape only; property shapes take their own. As specified. |
-| Warnings, infos and sh:conforms | SHACL 3.6.1.1 | **runs, with a difference** | s03 | Only sh:Violation counts against conformance in this build. The specification's default disallows Warning and Info too; engine 0.3.0 follows it. |
-| Several sh:message values | SHACL 2.1.5 | **runs, with a difference** | s05 | Joined into one string rather than reported as separate values. |
+| Warnings, infos and sh:conforms | SHACL 3.6.1.1 | **runs** | s03 | Violations, warnings and infos all count against conformance unless the report narrows it with sh:conformanceDisallows, as specified. Engine 0.2.0 counted violations only. |
+| Several sh:message values | SHACL 2.1.5 | **runs, with a difference** | s05 | Joined into one string in the editor's result list. The report graph keeps them as separate sh:resultMessage values. |
 | sh:sparql constraints, $this, $PATH, ?value, ?path | SHACL section 5 | **runs** | s30-s38 |  |
-| ?message in a SPARQL constraint | SHACL 5.3.2 | **silent** | s32 | Ignored; sh:message is used. {?var} templates are not filled either. |
+| ?message in a SPARQL constraint | SHACL 5.3.2 | **silent** | s32 | Ignored; sh:message is used. {?var} templates in it are filled from the row, which engine 0.2.0 left as written. |
 | $shapesGraph, $currentShape | SHACL 5.3.1 | **runs** | s37 |  |
 | sh:severity on a sh:sparql constraint | SHACL 1.2 SPARQL 3.2 | **runs** | s32 | A 1.2 addition. SHACL 1.0 allows severity on shapes only, and a 1.0 validator such as pySHACL reports such rows as violations. |
 | MINUS, VALUES, SERVICE under pre-binding | SHACL Appendix A | **error** | s34 | Refused with a message naming the construct. SERVICE is refused in constraints, targets and rules alike; it remains allowed in queries run from the SPARQL panel. |
 | A SPARQL target whose query does not parse | SHACL-AF 3.1 | **silent** | s33 | Selects nothing. The same query in sh:sparql is an error. |
-| An aggregate projected as ?value | SHACL 5.3.2 | **silent** | s35 | The row is reported; sh:value is not set. |
+| An aggregate projected as ?value | SHACL 5.3.2 | **silent** | s35 | The row is reported without sh:value, unless the computed value happens to occur in the data: a term the query computes rather than reads does not reach the report. |
 | Custom constraint components, ASK and SELECT validators | SHACL section 6 | **runs** | s39-s42 |  |
 | SELECT property validators | SHACL 6.2.3.1 | **runs, with a difference** | s41, s42 | Run once per value node rather than once per focus node, so a validator that counts or tests for absence does not run when the path has no values. Use a node validator to count. |
-| Parameters in sh:message ({$param}) | SHACL 6.2.2 | **silent** | s40 | Left as written. |
+| Parameters in sh:message ({$param}) | SHACL 6.2.2 | **runs** | s40 | Filled with the parameter's value. Engine 0.2.0 left them as written. |
 | sh:labelTemplate | SHACL 6.2.2 | **silent** | s40 | Accepted; nothing in the report uses it. |
 | SPARQL-based targets, sh:SPARQLTarget | SHACL-AF 3.1 | **runs** | s33 |  |
 | SPARQL-based target types, sh:SPARQLTargetType | SHACL-AF 3.2 | **silent** | s70 | Compiled and counted; gives the shape no focus nodes. |
 | Result annotations, sh:resultAnnotation | SHACL-AF section 4 | **silent** |  | Results appear without the annotation. |
 | SHACL functions, sh:SPARQLFunction | SHACL-AF section 5 | **error** | s69 | 'The custom function ... is not supported'. |
-| Node expressions: sh:this, constants, [ sh:path ], filter shapes, sh:union, sh:intersection | SHACL-AF section 6 | **runs** | s43-s46 | Inside rules. Anything else is an error rather than an empty result. |
-| Expression constraints, sh:expression | SHACL-AF section 7 | **error** |  | 'unsupported node expression' for every form but sh:this. |
+| Node expressions: sh:this, constants, [ sh:path ], filter shapes, sh:union, sh:intersection | SHACL-AF section 6 | **runs** | s43-s46 | In rules, in sh:expression, and in sh:values, which engine 0.2.0 ignored. |
+| Expression constraints, sh:expression | SHACL-AF section 7 | **runs** |  | A value node whose expression does not evaluate to true is reported. |
 | Triple rules, SPARQL rules, sh:condition, sh:order, sh:deactivated | SHACL-AF section 8 | **runs** | s43-s52 | One pass as specified; 'rules, iterated' repeats to a fixpoint, up to ten rounds. |
 | RDFS inference before validation | SHACL 1.5 | **runs** | s58, s59 | rdfs2, rdfs3, rdfs5, rdfs7, rdfs9, rdfs11. Opt-in. |
 | sh:ShapeClass | SHACL 1.2 Core 3.1.3.3 | **runs** | s08 |  |
 | sh:targetWhere | SHACL 1.2 Core 3.1.3.6 | **runs** | s33 |  |
 | sh:shape in the data graph | SHACL 1.2 Core 3.1.3.7 | **runs** | s56 |  |
-| sh:severity as an annotation on one constraint | SHACL 1.2 Core 3.1.4 | **silent** | s57 | The result takes the shape's severity. Engine 0.3.0 honours it. |
-| sh:select as a target or node expression | SHACL 1.2 SPARQL 6.1 | **runs** | s33 | As a target. sh:values with sh:select is not enforced in this build. |
+| sh:severity as an annotation on one constraint | SHACL 1.2 Core 3.1.4 | **runs** | s57 | That constraint's results take the annotated severity. Engine 0.2.0 read it and used the shape's. |
+| sh:select as a target or node expression | SHACL 1.2 SPARQL 6.1 | **runs** | s33 | As a target, and inside sh:values. Engine 0.2.0 ran it as a target only. |
 | sh:reifierShape | SHACL 1.2 Core 7.8.5 | **runs** | s53 |  |
-| sh:reificationRequired | SHACL 1.2 Core 7.8.5 | **silent** | s53 | Parsed, not enforced. Engine 0.3.0 enforces it. |
+| sh:reificationRequired | SHACL 1.2 Core 7.8.5 | **runs** | s53 | A value with no reifier is a violation. Engine 0.2.0 parsed it and let such values pass. |
 | sh:nodeKind sh:TripleTerm | SHACL 1.2 Core 7.1.3 | **error** |  | 'not a known node kind'. |
 | sh:singleLine | SHACL 1.2 Core 7.4.4 | **runs** | s57 |  |
 | List constraints: sh:memberShape, sh:minListLength, sh:maxListLength | SHACL 1.2 Core 7.5 | **runs** | s57 |  |
 | sh:subsetOf | SHACL 1.2 Core 7.6.3 | **runs** |  | Measured on a small example; the dataset has no natural pair of properties for it. |
-| sh:uniqueValuesFor | SHACL 1.2 Core 7.9.5 | **silent** | s70 | Duplicates pass. |
-| sh:values, sh:defaultValue (derived values) | SHACL 1.2 Node Expressions | **silent** |  | The property shape's other constraints see only asserted values. |
-| The shnex: node expression library | SHACL 1.2 Node Expressions section 4 | **error** |  | Not implemented; the vocabulary changed between drafts in 2026. |
+| sh:uniqueValuesFor | SHACL 1.2 Core 7.9.5 | **runs** | s70 | On a node shape, naming the path whose values must differ across its focus nodes, as the 1.2 test suite writes it. Written on a property shape naming a class, the form this course first used, it is read and ignored. |
+| sh:values (derived values) | SHACL 1.2 Node Expressions | **runs** |  | The node expression supplies the value nodes the path would have. Engine 0.2.0 ignored it, and the other constraints saw only asserted values. |
+| sh:defaultValue | SHACL 1.2 Node Expressions | **silent** |  | The property shape's constraints see only asserted values. |
+| The shnex: node expression library | SHACL 1.2 Node Expressions section 4 | **runs** |  | In the namespace of the current draft, http://www.w3.org/ns/shacl-node-expr#, measured with shnex:pathValues inside sh:values. The vocabulary changed between drafts in 2026, so check which one a shapes graph was written against. Engine 0.2.0 did not implement it. |
 | SHACL 1.2 Rules (SPARQL-RL) | SHACL 1.2 Rules | **error** | s52 | A different language from SHACL-AF rules; not implemented. s52 reads it for the stratification it adds. |
 | SHACL-JS, the compact syntax | SHACL-JS, SHACL Compact Syntax | **error** |  | Not implemented. |
 | Named graphs in TriG or N-Quads data | SHACL 3.2 | **runs, with a difference** |  | Merged into one data graph. A result does not say which graph its focus node came from. |
@@ -94,7 +95,7 @@ Three other validators are in common use, and each implements a different SHACL.
 
 ### Measured against pySHACL
 
-`python scripts/compare_pyshacl.py` runs eight of this course's lessons through pySHACL 0.40 as well and prints both reports side by side. The directional literals in the data (`@ar--rtl`) are stripped first, because rdflib does not read them. What it shows with the engine at 0.3.2:
+`python scripts/compare_pyshacl.py` runs eight of this course's lessons through pySHACL 0.40 as well and prints both reports side by side. The directional literals in the data (`@ar--rtl`) are stripped first, because rdflib does not read them. What it shows with the engine at 0.3.4:
 
 | Lesson | The engine in the editor | pySHACL | Why |
 |---|---|---|---|

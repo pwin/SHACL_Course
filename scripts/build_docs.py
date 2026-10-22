@@ -267,8 +267,8 @@ def matrix_html() -> str:
     return f"""
 <section class="module ref" id="engine">
   <div class="module-head"><div class="module-num">Reference</div><h2>What this engine does with each feature</h2>
-  <p class="module-blurb">Measured against <code>shacl-wasm-node</code> 0.3.2, the build the editor ships, while the course was
-  written. <em>runs</em> means a lesson shows it; <em>error</em> means the engine refuses and says why; <em>silent</em> means the
+  <p class="module-blurb">Measured against <code>shacl-wasm-node</code> 0.2.0 when the course was written, and re-measured
+  against 0.3.4, the build the editor ships. <em>runs</em> means a lesson shows it; <em>error</em> means the engine refuses and says why; <em>silent</em> means the
   feature is read and ignored, and the report looks the same as if it had passed. Module 12's README has the comparison with
   pySHACL.</p></div>
   <div class="tablewrap"><table><thead><tr><th>Feature</th><th>Defined in</th><th>This build</th><th>Lesson</th><th>Note</th></tr></thead>

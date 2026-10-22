@@ -17,10 +17,12 @@
 #    require every reifier of a bs:founded triple to conform to a shape --
 #    a source of class bs:Source, a confidence no higher than 1.
 #    sh:reifierShape checks the annotation rather than the value. The claim
-#    on Marginalia has no source and a confidence of 1.4, and is the one
-#    violation. sh:reificationRequired true would also demand that every
-#    founding year be a claim; this build of the engine reads it and does
-#    not enforce it, so the 28 unannotated years pass.
+#    on Marginalia has no source and a confidence of 1.4, and is one
+#    violation. sh:reificationRequired true also demands that every
+#    founding year be a claim, so the 29 years that carry no reifier are
+#    violations too: thirty in all. Engine 0.2.0, the build this course was
+#    first written against, read sh:reificationRequired and let those 29
+#    pass.
 #
 #  DIAGRAM
 #       bt:shop-ex-libris  bs:founded "1919"^^xsd:gYear {| bs:claimedBy bt:source-national-register ; bs:confidence 0.99 |} .
@@ -38,9 +40,9 @@
 #    - A cardinality that was right for plain data may be wrong for
 #      annotated data. Decide whether several claims are allowed before
 #      you constrain the count.
-#    - sh:reificationRequired is in the draft and parsed by this engine,
-#      and not enforced by this build. Check what your validator does
-#      with it.
+#    - sh:reificationRequired turns every unannotated value into a
+#      violation. Earlier builds of this engine read it and ignored it,
+#      so check what your validator does with it.
 #
 #  DATA      bookshop-trail-faulty-1.2.ttl
 #  LOAD IT   https://semantechs.co.uk/turtle-editor-viewer/?dot=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fdata%2Fbookshop-trail-faulty-1.2.ttl&shapes=https%3A%2F%2Fraw.githubusercontent.com%2Fpwin%2FSHACL_Course%2Fmain%2Fshapes%2F08-shacl-1-2%2Fs53-two-founding-dates.ttl

@@ -76,23 +76,29 @@ specs.register("s69", "afFunctions", "afSparqlFunction")
 s(
     sid="s70", module=M,
     title="Targets the engine ignores",
-    asks="A SPARQL target type with a parameter, and sh:uniqueValuesFor: two features this build reads and does nothing with.",
+    asks="A SPARQL target type with a parameter, which this build reads and does nothing with, and sh:uniqueValuesFor, which runs only in the form the specification gives it.",
     how="SHACL-AF's sh:SPARQLTargetType declares a reusable, parameterised "
         "target: bt:FoundedBefore takes a year and selects the shops opened "
         "before it. This engine compiles the shape, counts it, and gives it "
         "no focus nodes, so bt:OldShopShape checks nothing and the report "
-        "says nothing about it. sh:uniqueValuesFor, from SHACL 1.2 Core, is "
-        "the same story: read, counted, not enforced, so two works with the "
-        "same ISBN would pass. Neither produces an error, and that is the "
-        "hazard the whole of module 10 is about. bt:UniqueISBN is the "
-        "portable form of the second: a SPARQL constraint that finds a "
-        "second work with the same ISBN. The canary is the one result. The "
+        "says nothing about it. No error is raised, and that is the hazard "
+        "the whole of module 10 is about. sh:uniqueValuesFor, from SHACL 1.2 "
+        "Core, is enforced in the form the 1.2 test suite uses: on a node "
+        "shape, naming the path whose values must differ across its focus "
+        "nodes. This lesson first wrote it on a property shape naming a "
+        "class, a form from an earlier draft, and the engine read that and "
+        "ignored it -- the same hazard again. No two works share an ISBN "
+        "here, so bt:UniqueByComponent reports nothing, and a satisfied "
+        "constraint and an ignored one give the same report until the data "
+        "is made to fail. bt:UniqueISBN is the "
+        "portable form: a SPARQL constraint that finds a second work with "
+        "the same ISBN. The canary is the one result. The "
         "table in this module's README lists every feature by what this "
         "build does with it.",
     diagram="""
    feature                      this build        symptom
    sh:SPARQLTargetType          silent            no focus nodes, no error, shape counted
-   sh:uniqueValuesFor           silent            duplicates pass
+   sh:uniqueValuesFor           runs              on a node shape; on a property shape naming a class, silent
    sh:SPARQLFunction            error             "custom function ... is not supported" (s69)
    sh:resultAnnotation          silent            results appear without the annotation
    ?message in a constraint     silent            sh:message is used instead (s32)
@@ -106,9 +112,9 @@ s(
     learn=[
         "A feature that is read and ignored looks like conformance. Test each one with data that must fail.",
         "For a parameterised target, a sh:SPARQLTarget with the value written in, or sh:targetWhere, does the same job here.",
-        "For uniqueness, a SPARQL constraint that looks for a second node with the same value runs on every engine.",
+        "For uniqueness, a SPARQL constraint that looks for a second node with the same value runs on every engine; sh:uniqueValuesFor needs one that implements SHACL 1.2.",
     ],
-    tryit="Give two works the same ISBN in the data tab and validate. bt:UniqueISBN reports both; bt:UniqueByComponent reports neither.",
+    tryit="Give two works the same ISBN in the data tab and validate. bt:UniqueISBN and bt:UniqueByComponent both report the two works.",
     body="""
 bt:FoundedBefore
     a               sh:SPARQLTargetType ;
@@ -124,12 +130,12 @@ bt:OldShopShape
     sh:property [ sh:path bs:website ; sh:minCount 1 ; sh:severity sh:Info ;
                   sh:message "Never reported here: the target type is not implemented." ] .
 
-# Read, not enforced.
+# On a node shape, as SHACL 1.2 writes it: no two works may share an ISBN.
 bt:UniqueByComponent
-    a               sh:NodeShape ;
-    sh:targetClass  bs:Work ;
-    sh:property [ sh:path bs:isbn ; sh:uniqueValuesFor bs:Work ;
-                  sh:message "Never reported here: sh:uniqueValuesFor is not enforced." ] .
+    a                   sh:NodeShape ;
+    sh:targetClass      bs:Work ;
+    sh:uniqueValuesFor  bs:isbn ;
+    sh:message          "Two works share an ISBN." .
 
 # The portable form.
 bt:UniqueISBN

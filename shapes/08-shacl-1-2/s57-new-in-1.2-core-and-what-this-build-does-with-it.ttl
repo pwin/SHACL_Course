@@ -4,7 +4,7 @@
 #
 #  CHECKS
 #    Notices stay on one line; the vocabulary's union classes are lists of
-#    classes; and the 1.2 features this engine reads but does not enforce.
+#    classes; and a severity written on one constraint.
 #
 #  HOW IT WORKS
 #    Two of the SHACL 1.2 Core additions run here. sh:singleLine true
@@ -12,16 +12,18 @@
 #    to two lines (F36) is reported. The list constraints check RDF
 #    collections: the vocabulary, which is part of the data, declares two
 #    classes as owl:unionOf lists, and sh:memberShape [ sh:class owl:Class
-#    ] with sh:minListLength 2 checks each list's members and length. Three
-#    more 1.2 features are accepted by this build without effect, and are
-#    recorded here so that nobody relies on them: sh:severity written as an
-#    annotation on a single constraint, sh:reificationRequired (s53), and
-#    sh:uniqueValuesFor. Module 12 has the full table. Where a feature is
-#    read and ignored, the report looks the same as if the feature had
-#    passed, which is the case for a canary shape (s09). One note on
-#    syntax: the editor's Turtle parser accepts an annotation inside [ ...
-#    ] only as the last item, so the annotated constraint is written on a
-#    named property shape.
+#    ] with sh:minListLength 2 checks each list's members and length. Two
+#    more 1.2 features were read and ignored by engine 0.2.0, the build
+#    this course was first written against, and are enforced from 0.3.0:
+#    sh:severity written as an annotation on a single constraint, which
+#    makes Halfmoon's missing label a warning rather than a violation, and
+#    sh:reificationRequired (s53). sh:uniqueValuesFor runs too, written on
+#    a node shape (s70). Module 12 has the full table. A feature that is
+#    read and ignored gives the same report as one that passed, which is
+#    the case for a canary shape (s09), and an upgrade can move a feature
+#    from one to the other. One note on syntax: the editor's Turtle parser
+#    accepts an annotation inside [ ... ] only as the last item, so the
+#    annotated constraint is written on a named property shape.
 #
 #  DIAGRAM
 #       sh:singleLine true                  "Translated fiction ...\nAsk at the counter."   ->  violation
@@ -30,16 +32,19 @@
 #       sh:property [ sh:path owl:unionOf ; sh:memberShape [ sh:class owl:Class ] ; sh:minListLength 2 ]
 #            each member checked, length checked                                     ->  passes
 #
-#       read but not enforced by this build:
-#       sh:minCount 1 {| sh:severity sh:Warning |}      the result is still a Violation
-#       sh:reificationRequired true                     unannotated values pass
-#       sh:uniqueValuesFor bs:Work                      duplicates pass
+#       enforced since engine 0.3.0, read and ignored before it:
+#       sh:minCount 1 {| sh:severity sh:Warning |}      the result is a Warning
+#       sh:reificationRequired true                     unannotated values are violations (s53)
+#
+#       sh:uniqueValuesFor bs:isbn  on a node shape     duplicates are reported (s70)
 #
 #  WHAT TO TAKE AWAY
-#    - sh:singleLine and the list constraints are the 1.2 Core additions
-#      this engine runs today.
+#    - sh:singleLine, the list constraints, annotated severities,
+#      sh:reificationRequired and sh:uniqueValuesFor are 1.2 Core
+#      additions this engine runs.
 #    - A feature an engine parses and ignores fails silently. Test each
-#      1.2 feature with data that should fail before trusting it.
+#      1.2 feature with data that should fail before trusting it, and
+#      again after an upgrade.
 #    - Module 12 is the reference for what runs, what errors, and what is
 #      silent.
 #
@@ -78,7 +83,8 @@ bt:UnionClassShape
         sh:message        "A union class lists at least two classes." ;
     ] .
 
-# Read by this build, not enforced: the result is a Violation, not a Warning.
+# The annotation sets this one constraint's severity, so the result is a
+# Warning. Engine 0.2.0 read it and used the shape's severity, a Violation.
 # The property shape is named rather than written as [ ... ] because the
 # editor's Turtle parser wants an annotation to be the last thing inside a
 # blank node's brackets; a named subject has no such restriction.
@@ -90,5 +96,5 @@ bt:AnnotatedSeverity
 bt:AnnotatedSeverity-label
     a            sh:PropertyShape ;
     sh:path      rdfs:label ;
-    sh:message   "Written as a Warning on the constraint; reported by this build as a Violation." ;
+    sh:message   "Written as a Warning on the constraint, and reported as one." ;
     sh:minCount  1 {| sh:severity sh:Warning |} .

@@ -195,9 +195,10 @@ s(
         "bs:website and ?value to the shop's label, so the rows read as "
         "'this shop, this property, this name'. bt:MessageProbe binds "
         "?message, and its rows still show the sh:message text: this build "
-        "ignores a bound ?message, and it also leaves {?var} templates "
-        "unfilled. Keep row-specific detail in ?value and the words in "
-        "sh:message. sh:severity inside the sh:sparql block works, and is "
+        "ignores a bound ?message. It does fill {?var} templates in "
+        "sh:message from the row, which engine 0.2.0 did not. Keep "
+        "row-specific detail in ?value and the words in sh:message. "
+        "sh:severity inside the sh:sparql block works, and is "
         "used here to make both shapes report information rather than "
         "violations. That placement is SHACL 1.2: the 1.0 specification "
         "allows sh:severity on shapes only, and pySHACL, which follows 1.0, "
@@ -213,12 +214,12 @@ s(
    ?path         sh:resultPath        {$path}
    ?message      sh:resultMessage     -- not on this engine: sh:message is used
 
-   {?anyOtherVariable}   left as written
+   {?anyOtherVariable}   the row's value (left as written by engine 0.2.0)
 """,
     learn=[
         "?value and ?path are the two projections worth using. They shape the row the reader sees.",
         "A node-shape SPARQL constraint has no path unless the query binds ?path.",
-        "Portability: ?message and {?var} are in the specification and not in this engine; sh:severity on a sh:sparql block is in SHACL 1.2 and not in 1.0 validators. sh:message with {$value}, and severity on the shape, work everywhere.",
+        "Portability: ?message is in the specification and not in this engine; sh:severity on a sh:sparql block is in SHACL 1.2 and not in 1.0 validators. sh:message with {$value}, and severity on the shape, work everywhere.",
     ],
     body="""
 bt:NoWebsite

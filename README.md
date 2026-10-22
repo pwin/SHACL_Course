@@ -245,10 +245,10 @@ table, measured. The short version:
 
 | | |
 |---|---|
-| **runs** | all of SHACL Core, SHACL-SPARQL constraints and components, SPARQL targets, `$shapesGraph`, SHACL-AF triple and SPARQL rules with conditions and order, RDFS inference, and from 1.2: `sh:ShapeClass`, `sh:targetWhere`, `sh:shape`, `sh:reifierShape`, `sh:singleLine`, the list constraints |
+| **runs** | all of SHACL Core, SHACL-SPARQL constraints and components, SPARQL targets, `$shapesGraph`, SHACL-AF triple and SPARQL rules with conditions and order, `sh:expression`, RDFS inference, and from 1.2: `sh:ShapeClass`, `sh:targetWhere`, `sh:shape`, `sh:reifierShape`, `sh:reificationRequired`, `sh:singleLine`, the list constraints, `sh:uniqueValuesFor`, `sh:values`, severities annotated on one constraint |
 | **runs, with a difference** | comparisons on `xsd:gYear` fail every value (s14); SELECT property validators run per value (s42); recursive shapes treat an in-progress check as passing (s29) |
-| **error** | SHACL functions, `sh:expression`, `sh:nodeKind sh:TripleTerm`, `MINUS`/`VALUES`/`SERVICE` under pre-binding, SPARQL-RL |
-| **silent** | `sh:SPARQLTargetType`, `sh:uniqueValuesFor`, `sh:resultAnnotation` |
+| **error** | SHACL functions, `sh:nodeKind sh:TripleTerm`, `MINUS`/`VALUES`/`SERVICE` under pre-binding, SPARQL-RL |
+| **silent** | `sh:SPARQLTargetType`, `sh:resultAnnotation`, `?message` in a SPARQL constraint, `sh:defaultValue` |
 
 The last row is the one to know: a feature that is read and ignored looks like
 conformance. Lessons s09, s60 and s70 are about noticing.
