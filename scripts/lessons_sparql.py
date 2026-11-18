@@ -108,9 +108,11 @@ s(
         "before its author was born (F11). bt:LivingFeature is on the clean "
         "data too: a lecture in 2025 by an author who died in 2004. That may "
         "be a memorial event or a mistake, so it is a warning. Its year comes "
-        "from SUBSTR(STR(?date), 1, 4): YEAR() is defined on xsd:dateTime, and "
-        "on an xsd:date this engine leaves it unbound, so the filter would "
-        "never be true.",
+        "from SUBSTR(STR(?date), 1, 4), which works on any engine. SPARQL 1.1 "
+        "defines YEAR() on xsd:dateTime, and up to 0.3.6 this engine left "
+        "YEAR() of an xsd:date unbound, so a filter on it was never true. From "
+        "0.3.7 it gives the year; SUBSTR stays because it does not depend on "
+        "that.",
     diagram="""
    property shape:  sh:path bs:shelfPrice ;  sh:sparql [ ... $this $PATH ?value ... ]
         $PATH is replaced by the shape's path before the query runs
@@ -121,7 +123,7 @@ s(
 
    xsd:integer(SUBSTR(STR("2025-04-05"^^xsd:date), 1, 4)) = 2025
         >  xsd:integer(STR("2004"^^xsd:gYear)) = 2004
-   (YEAR() of an xsd:date is unbound on this engine; see q130 in the SPARQL course)
+   (YEAR() of an xsd:date was unbound on this engine up to 0.3.6; see q130 in the SPARQL course)
 """,
     learn=[
         "A join is a SPARQL constraint. If the condition mentions two nodes, it is not a Core constraint.",
