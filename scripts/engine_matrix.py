@@ -3,10 +3,10 @@
 for module 12, drawn on by the module README and the course document.
 
 The rows were measured against shacl-wasm-node 0.2.0 when this course was
-written, and re-measured against 0.3.4, the build the Turtle Editor Viewer
-ships. Where a row changed between the two, its note says what 0.2.0 did: an
-upgrade that moves a feature from one column to another is the reason to
-re-test one. `status` is one of:
+written, re-measured against 0.3.4, and again against 0.3.8, the build the
+Turtle Editor Viewer ships, which moved no row. Where a row changed between
+0.2.0 and 0.3.4, its note says what 0.2.0 did: an upgrade that moves a feature
+from one column to another is the reason to re-test one. `status` is one of:
 
     runs      implemented; the lesson shows it
     partial   implemented with a difference from the specification worth knowing

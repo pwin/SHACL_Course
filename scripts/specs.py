@@ -227,7 +227,7 @@ READING_LIST = [
         (SPARQL12, "SHACL 1.2 SPARQL Extensions",
          "The 1.2 edition of SHACL-SPARQL: constraints, constraint components, prefix declarations, and SPARQL-based node expressions."),
         (NODEEXPR12, "SHACL 1.2 Node Expressions",
-         "A library of node expression functions with a namespace of its own. The engine in the editor runs it at 0.3.4, in the namespace of the current draft; module 12 has the details."),
+         "A library of node expression functions with a namespace of its own. The engine in the editor runs it at 0.3.8, in the namespace of the current draft; module 12 has the details."),
         (RULES12, "SHACL 1.2 Rules (SPARQL-RL)",
          "A rule language with stratified negation, different in design from SHACL-AF rules. Not implemented by the engine; the last lesson of module 07 reads it for what it fixes."),
     ]),
