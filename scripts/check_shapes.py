@@ -81,6 +81,9 @@ def check_expectation(lesson, r: dict) -> list[str]:
     for text in e.get("messages", []):
         if not any(text in x["message"] for x in r["results"]):
             problems.append(f"no result whose message contains {text!r}")
+    for text in e.get("values", []):
+        if not any(text in (x.get("value") or "") for x in r["results"]):
+            problems.append(f"no result whose sh:value contains {text!r}")
     return problems
 
 

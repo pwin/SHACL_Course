@@ -79,7 +79,7 @@ Open [s01](../01-first-shapes/s01-every-bookshop-has-a-name.ttl)'s LOAD IT link,
 The same engine runs outside the browser, on the same files:
 
 ```powershell
-npm install --prefix scripts                       # once: shacl-wasm-node and n3
+npm install --prefix scripts                       # once: semops-wasm-node and n3
 node scripts/validate.mjs --data data/bookshop-trail-faulty.ttl `
                           --shapes shapes/01-first-shapes/s02-reading-a-violation.ttl
 node scripts/validate.mjs --data data/bookshop-trail-1.1.ttl `
@@ -89,7 +89,7 @@ node scripts/validate.mjs ... --format turtle > report.ttl      # the report as 
 
 `scripts/validate.mjs` does what the editor does before it calls the engine -- names the nested property shapes, renders the compound paths -- so its output matches the browser's row for row. It is also what the course's own checker uses: `python scripts/check_shapes.py` validates every lesson and compares the report with what the lesson says it should be, and `python scripts/check_faults.py` confirms that every numbered fault is caught by the lesson that names it.
 
-The native forms of the engine are `cargo install` from [github.com/pwin/SHACL_Engine](https://github.com/pwin/SHACL_Engine), `pip install shacl` for Python, and `npm install shacl-wasm-node` for Node. All four take the same inference modes.
+The engine comes from [SemOps System](https://github.com/pwin/SemopsSystem), in every form: `npm install semops-wasm-node` for Node, `pip install semops-system` for Python (`so.shacl`), and the `shacl` and `semops` binaries from its [releases](https://github.com/pwin/SemopsSystem/releases). All of them take the same inference modes.
 
 ## What is where
 

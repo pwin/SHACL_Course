@@ -26,12 +26,13 @@ Everything here runs in one environment:
 
 | Environment | What it is | Where it comes from |
 |---|---|---|
-| **Turtle Editor Viewer** | Browser editor with a SHACL panel. The engine is a WebAssembly build of the [`shacl` validator](https://github.com/pwin/SHACL_Engine): SHACL Core, SHACL-SPARQL, SHACL-AF rules, RDF 1.2 data, RDFS inference. Nothing you load leaves the page. | **[semantechs.co.uk/turtle-editor-viewer](https://semantechs.co.uk/turtle-editor-viewer/)** — used online, nothing to install |
+| **Turtle Editor Viewer** | Browser editor with a SHACL panel. The engine is [SemOps System](https://github.com/pwin/SemopsSystem)'s SHACL validator, compiled to WebAssembly (`semops-wasm`): SHACL Core, SHACL-SPARQL, SHACL-AF rules, RDF 1.2 data, RDFS inference. Nothing you load leaves the page. | **[semantechs.co.uk/turtle-editor-viewer](https://semantechs.co.uk/turtle-editor-viewer/)** — used online, nothing to install |
 
 The same engine runs from the command line, and the course's own checker uses
-it that way: `scripts/validate.mjs` (Node, `npm install shacl-wasm-node`),
-`pip install shacl` for Python, `cargo install` for the native binary. All of
-them give the report the browser gives.
+it that way: `scripts/validate.mjs` (Node, `npm install semops-wasm-node`),
+`pip install semops-system` for Python (`so.shacl`), and the `shacl` and
+`semops` binaries from the [SemOps System releases](https://github.com/pwin/SemopsSystem/releases). All of
+them run the engine the browser runs.
 
 Every lesson has been **run through the engine** and its report compared with
 what the lesson says it should find. Where the engine's behaviour is its own —
@@ -225,7 +226,7 @@ only way it can: a shape at Info severity that reports each inferred triple.
 ### Running it yourself
 
 ```powershell
-npm install --prefix scripts          # once: shacl-wasm-node and n3
+npm install --prefix scripts          # once: semops-wasm-node and n3
 node scripts/validate.mjs --data data/bookshop-trail-faulty.ttl `
                           --shapes shapes/01-first-shapes/s02-reading-a-violation.ttl
 node scripts/validate.mjs --data data/bookshop-trail-1.1.ttl `

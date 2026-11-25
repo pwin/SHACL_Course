@@ -55,11 +55,11 @@ def module_readme(module: str, lessons: list) -> str:
             "## What this engine does with each feature",
             "",
             "Measured against `shacl-wasm-node` 0.2.0 when this course was written, and re-measured "
-            "against 0.3.8, the build the Turtle Editor Viewer ships. *runs* means the lesson shows it; "
+            "against `semops-wasm-node` 0.31.0, the SemOps System build the Turtle Editor Viewer ships. *runs* means the lesson shows it; "
             "*error* means the engine refuses and says why; *silent* means the feature is read and "
             "ignored, and the report looks the same as if it had passed -- the case to test for before "
-            "relying on anything in that row. Where a row changed between the two builds, its note says "
-            "what 0.2.0 did: an upgrade that moves a feature between columns is the reason to re-test one.",
+            "relying on anything in that row. Where a row changed between builds, its note says "
+            "what the earlier build did: an upgrade that moves a feature between columns is the reason to re-test one.",
             "",
             engine_matrix.markdown_table(),
             "",
@@ -87,7 +87,8 @@ def module_readme(module: str, lessons: list) -> str:
             "`python scripts/compare_pyshacl.py` runs eight of this course's lessons through pySHACL 0.40 "
             "as well and prints both reports side by side. The directional literals in the data "
             "(`@ar--rtl`) are stripped first, because rdflib does not read them. What it shows with "
-            "the engine at 0.3.8:",
+            "the engine at shacl-wasm-node 0.3.8, and at semops-wasm-node 0.31.0, whose reports for these eight lessons "
+            "are identical row for row:",
             "",
             "| Lesson | The engine in the editor | pySHACL | Why |",
             "|---|---|---|---|",

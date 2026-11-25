@@ -60,7 +60,7 @@ scripts` fetches two from the npm registry, under their own licences:
 
 | Package | What for | Licence |
 |---|---|---|
-| [`shacl-wasm-node`](https://www.npmjs.com/package/shacl-wasm-node) | the SHACL engine, the same WebAssembly build the Turtle Editor Viewer runs | MIT or Apache-2.0 |
+| [`semops-wasm-node`](https://www.npmjs.com/package/semops-wasm-node) | the SHACL engine, from [SemOps System](https://github.com/pwin/SemopsSystem): the same WebAssembly build the Turtle Editor Viewer runs | MIT or Apache-2.0 |
 | [`n3`](https://www.npmjs.com/package/n3) | parsing the Turtle before it reaches the engine, as the editor does | MIT |
 
 `scripts/compare_pyshacl.py` uses [pySHACL](https://github.com/RDFLib/pySHACL)

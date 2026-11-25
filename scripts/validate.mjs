@@ -24,7 +24,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { basename } from 'node:path'
 
 const require = createRequire(import.meta.url)
-const { Validator } = require('shacl-wasm-node')
+const { Validator } = require('semops-wasm-node')
 const { DataFactory, Parser, Writer } = require('n3')
 
 const SH = 'http://www.w3.org/ns/shacl#'

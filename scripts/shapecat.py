@@ -143,7 +143,9 @@ class Lesson:
     extra_prefixes: tuple = ()
     # What the checker must find. Counts are per severity; `focus` is a list
     # of local names that must appear among the focus nodes; `nofocus` must
-    # not. A lesson with no expectation still has to run without error.
+    # not; `messages` and `values` are texts some result's message or
+    # sh:value must contain. A lesson with no expectation still has to run
+    # without error.
     expect: dict = field(default_factory=dict)
     queries: list = field(default_factory=list)
     # Where this lesson sits inside its module. Ids are permanent, so a lesson

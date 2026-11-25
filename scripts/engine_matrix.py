@@ -3,10 +3,12 @@
 for module 12, drawn on by the module README and the course document.
 
 The rows were measured against shacl-wasm-node 0.2.0 when this course was
-written, re-measured against 0.3.4, and again against 0.3.8, the build the
-Turtle Editor Viewer ships, which moved no row. Where a row changed between
-0.2.0 and 0.3.4, its note says what 0.2.0 did: an upgrade that moves a feature
-from one column to another is the reason to re-test one. `status` is one of:
+written, re-measured against 0.3.4 and 0.3.8, and again against
+semops-wasm-node 0.31.0: SemOps System's build, which the Turtle Editor Viewer
+ships from its 2.5.0. 0.3.8 moved no row. 0.31.0 moved one: a computed ?value
+now reaches the report (s35). Where a row changed, its note says what the
+earlier build did: an upgrade that moves a feature from one column to another
+is the reason to re-test one. `status` is one of:
 
     runs      implemented; the lesson shows it
     partial   implemented with a difference from the specification worth knowing
@@ -29,7 +31,7 @@ ROWS = [
     ("sh:severity on a sh:sparql constraint", "SHACL 1.2 SPARQL 3.2", "runs", "s32", "A 1.2 addition. SHACL 1.0 allows severity on shapes only, and a 1.0 validator such as pySHACL reports such rows as violations."),
     ("MINUS, VALUES, SERVICE under pre-binding", "SHACL Appendix A", "error", "s34", "Refused with a message naming the construct. SERVICE is refused in constraints, targets and rules alike; it remains allowed in queries run from the SPARQL panel."),
     ("A SPARQL target whose query does not parse", "SHACL-AF 3.1", "silent", "s33", "Selects nothing. The same query in sh:sparql is an error."),
-    ("An aggregate projected as ?value", "SHACL 5.3.2", "silent", "s35", "The row is reported without sh:value, unless the computed value happens to occur in the data: a term the query computes rather than reads does not reach the report."),
+    ("A computed ?value: an aggregate, BIND or STR()", "SHACL 5.3.2", "runs", "s35", "Reported as sh:value, as specified. Up to shacl-wasm-node 0.3.8 the row came without sh:value unless the computed term happened to occur in the data, while {?value} in sh:message still showed it."),
     ("Custom constraint components, ASK and SELECT validators", "SHACL section 6", "runs", "s39-s42", ""),
     ("SELECT property validators", "SHACL 6.2.3.1", "partial", "s41, s42", "Run once per value node rather than once per focus node, so a validator that counts or tests for absence does not run when the path has no values. Use a node validator to count."),
     ("Parameters in sh:message ({$param})", "SHACL 6.2.2", "runs", "s40", "Filled with the parameter's value. Engine 0.2.0 left them as written."),

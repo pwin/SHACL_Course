@@ -2,7 +2,7 @@
   "name": "shacl-course-scripts",
   "version": "1.0.0",
   "private": true,
-  "description": "The Bookshop Trail SHACL course: the same SHACL engine the Turtle Editor Viewer runs, from the command line",
+  "description": "The Bookshop Trail SHACL course: the same SHACL engine the Turtle Editor Viewer runs (SemOps System's semops-wasm), from the command line",
   "author": "Peter Winstanley",
   "license": "MIT",
   "scripts": {
@@ -10,6 +10,6 @@
   },
   "dependencies": {
     "n3": "^2.7.12",
-    "shacl-wasm-node": "^0.3.8"
+    "semops-wasm-node": "^0.31.0"
   }
 }

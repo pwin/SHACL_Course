@@ -398,28 +398,29 @@ s(
     asks="No shop holds more than a hundred copies in total, and no shop has held more than three events.",
     how="A SPARQL constraint can aggregate, as long as the grouping keeps "
         "$this. bt:StockTotal sums bs:copies over every record at the shop, "
-        "GROUP BY $this, and keeps the groups over a hundred with HAVING. One "
+        "GROUP BY $this, and keeps the groups over a hundred. One "
         "shop on the clean data, Ex Libris, holds 101. bt:BusyShop counts "
         "events the same way. Both are facts rather than faults, so both "
-        "are warnings or information. One limitation of this build: an "
-        "aggregate projected as ?value does not reach the result, so the "
-        "rows name the shop and not the total. The SPARQL course's module 04 "
-        "is the reference for the aggregation itself.",
+        "are warnings or information. Each projects its total as ?value, so "
+        "the total reaches the result as sh:value, as SHACL 5.3.2 asks: the "
+        "row gives the shop and its total, 101. Builds before semops-wasm 0.31.0 "
+        "dropped a computed ?value from the result. The SPARQL course's "
+        "module 04 is the reference for the aggregation itself.",
     diagram="""
-   SELECT $this WHERE {
-     { SELECT $this (SUM(?c) AS ?total)
+   SELECT $this ?value WHERE {
+     { SELECT $this (SUM(?c) AS ?value)
        WHERE { ?r bs:atShop $this ; bs:copies ?c }
        GROUP BY $this }
-     FILTER ( ?total > 100 )
+     FILTER ( ?value > 100 )
    }
 
    $this is pre-bound in the inner query too: one group, one row, one test
-   bt:shop-ex-libris   101   ->  a row
+   bt:shop-ex-libris   101   ->  a row, with sh:value 101
 """,
     learn=[
         "Aggregate inside a sub-select that groups by $this and projects it; test the total outside.",
         "HAVING and a FILTER on the projected total are equivalent here. The sub-select form is the one that keeps $this in scope for both.",
-        "On this engine an aggregate does not become sh:value. Say the threshold in sh:message; the focus node says which shop.",
+        "Project the total as ?value and it reaches the report as sh:value, so the row carries the number. Builds before semops-wasm 0.31.0 dropped a computed ?value.",
     ],
     body="""
 bt:StockTotal
@@ -428,13 +429,13 @@ bt:StockTotal
     sh:sparql [
         sh:prefixes  bt:prefixes ;
         sh:severity  sh:Warning ;
-        sh:message   "{$this} holds more than a hundred copies in total." ;
+        sh:message   "{$this} holds {?value} copies in total, more than a hundred." ;
         sh:select    \"\"\"
-            SELECT $this WHERE {
-              { SELECT $this (SUM(?c) AS ?total)
+            SELECT $this ?value WHERE {
+              { SELECT $this (SUM(?c) AS ?value)
                 WHERE { ?record bs:atShop $this ; bs:copies ?c }
                 GROUP BY $this }
-              FILTER ( ?total > 100 )
+              FILTER ( ?value > 100 )
             }
         \"\"\" ;
     ] .
@@ -445,19 +446,19 @@ bt:BusyShop
     sh:sparql [
         sh:prefixes  bt:prefixes ;
         sh:severity  sh:Info ;
-        sh:message   "{$this} has held more than three events." ;
+        sh:message   "{$this} has held {?value} events, more than three." ;
         sh:select    \"\"\"
-            SELECT $this WHERE {
-              { SELECT $this (COUNT(?event) AS ?n)
+            SELECT $this ?value WHERE {
+              { SELECT $this (COUNT(?event) AS ?value)
                 WHERE { ?event bs:heldAt $this }
                 GROUP BY $this }
-              FILTER ( ?n > 3 )
+              FILTER ( ?value > 3 )
             }
         \"\"\" ;
     ] .
 """,
     data=D11, declare=True,
-    expect=dict(conforms=False, warnings=1, infos=1, focus=["shop-ex-libris"]),
+    expect=dict(conforms=False, warnings=1, infos=1, focus=["shop-ex-libris"], values=["101"]),
 )
 specs.register("s35", "sparqlAggregates", "prebound")
 
